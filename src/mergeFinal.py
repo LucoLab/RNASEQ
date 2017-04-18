@@ -86,7 +86,7 @@ def create_logger(config):
 
     return logger
 
-def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis):
+def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNumber):
     """
     Parse all files produced by RMATS.
     All files have fixed names and in the same directories.
@@ -202,24 +202,64 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis):
                         logratio = foldchange2logratio(retval)
                         #print('logratio'+str(logratio))
                     
+                    # List of reads per group
                     list_int_ic_sample1 = list(map(int,ic_sample_1.split(",")))
                     list_int_sc_sample1 = list(map(int,sc_sample_1.split(",")))
                     
                     list_int_ic_sample2 = list(map(int,ic_sample_2.split(",")))
                     list_int_sc_sample2 = list(map(int,sc_sample_2.split(",")))
                     
+                    # List of reads per Inclusion (Control+Test) & Exclusion(Control + Test)
                     list_reads_ic = list_int_ic_sample1 + list_int_ic_sample2
                     list_reads_sc = list_int_sc_sample1 + list_int_sc_sample2
-                  
-                   
-                    
+                
                     nbr_zero_sc = list_reads_sc.count(0)
                     
                     nbr_zero_ic = list_reads_ic.count(0)
                     
+                    index_read_count_ic_sample1  = 0
+                    index_read_count_sc_sample2  = 0
+                    
+                    # TEST 1
+                    for read_count_ic1 in  list_int_ic_sample1  :
+                        if read_count_ic1 >= readsNumber :
+                            index_read_count_ic_sample1 = index_read_count_ic_sample1 + 1
+                    
+
+                    for read_count_sc2 in  list_int_sc_sample2  :
+                        if read_count_sc2 >= readsNumber :
+                            index_read_count_sc_sample2 = index_read_count_sc_sample2 + 1
+                        
+                    # More than a half has read count > X for INCLUSION in TEST and more than a half has read count > X for EXLUCSION in CONTROL
+                    test1 = 0 
+                    if ( (round(index_read_count_ic_sample1/len(list_int_ic_sample1),1) >=  0.5 ) and (round(index_read_count_sc_sample2/len(list_int_sc_sample2),1) >=  0.5 ) ):
+                        test1 = 1
+                    # TEST 2        
+                    index_read_count_sc_sample1  = 0  
+                    index_read_count_ic_sample2  = 0
+
+                    for read_count_sc1 in  list_int_sc_sample1  :
+                        if read_count_sc1 >= readsNumber :
+                            index_read_count_sc_sample1 = index_read_count_sc_sample1 + 1
+                    
+
+                    for read_count_ic2 in  list_int_ic_sample2  :
+                        if read_count_ic2 >= readsNumber :
+                            index_read_count_ic_sample2 = index_read_count_ic_sample2 + 1
+                            
+                    # More than a half has read count > X for EXCLUSION in TEST and more than a half has read count > X for INCLUSION in CONTROL
+                    test2 = 0      
+                    if ( (round(index_read_count_ic_sample2/len(list_int_ic_sample2),1) >=  0.5 ) and  (round(index_read_count_sc_sample1/len(list_int_sc_sample1),1) >=  0.5 ) ) :
+                        test2 = 1
+
+                    
+                    if ( test1 + test2 == 0 ) :
+                        continue  
+
+                    '''
                     low_read_count = "Under20"
                     
-                    ''' NB READS AT LEAST '''
+                    #NB READS AT LEAST
                     for read_count in  list_reads_ic  :
                         if read_count >= 20 :
                             low_read_count = "-"
@@ -244,7 +284,8 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis):
                     if ( count_sc + count_ic == 2 ) :
                         low_read_count = "LowInIncAndExc"    
                         continue  
-                  
+                    '''
+                            
                     ic_sample_1_sum = sum(list_int_ic_sample1)/len(ic_sample_1)
                     sc_sample_1_sum = sum(list_int_sc_sample1)/len(sc_sample_1)
                     ic_sample_2_sum = sum(list_int_ic_sample2)/len(ic_sample_2)
@@ -280,8 +321,8 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis):
                                                                     "pvalueFisher" : pvalue_fisher,
                                                                     "pval" : pvalue,
                                                                     "fisher"     : fisher,
-                                                                    "id_ucsc"     : id_ucsc_event[:-2],
-                                                                    'low_read_count' : low_read_count
+                                                                    "id_ucsc"     : id_ucsc_event[:-2]
+                                                                    #'low_read_count' : low_read_count
                                                                    
     
                                                                   }
@@ -619,6 +660,7 @@ if __name__ == '__main__':
     
     parser.add_argument("-c","--config",action="store",help="Path to a json file.",required=True,type=str,dest='file_config')
     parser.add_argument("-mc","--modeCount",action="store", default=1 ,help="with or without ReadsOnTarget",required=False,type=str,dest='modeCount')
+    parser.add_argument("-r","--readsNumber",action="store",help="Number of reads used to filter out events.",required=False,default=10,type=int,dest='readsNumber')
 
 
     parameters = parser.parse_args()
@@ -634,7 +676,7 @@ if __name__ == '__main__':
     logger.info("file_config : "+parameters.file_config)
     logger.info("path_to_output : "+config.parameters['path_to_output'])
     logger.info("    ")
-    
+
     namefile = ""
     if (parameters.modeCount == "2" ) :
         namefile = "MATS.JunctionCountOnly.txt"
@@ -677,7 +719,7 @@ if __name__ == '__main__':
         logger.info ("GO...")
         logger.info ("")
 
-        catalog[analyse_name_loop] = parse_all_splicing_files(config.parameters["analysis"][analyse_name_loop]["splicing_dir"],config.parameters["list_files_splicing"], catalog[analyse_name_loop])
+        catalog[analyse_name_loop] = parse_all_splicing_files(config.parameters["analysis"][analyse_name_loop]["splicing_dir"],config.parameters["list_files_splicing"], catalog[analyse_name_loop],    parameters.readsNumber)
         
         logger.info ("")
 
