@@ -197,7 +197,7 @@ To trim the poor quality 3' end of reads, use the trimFastq.py script found in t
 This script is in python2. (see also in Alternative Splicing section to switch to python2 env)
 
 ```shell
-	source active python2
+	source activate python2
 	python bin/trimFastq.py pathToFastQ pathToTrimmedOutputFastQtrimmed.fastq DesiredLength
 ```
 
