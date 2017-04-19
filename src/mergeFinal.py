@@ -752,7 +752,7 @@ if __name__ == '__main__':
     logger.info ("######################################################################")
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter(config.parameters['path_to_output']+"/"+config.chrono+'/Events.'+config.parameters["list_files_splicing"]+"."+namefile+'.xlsx', engine='xlsxwriter')
+    writer = pd.ExcelWriter(config.parameters['path_to_output']+"/"+config.chrono+'/Events.'+config.parameters["list_files_splicing"][0]+"."+namefile+'.xlsx', engine='xlsxwriter')
     logger.info (namefile)
 
     dict_analysis               = config.parameters.get("analysis")
