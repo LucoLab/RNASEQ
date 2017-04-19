@@ -182,6 +182,7 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     diffinc     = lineElements[24]
                     pvalue      = lineElements[20]
                     fdr         = lineElements[21]
+     
                     highlight = "hg38."+chrom+":"+lineElements[5]+"-"+lineElements[6]+"|"+"hg38."+chrom+":"+lineElements[7]+"-"+lineElements[8]
 
                 # FILTER OUT BAD EVENTS
@@ -303,6 +304,7 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     fisher = "-"
                     #print(pvalue)
                     if (pvalue_fisher < 0.05) : fisher = "PASS"
+                    
                     array_splicing_data[as_type][key_id_ucsc_event] = { "Ensembl":ensembl_id, 
                                                                     "Symbol":gene, 
                                                                     "Chromosome":chrom, 
@@ -317,6 +319,8 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                                                                     "diffinc"     : diffinc,
                                                                     "logRatioIncLevel"     : logratio,
                                                                     'fdr' : fdr,
+                                                                    'log10fdr' :  int(math.log10(float(fdr))) if float(fdr) > 0 else -math.inf,
+
                                                                     "FCIncLevel"     : retval,
                                                                     "pvalueFisher" : pvalue_fisher,
                                                                     "pval" : pvalue,
@@ -554,8 +558,8 @@ def create_header(dict_samples, list_analysisTocheck):
     """
     headerListOfFields                                    = []
     list_all_TPM_replicates_in_samples_for_quantification = []
-    header_variabe = ["Test:inclusion.reads|exclusion.reads","Control:inclusion.reads|exclusion.reads","Test.PSI|Control.PSI","PSI-Diff","PSI-Log2Ratio","PSI-FoldChange","PSI-Pval","PSI-FDR","Fisher","Gene-Log2FoldChange","Gene-FoldChange","GenePadj","Match"] #,""
-    coreHeaderFields =  ['ID-UCSC-HG38','ID-UCSC-HG19','Epissage','Event','Symbol','Ensembl','Coordinate HG38|HG19','Strand','Gene_biotype']               
+    header_variabe = ["Test:inclusion.reads|exclusion.reads","Control:inclusion.reads|exclusion.reads","Test.PSI|Control.PSI","PSI-Diff","PSI-Log2Ratio","PSI-FoldChange","PSI-Pval","LOG10-PSI-FDR","Fisher","Gene-Log2FoldChange","Gene-FoldChange","GenePadj","Match"] #,""
+    coreHeaderFields =  ['ID-UCSC-HG38','ID-UCSC-HG19','Epissage','Event','Symbol','Ensembl','Window Edges HG38|HG19',"Inc/Excl Edges HG38",'Strand','Gene_biotype']               
 
     
     for sample in sorted(dict_samples.keys()) :
@@ -1048,6 +1052,8 @@ if __name__ == '__main__':
                                          catalog[analyse_name][event][id_ucsc]["Symbol"],
                                          catalog[analyse_name][event][id_ucsc]["Ensembl"],
                                          id_ucsc_clean+"|"+chro+":"+str(starthg19[0][1]  if  starthg19 else "None" )+"-"+str(endhg19[0][1]  if  endhg19 else "None"),
+                                         chro+" "+catalog[analyse_name][event][id_ucsc]["highlight"][catalog[analyse_name][event][id_ucsc]["highlight"].index(":"):][1:].replace("-"," ")+" "+catalog[analyse_name][event][id_ucsc]["diffinc"]+"_"+catalog[analyse_name][event][id_ucsc]["Symbol"]+" "+str(catalog[analyse_name][event][id_ucsc]["FCIncLevel"])+" "+catalog[analyse_name][event][id_ucsc]["Strand"] ,
+
                                          catalog[analyse_name][event][id_ucsc]["Strand"],
                                          catalog[analyse_name][event][id_ucsc]["gene_biotype"]
                                         ]
@@ -1070,7 +1076,7 @@ if __name__ == '__main__':
                                                           ,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["logRatioIncLevel"])
                                                           ,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["FCIncLevel"])
                                                           ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["pval"].replace("e","E")
-                                                         ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["fdr"]
+                                                         ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["log10fdr"]
                                                           ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["fisher"]
                                                           ,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["log2fc"] )
                                                           ,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["fc"] )
@@ -1114,8 +1120,8 @@ if __name__ == '__main__':
         worksheet.set_column('E:E', 12)
         worksheet.set_column('F:F', 20)
         worksheet.set_column('G:G', 25)
-        worksheet.set_column('H:H', 5)
-        worksheet.set_column('I:I', 15)
+        worksheet.set_column('H:H', 25)
+        worksheet.set_column('I:I', 5)
         worksheet.set_column('J:BZ', 20)
 
 
