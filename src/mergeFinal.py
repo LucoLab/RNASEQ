@@ -147,26 +147,26 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                 if (as_type == "A3SS") : 
                     if (strand == "-") :
                         id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[10]+":"+strand  #flankingES    flankingEE
-                        highlight = "hg38."+chrom+":"+lineElements[8]+"-"+lineElements[6]
+                        highlight = "hg38."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[6]
                     if (strand == "+") :
                         id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[6]+":"+strand  #flankingES    flankingEE
-                        highlight = "hg38."+chrom+":"+lineElements[5]+"-"+lineElements[7]
+                        highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[7]
                         
                 if (as_type == "A5SS") :  
                     if (strand == "-") :
                         id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[6]+":"+strand  #flankingES    flankingEE
-                        highlight = "hg38."+chrom+":"+lineElements[5]+"-"+lineElements[7]
+                        highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[7]
                     if (strand =="+") :
                         id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[10]+":"+strand  #flankingES    flankingEE
-                        highlight = "hg38."+chrom+":"+lineElements[8]+"-"+lineElements[6]  
+                        highlight = "hg38."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[6]  
                         
                 if (as_type == "SE" ) :   
                     id_ucsc_event = chrom+":"+lineElements[7]+"-"+lineElements[10]+":"+strand  #upstreamES downstreamEE
-                    highlight = "hg38."+chrom+":"+lineElements[5]+"-"+lineElements[6]
+                    highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[6]
                 
                 if (as_type == "RI" ) :
                     id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[6]+":"+strand  #upstreamES downstreamEE
-                    highlight = "hg38."+chrom+":"+lineElements[8]+"-"+lineElements[9]  
+                    highlight = "hg38."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[9]  
 
                 if (as_type == "MXE" ) :  
                     key_id_ucsc_event = chrom+":"+(":".join(lineElements[5:13]))+":"+strand  #flankingES    flankingEE    
@@ -183,7 +183,7 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     pvalue      = lineElements[20]
                     fdr         = lineElements[21]
      
-                    highlight = "hg38."+chrom+":"+lineElements[5]+"-"+lineElements[6]+"|"+"hg38."+chrom+":"+lineElements[7]+"-"+lineElements[8]
+                    highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[6]+"|"+"hg38."+chrom+":"+str(int(lineElements[7])+1)+"-"+lineElements[8]
 
                 # FILTER OUT BAD EVENTS
                 if (float(pvalue)   < 0.05  and float(fdr)   < 0.01 ) : 
@@ -319,7 +319,7 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                                                                     "diffinc"     : diffinc,
                                                                     "logRatioIncLevel"     : logratio,
                                                                     'fdr' : fdr,
-                                                                    'log10fdr' :  int(math.log10(float(fdr))) if float(fdr) > 0 else -math.inf,
+                                                                    'log10fdr' :  int(abs(math.log10(float(fdr)))) if float(fdr) > 0 else -math.inf,
 
                                                                     "FCIncLevel"     : retval,
                                                                     "pvalueFisher" : pvalue_fisher,
@@ -1032,8 +1032,8 @@ if __name__ == '__main__':
                             starthg19_e2 = lo.convert_coordinate(chro,int(m1.group(5)),catalog[analyse_name][event][id_ucsc]["Strand"])
                             endhg19_e2   = lo.convert_coordinate(chro, int(m1.group(6)),catalog[analyse_name][event][id_ucsc]["Strand"])
                             #print("e1"+str(starthg19_e2[0][1])+"-"+str(endhg19_e2[0][1]))
-    
-                            highlight_hg19 = "&highlight=hg19."+chro+":"+str(starthg19_e1[0][1] if  starthg19_e1 else "None" )+"-"+str(endhg19_e1[0][1] if  endhg19_e1 else "None")+"|"+chro+":"+str(starthg19_e2[0][1] if  starthg19_e2 else "None" )+"-"+str(endhg19_e2[0][1] if  endhg19_e2 else "None" )
+                            # ADDED +1 TO CORRECT  O-BASED ERROR DISPLAY
+                            highlight_hg19 = "&highlight=hg19."+chro+":"+str(starthg19_e1[0][1]+1 if  starthg19_e1 else "None" )+"-"+str(endhg19_e1[0][1] if  endhg19_e1 else "None")+"|"+chro+":"+str(starthg19_e2[0][1]+1 if  starthg19_e2 else "None" )+"-"+str(endhg19_e2[0][1] if  endhg19_e2 else "None" )
                             
                         else : 
                             
@@ -1042,7 +1042,8 @@ if __name__ == '__main__':
                             endhg19_simple   = lo.convert_coordinate(chro, int(m2.group(3)),catalog[analyse_name][event][id_ucsc]["Strand"])
                             #print(starthg19_simple)
                             #print(endhg19_simple)
-                            highlight_hg19 = "&highlight=hg19."+chro+":"+str(starthg19_simple[0][1] if  starthg19_simple else "None")+"-"+str(endhg19_simple[0][1] if  endhg19_simple else "None")
+                            # ADDED +1 TO CORRECT  O-BASED ERROR DISPLAY
+                            highlight_hg19 = "&highlight=hg19."+chro+":"+str(starthg19_simple[0][1]+1 if  starthg19_simple else "None")+"-"+str(endhg19_simple[0][1] if  endhg19_simple else "None")
     
                         features.extend([ 
                                          "https://genome-euro.ucsc.edu/cgi-bin/hgTracks?hgS_doOtherUser=submit&hgS_otherUserName=jp&hgS_otherUserSessionName=EMT_RNASEQ_hg38&position="+id_ucsc_clean+"&highlight="+catalog[analyse_name][event][id_ucsc]["highlight"],
@@ -1083,7 +1084,7 @@ if __name__ == '__main__':
                                                            ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["padj"]
                                                            ,analysis_to_ucscKey[analyse_name_bis]
                                                          ])
-                                    else :  
+                                    else :   
                                         for i in range(0,length_fields_sometimes_empty) : features.extend(["."])
     
     
