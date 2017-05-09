@@ -90,4 +90,7 @@ rm ${DIR}/${NAME}_rev2.bam.bai
 
 #$SAMTOOLS view -b -f 96 $DATA > rev2.bam
 #$SAMTOOLS index rev2.bam
+<<<<<<< HEAD
 
+=======
+>>>>>>> 642f291badb64b3ee04f91773db884d09052cc60

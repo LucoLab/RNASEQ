@@ -1,0 +1,54 @@
+{
+"path_to_output" : "pathToOutput",
+"list_files_splicing" : ["SE"],
+"analysis":
+		{ 
+		 "Cond1_vs_Cond2": { 
+		 	"splicing_dir": "pathToRMATSOutput",
+	     	 "expression_file_path": "pathToExpression/DESEQ_all_res_annotated_sorted_pvalAdj_cond1_vs_cond2.csv",
+			"sample_control_for_quantification" : "Cond2",
+			"sample_test_for_quantification" : "Cond1"
+		 	},
+
+ 		"Cond2_vs_Cond3": { 
+		 	"splicing_dir": "pathToRMATSOutput",
+	     	"expression_file_path": "pathToExpression/DESEQ_all_res_annotated_sorted_pvalAdj_cond2_vs_cond3.csv",
+			"sample_control_for_quantification" : "Cond3",
+			"sample_test_for_quantification" : "Cond2"
+		 	}
+	    },
+"samples_for_quantification":
+		{ 
+		 "Cond1": [
+						
+						{ "replicat_id": "Cond1rep1" ,"file_path":"pathTo/Cond1rep1_quant/quant.genes.sf"},
+						{ "replicat_id": "Cond1rep2" ,"file_path":"pathTo/Cond1rep2_quant/quant.genes.sf"}
+
+		       ],	
+
+		 "Cond2": [
+						
+						{ "replicat_id": "Cond2rep1" ,"file_path":"pathTo/Cond2rep1_quant/quant.genes.sf"},
+						{ "replicat_id": "Cond2rep2" ,"file_path":"pathTo/Cond2rep2_quant/quant.genes.sf"}
+
+		       ],
+
+	       		
+		"Cond3": [
+					{ "replicat_id": "Cond3rep1","file_path":"pathTo/Cond3rep1_quant/quant.genes.sf" },
+					{ "replicat_id": "Cond3rep2" ,"file_path":"pathTo/Cond3rep2_quant/quant.genes.sf"}
+		 	]
+
+		},
+"tabs":
+		{ 
+
+		 "Cond1 vs Cond2": { "analysisTocheck": ["Cond1_vs_Cond2"],"0":"nevermind"	},
+		 "Cond2 vs Cond3": { "analysisTocheck": ["Cond2_vs_Cond3"],"0":"nevermind"	},
+		 
+		 "Cond1 vs Cond2 Intersect Cond2 vs Cond3 Decrease": { "analysisTocheck": ["Cond1_vs_Cond2","Cond2_vs_Cond3"],"1":"upper"	},
+		 "Cond1 vs Cond2 Intersect Cond2 vs Cond3 Increase": { "analysisTocheck": ["Cond1_vs_Cond2","Cond2_vs_Cond3"],"1":"lower"	},
+
+		 "Cond1 vs Cond2 Intersect Cond2 vs Cond3": { "analysisTocheck": ["Cond1_vs_Cond2","Cond2_vs_Cond3"],"1":"idem"	}
+		}
+}

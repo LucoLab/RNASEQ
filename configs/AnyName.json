@@ -1,0 +1,49 @@
+{
+"star":
+{ 
+		 "runThreadN":"32",
+		 "genomeDir":"/pathToGenomeDirectory/",
+		 "outSAMtype":"BAM SortedByCoordinate",
+		 "outSAMattrIHstart":"0"
+},
+"fastqc":
+{ 
+		 "threads":"24"
+},
+"samtools":
+{ 
+		 "cpu":"24"
+},
+"softs":
+{ 
+		 "samtools":"samtools",
+		 "star":"STAR",		 
+		 "wigToBigWig":"wigToBigWig"
+},
+"files":
+		{ 
+		 "GroupeA": { 
+		 "R1": "Reads1_R1.fastq.gz",
+	     	 "R2": "Reads1_R2.fastq.gz"
+			  },
+                 "GroupeB": { 
+		 "R1": "Reads2_R1.fastq.gz",
+	     	 "R2": "Reads2_R2.fastq.gz"
+			  },
+ 		 "GroupeC": { 
+		 "R1": "Reads3_R1.fastq.gz",
+	     	 "R2": "Reads3_R2.fastq.gz"
+			  },
+ 		 "GroupeD": { 
+		 "R1": "Reads4_R1.fastq.gz",
+	     	 "R2": "Reads4_R2.fastq.gz"
+			  }
+		 },
+"path_to_input" : "/pathToInputDirectory/",
+"path_to_output": "/pathToOutputDirectory/",
+"path_to_chrom_length_ref":"/path_to_chrom_length_ref/yourVersionOfGenome.sizes",
+"final_bam_name": "AnyName",
+"path_to_gtf":"/pathToannotation.gtf"
+}
+
+

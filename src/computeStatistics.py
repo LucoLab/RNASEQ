@@ -9,6 +9,7 @@
 :author: Villemin Jean-Philippe
 :team: Epigenetic Component of Alternative Splicing - IGH
 
+<<<<<<< HEAD
 :synopsis: Extract Theme
 
 '''
@@ -22,6 +23,14 @@ import re
 
 
 
+=======
+:synopsis: Compute statistics on Star outputs to get number of reads mapped , input reads etc...
+
+'''
+import argparse,textwrap
+import os
+import re
+>>>>>>> 642f291badb64b3ee04f91773db884d09052cc60
 
 ###########################################################################################################
 ########################################   Main   #########################################################
@@ -31,7 +40,13 @@ if __name__ == '__main__':
     '''This is just a main '''
     
     parser = argparse.ArgumentParser(description=textwrap.dedent ('''\
+<<<<<<< HEAD
     Merge statistics from STAR output
+=======
+    Merge statistics from STAR output.
+    It will create a file named statistics in current directory.
+    Each results will be push at the end of the file.
+>>>>>>> 642f291badb64b3ee04f91773db884d09052cc60
     Example : 
     python3 /home/jp/workspace/RNA-SEQ/src/computeStatistics.py -d /home/jp/Desktop/garfield/mount_archive2/commun.luco/EMT_2015_SEQ_data/EMT_RNASEQ_FILES/RNASEQ_2016_RESULTS/T0rep1_2015/10_11_2016__7_56_38/
     '''),formatter_class=argparse.RawDescriptionHelpFormatter)

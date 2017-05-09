@@ -101,8 +101,11 @@ library(plyr)
 library(pheatmap)
 library(PoiClaClu)
 library(gtools)
+<<<<<<< HEAD
 library(clusterProfiler)
 library(ReactomePA)
+=======
+>>>>>>> 642f291badb64b3ee04f91773db884d09052cc60
 
 ####################################################################################
 #####################################  Package Loading  ############################
@@ -652,7 +655,11 @@ pheatmap(mat, annotation_col=df,cellheight=10)
 dev.off()
 
 
+<<<<<<< HEAD
 #stop("ENRICHMNENT STEP WILL NOT BE DONE BECAUSE OF libpng16.so.16 bug")
+=======
+stop("ENRICHMNENT STEP WILL NOT BE DONE BECAUSE OF libpng16.so.16 bug")
+>>>>>>> 642f291badb64b3ee04f91773db884d09052cc60
 
 ####################################################################################
 ##########################      ENRICHMENT    ####################################
@@ -663,6 +670,7 @@ entrez_id  <- res_annotated_filtered$entrezgene
 ensembl_id <- res_annotated_filtered$ensembl_gene_id
 log2_fold  <- res_annotated_filtered$log2FoldChange
 
+<<<<<<< HEAD
 ####################################################################################
 ##########################      ENRICHMENT    ####################################
 ####################################################################################
@@ -739,6 +747,13 @@ dev.off()
 reactome <- enrichPathway(gene=entrez_id,organism = "human",pvalueCutoff=0.05, pAdjustMethod="BH", qvalueCutoff=0.2,readable=TRUE)
 
 write.csv(as.data.frame (reactome),file=paste0(c(dir_pathway,"DESEQ_REACTOME_ENRICHMENT.csv"),collapse="/"))
+=======
+# ##########################  REACTOME ENRICHMENT #########################################
+
+reactome <- enrichPathway(gene=entrez_id,organism = "human",pvalueCutoff=0.001, pAdjustMethod="BH", qvalueCutoff=0.05,readable=F)
+
+write.csv(summary(reactome),file=paste0(c(dir_pathway,"DESEQ_REACTOME_ENRICHMENT.csv"),collapse="/"))
+>>>>>>> 642f291badb64b3ee04f91773db884d09052cc60
 
 png(paste0(c(dir_pathway,"DESEQ_REACTOME_DOTPLOT.png"),collapse="/"),width=1000,height=1000)
 barplot(reactome, showCategory=30)
@@ -751,5 +766,77 @@ dev.off()
 #reactome <- setReadable(reactome, OrgDb = org.Hs.eg.db, keytype="ENTREZID")
 
 
+<<<<<<< HEAD
 
+=======
+# ##########################  KEGG ENRICHMENT #########################################
+
+ kegg <- enrichKEGG(entrez_id, organism="hsa", pvalueCutoff=0.001, pAdjustMethod="BH", qvalueCutoff=0.05,use_internal_data=FALSE)
+  
+ write.csv(summary(kegg),file=paste0(c(dir_pathway,"DESEQ_KEGG_ENRICHMENT.csv"),collapse="/"))
+
+ png(paste0(c(dir_pathway,"DESEQ_KEGG_DOTPLOT.png"),collapse="/"),width=1000,height=1000)
+ barplot(kegg, showCategory=30)
+ dev.off()
+ 
+ png(paste0(c(dir_pathway,"DESEQ_KEGG_ENRICHMAP.png"),collapse="/"),width=1000,height=1000)
+ try(enrichMap(kegg, vertex.label.cex=1.2, layout=igraph::layout.kamada.kawai))
+ dev.off()
+
+
+# ##########################  GO ENRICHMENT #######################################
+# 
+# 
+ go_mf <- enrichGO(ensembl_id, org.Hs.eg.db, keytype = "ENSEMBL", ont = "MF",
+          pvalueCutoff = 0.001, pAdjustMethod = "BH", qvalueCutoff = 0.05,
+          readable = FALSE)
+
+ write.csv(summary(go_mf),file=paste0(c(dir_pathway,"DESEQ_GOMF_ENRICHMENT.csv"),collapse="/"))
+ 
+ 
+ png(paste0(c(dir_pathway,"DESEQ_GOMF_DOTPLOT.png"),collapse="/"),width=1000,height=1000)
+ barplot(go_mf, showCategory=30)
+ dev.off()
+
+
+ pdf(paste0(c(dir_pathway,"DESEQ_GOMF_GOGRAPH.pdf"),collapse="/"))
+ try(plotGOgraph(go_mf))
+ dev.off()
+ 
+ png(paste0(c(dir_pathway,"DESEQ_GOMF_ENRICHMAP.png"),collapse="/"),width=1000,height=1000)
+ try(enrichMap(go_mf, vertex.label.cex=1.2, layout=igraph::layout.kamada.kawai))
+ dev.off()
+
+ #bp2 <- simplify(go_mf, cutoff=1.2, by="p.adjust", select_fun=min)
+ #png("./results/DESEQ_GOMF_ENRICHMAP_SYMPLIFY.png",width=1000,height=1000)
+ #enrichMap(bp2,vertex.label.cex=1.2, layout=igraph::layout.kamada.kawai)
+ #dev.off()
+
+ #go_mf <- setReadable(go_mf, OrgDb = org.Hs.eg.db,keytype="auto")
+ #cnetplot(go_mf,foldChange=log2_fold)
+
+
+ go_bp <- enrichGO(ensembl_id, org.Hs.eg.db, keytype = "ENSEMBL", ont = "BP",
+                pvalueCutoff = 0.001, pAdjustMethod = "BH", qvalueCutoff = 0.05,
+               readable = FALSE)
+ 
+ write.csv(summary(go_bp),file=paste0(c(dir_pathway,"DESEQ_GO_BP_ENRICHMENT.csv"),collapse="/"))
+ 
+ png(paste0(c(dir_pathway,"DESEQ_GOBP_DOTPLOT.png"),collapse="/"),width=1000,height=1000)
+ barplot(go_bp, showCategory=30)
+ dev.off()
+ 
+ png(paste0(c(dir_pathway,"DESEQ_GOBP_ENRICHMAP.png"),collapse="/"),width=1000,height=1000)
+ try(enrichMap(go_bp, vertex.label.cex=1.2, layout=igraph::layout.kamada.kawai))
+ dev.off()
+
+ pdf(paste0(c(dir_pathway,"DESEQ_GOBP_GOGRAPH.pdf"),collapse="/"))
+ try(plotGOgraph(go_bp))
+ dev.off()
+
+  #go_bp <- setReadable(go_bp, OrgDb = org.Hs.eg.db,keytype="auto")
+  #png(paste0(c(dir_pathway,"DESEQ_GOBP_CNETPLOT.png"),collapse="/"))
+  #cnetplot(go_bp,foldChange=log2_fold)
+  #dev.off()
+>>>>>>> 642f291badb64b3ee04f91773db884d09052cc60
 
