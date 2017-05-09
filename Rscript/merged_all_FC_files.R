@@ -27,11 +27,7 @@ library(RColorBrewer)
 #################################################################
 
 option_list = list(
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> 642f291badb64b3ee04f91773db884d09052cc60
   make_option(c("-d", "--dir"), type="character", default=NULL, 
               help="dir output", metavar="character")
 ); 
@@ -57,7 +53,6 @@ late_vs_unT   <- read.table(paste0(opt$dir,"DESEQ_all_res_annotated_sorted_pvalA
 late_vs_early <- read.table(paste0(opt$dir,"DESEQ_all_res_annotated_sorted_pvalAdj_late_vs_early.csv",collapse="/"),sep=",", header=FALSE)
 
 fc_dt_with_pval <- data.table(
-<<<<<<< HEAD
             GENE=early_vs_unT[,1],
             CHROM=early_vs_unT[,2],
             START=early_vs_unT[,3],
@@ -77,28 +72,8 @@ fc_dt_with_pval <- data.table(
             #mant_vs_late =mant_vs_late[,13], 
             #mant_vs_late_padj =mant_vs_late[,12] 
            )
-=======
-  GENE=early_vs_unT[,1],
-  CHROM=early_vs_unT[,2],
-  START=early_vs_unT[,3],
-  END=early_vs_unT[,4],
-  STRAND=early_vs_unT[,5],
-  BIOTYPE=early_vs_unT[,6],
-  
-  
-  early_vs_unT=early_vs_unT[,13],
-  early_vs_unT_padj=early_vs_unT[,12],
-  late_vs_unT=late_vs_unT[,13],
-  late_vs_unT_padj=late_vs_unT[,12],
-  #mant_vs_unT=  mant_vs_unT[,13],  
-  #mant_vs_unT_padj=  mant_vs_unT[,12],
-  late_vs_early=late_vs_early[,13],
-  late_vs_early_padj=late_vs_early[,12]
-  #mant_vs_late =mant_vs_late[,13], 
-  #mant_vs_late_padj =mant_vs_late[,12] 
-)
->>>>>>> 642f291badb64b3ee04f91773db884d09052cc60
 
 fc_dt_with_pval<- fc_dt_with_pval[rowSums(is.na(fc_dt_with_pval)) != ncol(fc_dt_with_pval)-6, ]
 
 write.csv(fc_dt_with_pval,row.names=FALSE,file=paste0(c(opt$dir,"FC_collapse_with_pval.csv"),collapse="/"))
+
