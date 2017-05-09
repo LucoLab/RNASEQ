@@ -1133,8 +1133,4 @@ if __name__ == '__main__':
     logger.info('=========> Finish !')
 
     
-<<<<<<< HEAD
     
-=======
-    
->>>>>>> 642f291badb64b3ee04f91773db884d09052cc60
