@@ -15,7 +15,8 @@ This tutorial goal is to make people understand how the raw data has been proces
 3. Launch Alignment
 4. Compute Statistics
 5. Gene Expression Analysis
-6. Alternative Splicing
+5. Gene Ontology Analysis
+7. Alternative Splicing
 
 
 ## Set up Environment
@@ -136,6 +137,8 @@ This will be your first input.
 Then you will pass also the matrice containing all your reads count per gene and per sample.You did that the step before.  
 You have to give the names of the condition you want to compare between each others to make the script works correctly.
 
+NB  : diff_expRscript need some R packages to work. After first launch if packages are not installed it will complain and tell you the package missing.
+
 ```R
 	Rscript diff_expRscript ${PATH_TO_SCRIPT}/diff_exp.R  --dir ${PATH_TO_DATA}/[DIR_NAME] --cond1 [COND1]  --cond2 [COND2]  ${PATH_TO_DATA}/[DESIGN.csv] ${PATH_TO_DATA}/[GENE_READ_COUNT.csv] > ${PATH_TO_DATA}/logR/[ANY_NAME].out
 ```
@@ -159,6 +162,17 @@ You can merge all this files into one. You need first to sort them by gene ensem
 ```
 At the end, it will create a file (*FC_collapse_with_pval.csv*) in the directory you passed as parameter.
 
+## Gene Ontology Analysis
+
+Plot are automatically created in the ${PATH_TO_DATA}/[DIR_NAME]/pathway . It gives you enriched ontology terms for the genes which are differentially expressed using a cutoff of | FC | > 1.5.  
+
+![REACTOME](https://github.com/ZheFrenchKitchen/pics/blob/master/DESEQ_REACTOME_DOTPLOT.png)
+
+You also can separately use enrichment.R script to pass a list of EnsemblGeneID to plot the same graphics.  
+
+```R
+	Rscript enrichment.R --file ${PATH_TO_MY_GENE_LIST}  
+```
 ## Computing TPM with Salmon
 
 TPM - Transcripts Per Million - computed here let you compare gene expression inside a condition.
