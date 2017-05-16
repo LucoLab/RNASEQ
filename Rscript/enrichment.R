@@ -1,35 +1,35 @@
 #################################################################
 #
-# date: April 14, 2017
+# date: May 10, 2017
 # platform: Ubuntu 16.04
 # R.version : 3.2.2
 # author: Villemin Jean-Philippe
 # team: Epigenetic Component of Alternative Splicing - IGH
 #
-# enrichment
+# filter_gene_expression_file
 # Usage : 
 # Rscript ${PATH_TO_SCRIPT}/enrichment.R  --file ${PATH_TO_DATA_FILE}
-# Plot enrichment for Go KEGG & INTERACTOME.
+# Filter gene expression files by a list of genes.
 #
 # Note :
-# Work only on my laptop, on the labserver there is a bug with png lib...and I'm not root to upgrade anything.
+# We use knitr and RMarkdown for the first time
 #
 #################################################################
 
-library(optparse)
-library(data.table)
-library(reshape2)
-library(gplots)
-library(ggplot2)
-library(RColorBrewer)
-library(GenomicFeatures)
-library(AnnotationDbi)
-library(biomaRt)
-library(stringr)
-library(org.Hs.eg.db)
-library(clusterProfiler)
-library(ReactomePA)
-library(plyr)
+suppressMessages(library(optparse))
+suppressMessages(library(data.table))
+suppressMessages(library(reshape2))
+suppressMessages(library(gplots))
+suppressMessages(library(ggplot2))
+suppressMessages(library(RColorBrewer))
+suppressMessages(library(GenomicFeatures))
+suppressMessages(library(AnnotationDbi))
+suppressMessages(library(biomaRt))
+suppressMessages(library(stringr))
+suppressMessages(library(org.Hs.eg.db))
+suppressMessages(library(clusterProfiler))
+suppressMessages(library(ReactomePA))
+suppressMessages(library(plyr))
 
 option_list = list(
   make_option(c("-i", "--file"), type="character", default=NULL, help="dataset file name", metavar="character")
@@ -45,7 +45,13 @@ opt <- arguments$options
 input <- opt$file
 print(input)
 # hardcoded
-dir_pathway <- dirname(input)
+
+dir.create(file.path(dirname(input), sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(input))), showWarnings = FALSE)
+
+mypath <- paste(dirname(input), sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(input)),sep='/')
+print(mypath)
+
+dir_pathway <- mypath
 
 
 data<- read.table(input, sep=",", header=TRUE)
