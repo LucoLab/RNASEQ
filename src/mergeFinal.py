@@ -195,6 +195,12 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     average_incLevel1 =  statistics.mean(map(float, incLevel1))
                     average_incLevel2 =  statistics.mean(map(float, incLevel2))
                     
+                    max_incLevel1 =  max(map(float, incLevel1))
+                    max_incLevel2 =  max(map(float, incLevel2))
+
+                    max_incLevel   = max_incLevel1 if max_incLevel1 > max_incLevel2 else max_incLevel2
+                    psi_classifier = abs(float(diffinc)/max_incLevel)
+
                     logratio     = "NaN" 
                     retval       = "NaN"
                     #print('average'+str(average_incLevel1)+' '+str(average_incLevel2))
@@ -211,12 +217,12 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     list_int_sc_sample2 = list(map(int,sc_sample_2.split(",")))
                     
                     # List of reads per Inclusion (Control+Test) & Exclusion(Control + Test)
-                    list_reads_ic = list_int_ic_sample1 + list_int_ic_sample2
-                    list_reads_sc = list_int_sc_sample1 + list_int_sc_sample2
+                    #list_reads_ic = list_int_ic_sample1 + list_int_ic_sample2
+                    #list_reads_sc = list_int_sc_sample1 + list_int_sc_sample2
                 
-                    nbr_zero_sc = list_reads_sc.count(0)
+                    #nbr_zero_sc = list_reads_sc.count(0)
                     
-                    nbr_zero_ic = list_reads_ic.count(0)
+                    #nbr_zero_ic = list_reads_ic.count(0)
                     
                     index_read_count_ic_sample1  = 0
                     index_read_count_sc_sample2  = 0
@@ -235,6 +241,7 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     test1 = 0 
                     if ( (round(index_read_count_ic_sample1/len(list_int_ic_sample1),1) >=  0.5 ) and (round(index_read_count_sc_sample2/len(list_int_sc_sample2),1) >=  0.5 ) ):
                         test1 = 1
+                   
                     # TEST 2        
                     index_read_count_sc_sample1  = 0  
                     index_read_count_ic_sample2  = 0
@@ -256,46 +263,12 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     
                     if ( test1 + test2 == 0 ) :
                         continue  
-
-                    '''
-                    low_read_count = "Under20"
-                    
-                    #NB READS AT LEAST
-                    for read_count in  list_reads_ic  :
-                        if read_count >= 20 :
-                            low_read_count = "-"
-    
-                    for read_count in  list_reads_sc   :
-                        if read_count >= 20 :
-                            low_read_count = "-"
-                    
-                    if (low_read_count == "Under20") : continue        
-                    
-                    count_sc = 0
-                    count_ic = 0
-
-                    if (nbr_zero_sc  != 0 ) :      
-                        if (round(nbr_zero_sc/len(list_reads_sc),1) >=  0.5 ) :
-                            count_sc = 1
-                            
-                    if (nbr_zero_ic  != 0 ) :       
-                        if (round(nbr_zero_ic/len(list_reads_ic),1) >=  0.5 ) :    
-                            count_ic = 1
-                    
-                    if ( count_sc + count_ic == 2 ) :
-                        low_read_count = "LowInIncAndExc"    
-                        continue  
-                    '''
-                            
+                         
                     ic_sample_1_sum = sum(list_int_ic_sample1)/len(ic_sample_1)
                     sc_sample_1_sum = sum(list_int_sc_sample1)/len(sc_sample_1)
                     ic_sample_2_sum = sum(list_int_ic_sample2)/len(ic_sample_2)
                     sc_sample_2_sum = sum(list_int_sc_sample2)/len(sc_sample_2)
                     
-                    #if ((ic_sample_1_sum  <=  10 or ic_sample_2_sum <= 10) or (sc_sample_1_sum  <=  10 or sc_sample_2_sum <= 10 ) ) :
-                        #low_read_count = "LowSumReadsPerGroup"    
-                
-
                            
                     ''' FISHER TEST '''
                     #print(str(ic_sample_1_sum)+" ->  "+str(ic_sample_2_sum)+ " -> "+str(sc_sample_1_sum)+" -> "+str(sc_sample_2_sum))
@@ -320,7 +293,7 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                                                                     "logRatioIncLevel"     : logratio,
                                                                     'fdr' : fdr,
                                                                     'log10fdr' :  int(abs(math.log10(float(fdr)))) if float(fdr) > 0 else -math.inf,
-
+                                                                    "psi_classifier"     : psi_classifier,
                                                                     "FCIncLevel"     : retval,
                                                                     "pvalueFisher" : pvalue_fisher,
                                                                     "pval" : pvalue,
@@ -558,8 +531,8 @@ def create_header(dict_samples, list_analysisTocheck):
     """
     headerListOfFields                                    = []
     list_all_TPM_replicates_in_samples_for_quantification = []
-    header_variabe = ["Test:inclusion.reads|exclusion.reads","Control:inclusion.reads|exclusion.reads","Test.PSI|Control.PSI","PSI-Diff","PSI-Log2Ratio","PSI-FoldChange","PSI-Pval","LOG10-PSI-FDR","Fisher","Gene-Log2FoldChange","Gene-FoldChange","GenePadj","Match"] #,""
-    coreHeaderFields =  ['ID-UCSC-HG38','ID-UCSC-HG19','Epissage','Event','Symbol','Ensembl','Window Edges HG38|HG19',"Inc/Excl Edges HG38",'Strand','Gene_biotype']               
+    header_variabe = ["Test:inclusion.reads|exclusion.reads","Control:inclusion.reads|exclusion.reads","Test.PSI|Control.PSI","PSI-Diff","PSI-Classifier","PSI-Log2Ratio","PSI-FoldChange","PSI-Pval","LOG10-PSI-FDR","Fisher","Gene-Log2FoldChange","Gene-FoldChange","GenePadj","Match"] #,""
+    coreHeaderFields =  ['ID-UCSC-HG38','Epissage','Event','Symbol','Ensembl','Window Edges HG38',"Inc/Excl Edges HG38",'Strand','Gene_biotype']               
 
     
     for sample in sorted(dict_samples.keys()) :
@@ -665,6 +638,7 @@ if __name__ == '__main__':
     parser.add_argument("-c","--config",action="store",help="Path to a json file.",required=True,type=str,dest='file_config')
     parser.add_argument("-mc","--modeCount",action="store", default=1 ,help="with or without ReadsOnTarget",required=False,type=str,dest='modeCount')
     parser.add_argument("-r","--readsNumber",action="store",help="Number of reads used to filter out events.",required=False,default=10,type=int,dest='readsNumber')
+    parser.add_argument("-d","--classifier",action="store",help="Value of dpsi/max(psi) to filter out bed and gene lists.",required=False,default=0.3,type=float,dest='classifier')
 
 
     parameters = parser.parse_args()
@@ -752,7 +726,7 @@ if __name__ == '__main__':
     logger.info ("######################################################################")
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter(config.parameters['path_to_output']+"/"+config.chrono+'/Events.'+config.parameters["list_files_splicing"][0]+"."+namefile+'.xlsx', engine='xlsxwriter')
+    writer = pd.ExcelWriter(config.parameters['path_to_output']+"/"+config.chrono+'/Events.'+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"."+namefile+'.xlsx', engine='xlsxwriter')
     logger.info (namefile)
 
     dict_analysis               = config.parameters.get("analysis")
@@ -780,15 +754,6 @@ if __name__ == '__main__':
         headerListOfFields,header_variabe = create_header(dict_samples,config.parameters["tabs"][tab]["analysisTocheck"])
         length_fields_sometimes_empty = len(header_variabe)
         
-        # Column fields list are specific of what you compare in each tab...
-        #columnNames_to_remove_per_tab = []
-        #for analysis_to_ban in list_analysisNotTotcheck : 
-        #    for indice in range(0,len(header_variabe)) :
-        #        columnNames_to_remove_per_tab.append(analysis_to_ban+"-"+header_variabe[indice])
-        #indexes_to_remove = [i for i, item in enumerate(headerListOfFields) if item in set(columnNames_to_remove_per_tab)] 
-       
-        #for index in sorted(indexes_to_remove, reverse=True):
-        #    del headerListOfFields[index]
         
         print("Header : " +"\n".join(headerListOfFields)) 
         # You are going to check the first analysis in list vs all others for you tab definition 
@@ -818,12 +783,7 @@ if __name__ == '__main__':
                     regions = ""
                     for i in range(1,len(coordinates)-2,2) :
                         regions+=chrom+" "+coordinates[i]+" "+coordinates[i+1]+" "+"Region"+str(i)+" "+"."+" "+strand+" \n"
-                    #print("        id_ucsc: "+id_ucsc)
-                    #print("        reg:\n"+regions)
 
-                    #regionsBedTools = pybedtools.BedTool(regions,from_string=True)
-
-                   
                     if (float(catalog[analyse_name][event][id_ucsc]["diffinc"]) > 0 ) :  epissage = 'INC' 
                     else : 
                         epissage = 'EXCL'
@@ -831,9 +791,6 @@ if __name__ == '__main__':
                     #  Check For Presence in 
                     analysis_to_ucscKey = {}
                     analysis_to_ucscKey[analyse_name] = id_ucsc
-                    
-                    #logger.info("            Run trought the different analysis to check it the event exist ...")
-
 
                     '''
                     Remove the envents by TPM filter for the one you test
@@ -935,76 +892,6 @@ if __name__ == '__main__':
                                           
                             
                             continue
-                            '''
-                            #print(another_analyse1)
-                            # Tricky change id_ucsc of id_uccsc2
-                            for id_ucsc2 in catalog[another_analyse1][event] :
-    
-                                coordinates2 = id_ucsc2.split(":")
-                                chrom2       = coordinates2[0]
-                                strand2      = coordinates2[-1]
-                                
-                                regions2 = ""
-                                for i2 in range(1,len(coordinates2)-2,2) :
-                                    regions2+=chrom2+" "+coordinates2[i2]+" "+coordinates2[i2+1]+" "+"RegionBis"+str(i2)+" "+"."+" "+strand2+" \n"
-                                    
-                                #print("        id_ucsc2 :"+id_ucsc2)
-                                #print("        reg2 :\n"+regions2)
-    
-                                regionsBedTools2 = pybedtools.BedTool(regions2,from_string=True)
-    
-                                intersection = regionsBedTools.intersect(regionsBedTools2,u=True)
-                                
-                                if( (len(intersection) >= 4 and event == "MXE") or (len(intersection) >= 3  and event != "MXE" ) ): 
-                                    
-                                    # Check they are going in the same way...
-                                    if( float(catalog[analyse_name][event][id_ucsc]["diffinc"]) < 0 and float(catalog[another_analyse1][event][id_ucsc2]["diffinc"]) > 0  ):     
-                                        continue      
-                                    if( float(catalog[analyse_name][event][id_ucsc]["diffinc"]) > 0 and float(catalog[another_analyse1][event][id_ucsc2]["diffinc"]) < 0):     
-                                        continue
-                                    
-                                    # Check how comparison should behave
-                                    index =  config.parameters["tabs"][tab]["analysisTocheck"].index(another_analyse1)
-                                    
-                                    if ( config.parameters["tabs"][tab][str(index)] == "upper" ) :
-                                        
-                                        if( float(catalog[analyse_name][event][id_ucsc]["diffinc"]) < 0 ) :
-                                            
-                                            if (float(catalog[analyse_name][event][id_ucsc]["diffinc"]) > float(catalog[another_analyse1][event][id_ucsc2]["diffinc"]) ) :
-                                            
-                                                analysis_to_ucscKey[another_analyse1] = id_ucsc2
-                                                break
-                                            
-                                        if( float(catalog[analyse_name][event][id_ucsc]["diffinc"]) > 0 ) :
-                                            
-                                            if (float(catalog[analyse_name][event][id_ucsc]["diffinc"]) < float(catalog[another_analyse1][event][id_ucsc2]["diffinc"]) ) :
-    
-                                                analysis_to_ucscKey[another_analyse1] = id_ucsc2
-                                                break
-                                            
-                                    if ( config.parameters["tabs"][tab][str(index)] == "lower" ) :
-                                        
-                                        if( float(catalog[analyse_name][event][id_ucsc]["diffinc"]) < 0 ) :
-                                            
-                                            if (float(catalog[analyse_name][event][id_ucsc]["diffinc"]) < float(catalog[another_analyse1][event][id_ucsc2]["diffinc"]) ) :
-                                                
-                                                analysis_to_ucscKey[another_analyse1] = id_ucsc2
-                                                break
-                                            
-                                        if( float(catalog[analyse_name][event][id_ucsc]["diffinc"]) > 0 ) :
-                                    
-                                            if (float(catalog[analyse_name][event][id_ucsc]["diffinc"]) > float(catalog[another_analyse1][event][id_ucsc2]["diffinc"]) ) :
-    
-                                                analysis_to_ucscKey[another_analyse1] = id_ucsc2
-                                                break
-                                            
-                                    if ( config.parameters["tabs"][tab][str(index)] == "any" ) :
-                                       
-                                        analysis_to_ucscKey[another_analyse1] = id_ucsc2
-                                        break                                          
-
-
-                            '''
                     '''
                     We find the event in the others analysis
                     '''
@@ -1047,13 +934,13 @@ if __name__ == '__main__':
     
                         features.extend([ 
                                          "https://genome-euro.ucsc.edu/cgi-bin/hgTracks?hgS_doOtherUser=submit&hgS_otherUserName=jp&hgS_otherUserSessionName=EMT_RNASEQ_hg38&position="+id_ucsc_clean+"&highlight="+catalog[analyse_name][event][id_ucsc]["highlight"],
-                                         "http://genome.ucsc.edu/cgi-bin/hgTracks?hgS_doOtherUser=submit&hgS_otherUserName=jp&hgS_otherUserSessionName=Eneritz_EMT&position="+chro+":"+str(starthg19[0][1] if  starthg19 else "None" )+"-"+str(endhg19[0][1] if  endhg19 else "None" )+highlight_hg19,
+                                         #"http://genome.ucsc.edu/cgi-bin/hgTracks?hgS_doOtherUser=submit&hgS_otherUserName=jp&hgS_otherUserSessionName=Eneritz_EMT&position="+chro+":"+str(starthg19[0][1] if  starthg19 else "None" )+"-"+str(endhg19[0][1] if  endhg19 else "None" )+highlight_hg19,
                                          epissage,
                                          event,
                                          catalog[analyse_name][event][id_ucsc]["Symbol"],
                                          catalog[analyse_name][event][id_ucsc]["Ensembl"],
-                                         id_ucsc_clean+"|"+chro+":"+str(starthg19[0][1]  if  starthg19 else "None" )+"-"+str(endhg19[0][1]  if  endhg19 else "None"),
-                                         chro+" "+catalog[analyse_name][event][id_ucsc]["highlight"][catalog[analyse_name][event][id_ucsc]["highlight"].index(":"):][1:].replace("-"," ")+" "+catalog[analyse_name][event][id_ucsc]["diffinc"]+"_"+catalog[analyse_name][event][id_ucsc]["Symbol"]+" "+str(catalog[analyse_name][event][id_ucsc]["FCIncLevel"])+" "+catalog[analyse_name][event][id_ucsc]["Strand"] ,
+                                         id_ucsc_clean, #+"|"+chro+":"+str(starthg19[0][1]  if  starthg19 else "None" )+"-"+str(endhg19[0][1]  if  endhg19 else "None")
+                                         chro+" "+catalog[analyse_name][event][id_ucsc]["highlight"][catalog[analyse_name][event][id_ucsc]["highlight"].index(":"):][1:].replace("-"," ")+" "+catalog[analyse_name][event][id_ucsc]["diffinc"]+"_"+catalog[analyse_name][event][id_ucsc]["Symbol"]+" "+str(catalog[analyse_name][event][id_ucsc]["diffinc"])+" "+catalog[analyse_name][event][id_ucsc]["Strand"] ,
 
                                          catalog[analyse_name][event][id_ucsc]["Strand"],
                                          catalog[analyse_name][event][id_ucsc]["gene_biotype"]
@@ -1074,12 +961,13 @@ if __name__ == '__main__':
                                                           
                                                           ,"::".join(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["incLevel1"])+"|"+"::".join(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["incLevel2"])
                                                           ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["diffinc"]
+                                                           ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["psi_classifier"]  
                                                           ,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["logRatioIncLevel"])
                                                           ,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["FCIncLevel"])
                                                           ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["pval"].replace("e","E")
                                                          ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["log10fdr"]
-                                                          ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["fisher"]
-                                                          ,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["log2fc"] )
+                                                          ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["fisher"] 
+                                                            ,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["log2fc"] )
                                                           ,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["fc"] )
                                                            ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["padj"]
                                                            ,analysis_to_ucscKey[analyse_name_bis]
@@ -1102,13 +990,49 @@ if __name__ == '__main__':
         df.apply(lambda x: pd.to_numeric(x, errors='coerce') )
         # Convert the dataframe to an XlsxWriter Excel object.
         df.to_excel(writer, sheet_name=tab,index_label=False, index=False,header=True)
-        #output.close()              
+       
+      
+        clean_tab_name = tab.replace(" ", "_")
+        
+        output_gene=config.parameters['path_to_output']+config.chrono+"/"+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"_"+clean_tab_name+"_Ensembl.txt"
+        f = open(output_gene, 'w')
+        
+        output_gene_filtered=config.parameters['path_to_output']+config.chrono+"/"+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"_classifier_"+str(parameters.classifier)+"_"+clean_tab_name+"_Ensembl.txt"
+        f2 = open(output_gene_filtered, 'w')
 
+        bed_output_gene=config.parameters['path_to_output']+config.chrono+"/"+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"_"+clean_tab_name+".bed"
+        f3 = open(bed_output_gene, 'w')
+        
+        bed_output_gene_filtered=config.parameters['path_to_output']+config.chrono+"/"+config.parameters["list_files_splicing"][0]+"_"+"reads_"+str(parameters.readsNumber)+"_classificier_"+str(parameters.classifier)+"_"+clean_tab_name+".bed"
+        f4 = open(bed_output_gene_filtered, 'w')
+
+
+
+        for line in lines_for_my_tab :
+            #To change accordingly
+            list_coords_event = line[22].split(":")
+
+            f.write(line[4]+"\n")
+            #list_coords_event[0]+"\t"+str(int(list_coords_event[1])+1)+"\t"+list_coords_event[2]+"\t"+line[3]+"_"+line[12]+"\t"+line[12]+"\t"+line[7]+"\n"
+            f3.write(line[6].replace(" ","\t")+"\n")
+            #print(line[12])
+            if(float(line[13]) >= parameters.classifier) :
+                f2.write(line[4]+"\n")
+                #list_coords_event[0]+"\t"+str(int(list_coords_event[1])+1)+"\t"+list_coords_event[2]+"\t"+line[3]+"_"+line[12]+"\t"+line[12]+"\t"+line[7]+"\n"
+                f4.write(line[6].replace(" ","\t")+"\n")
+
+        f.close()
+        f2.close()
+        f3.close()
+        f4.close()
+
+                
+        #output.close()              
+    
     workbook = writer.book
     for tab in config.parameters.get("tabs").keys():
 
         worksheet = writer.sheets[tab]
-       
         #headerListOfFields
         # Format the first column
         # Add the standard url link format.
@@ -1117,13 +1041,12 @@ if __name__ == '__main__':
             'underline':  1
         })
 
-        worksheet.set_column('A:D', 5)
-        worksheet.set_column('E:E', 12)
-        worksheet.set_column('F:F', 20)
+        worksheet.set_column('A:C', 5)
+        worksheet.set_column('D:F', 20)
         worksheet.set_column('G:G', 25)
-        worksheet.set_column('H:H', 25)
+        worksheet.set_column('H:H', 5)
         worksheet.set_column('I:I', 5)
-        worksheet.set_column('J:BZ', 20)
+        worksheet.set_column('I:BZ', 20)
 
 
 
