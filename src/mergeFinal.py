@@ -74,7 +74,7 @@ def create_logger(config):
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')
     ''' 1 st handler in file'''
-    file_handler = RotatingFileHandler(config.parameters['path_to_output']+"/"+config.chrono+"/"+'activity.log', 'a', 1000000, 1)
+    file_handler = RotatingFileHandler(config.parameters['path_to_output']+"/"+config.parameters['list_files_splicing'][0]+"/"+'activity.log', 'a', 1000000, 1)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -125,6 +125,7 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                 #counter_for_test=counter_for_test+1
                 #if counter_for_test == 1000 : break
                 id_ucsc_event = ""
+                trickMXE=""
                 lineElements = line.replace("\"", "").strip().split("\t")
                 m            = re.search('^(\w+)\.(\d+)$', lineElements[1])
                 ensembl_id   = m.group(1)
@@ -141,171 +142,186 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                 pvalue      = lineElements[18]
                 fdr         = lineElements[19]
                 highlight   = ""
-                key_id_ucsc_event = chrom+":"+(":".join(lineElements[5:11]))+":"+strand  #flankingES    flankingEE   
-                #print(as_type+key_id_ucsc_event) 
-                #highlight=<DB>.<CHROM>:<START>-<END>#<COLOR>|q
-                if (as_type == "A3SS") : 
-                    if (strand == "-") :
-                        id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[10]+":"+strand  #flankingES    flankingEE
-                        highlight = "hg38."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[6]
-                    if (strand == "+") :
-                        id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[6]+":"+strand  #flankingES    flankingEE
-                        highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[7]
-                        
-                if (as_type == "A5SS") :  
-                    if (strand == "-") :
-                        id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[6]+":"+strand  #flankingES    flankingEE
-                        highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[7]
-                    if (strand =="+") :
-                        id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[10]+":"+strand  #flankingES    flankingEE
-                        highlight = "hg38."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[6]  
-                        
-                if (as_type == "SE" ) :   
-                    id_ucsc_event = chrom+":"+lineElements[7]+"-"+lineElements[10]+":"+strand  #upstreamES downstreamEE
-                    highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[6]
                 
-                if (as_type == "RI" ) :
-                    id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[6]+":"+strand  #upstreamES downstreamEE
-                    highlight = "hg38."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[9]  
+                if( ((as_type != "MXE") and (abs(float(diffinc)) >= 0.2 )) or ((as_type == "MXE") and abs(float(lineElements[24]) >= 0.2)) ) : 
 
-                if (as_type == "MXE" ) :  
-                    key_id_ucsc_event = chrom+":"+(":".join(lineElements[5:13]))+":"+strand  #flankingES    flankingEE    
+                
+                    key_id_ucsc_event = chrom+":"+(":".join(lineElements[5:11]))+":"+strand  #flankingES    flankingEE   
                     #print(as_type+key_id_ucsc_event) 
-
-                    id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[12]+":"+strand #upstreamES downstreamEE
-                    ic_sample_1 = lineElements[14]
-                    sc_sample_1 = lineElements[15]
-                    ic_sample_2 = lineElements[16]
-                    sc_sample_2 = lineElements[17]
-                    incLevel1   = lineElements[22]
-                    incLevel2   = lineElements[23]
-                    diffinc     = lineElements[24]
-                    pvalue      = lineElements[20]
-                    fdr         = lineElements[21]
-     
-                    highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[6]+"|"+"hg38."+chrom+":"+str(int(lineElements[7])+1)+"-"+lineElements[8]
-
-                # FILTER OUT BAD EVENTS
-                if (float(pvalue)   < 0.05  and float(fdr)   < 0.01 ) : 
-                    count = count+1
-                    ''' LOG RATIO // FOLD CHANGE '''
-                    incLevel1 = remove_values_from_list(incLevel1.split(","),"NA")
-                    incLevel2 = remove_values_from_list(incLevel2.split(","),"NA")
-                   
-                    average_incLevel1 =  statistics.mean(map(float, incLevel1))
-                    average_incLevel2 =  statistics.mean(map(float, incLevel2))
-                    
-                    max_incLevel1 =  max(map(float, incLevel1))
-                    max_incLevel2 =  max(map(float, incLevel2))
-
-                    max_incLevel   = max_incLevel1 if max_incLevel1 > max_incLevel2 else max_incLevel2
-                    psi_classifier = abs(float(diffinc)/max_incLevel)
-
-                    logratio     = "NaN" 
-                    retval       = "NaN"
-                    #print('average'+str(average_incLevel1)+' '+str(average_incLevel2))
-                    if(average_incLevel1 != 0 and average_incLevel2 != 0): 
-                        retval   = foldchange (average_incLevel1,average_incLevel2) 
-                        logratio = foldchange2logratio(retval)
-                        #print('logratio'+str(logratio))
-                    
-                    # List of reads per group
-                    list_int_ic_sample1 = list(map(int,ic_sample_1.split(",")))
-                    list_int_sc_sample1 = list(map(int,sc_sample_1.split(",")))
-                    
-                    list_int_ic_sample2 = list(map(int,ic_sample_2.split(",")))
-                    list_int_sc_sample2 = list(map(int,sc_sample_2.split(",")))
-                    
-                    # List of reads per Inclusion (Control+Test) & Exclusion(Control + Test)
-                    #list_reads_ic = list_int_ic_sample1 + list_int_ic_sample2
-                    #list_reads_sc = list_int_sc_sample1 + list_int_sc_sample2
-                
-                    #nbr_zero_sc = list_reads_sc.count(0)
-                    
-                    #nbr_zero_ic = list_reads_ic.count(0)
-                    
-                    index_read_count_ic_sample1  = 0
-                    index_read_count_sc_sample2  = 0
-                    
-                    # TEST 1
-                    for read_count_ic1 in  list_int_ic_sample1  :
-                        if read_count_ic1 >= readsNumber :
-                            index_read_count_ic_sample1 = index_read_count_ic_sample1 + 1
-                    
-
-                    for read_count_sc2 in  list_int_sc_sample2  :
-                        if read_count_sc2 >= readsNumber :
-                            index_read_count_sc_sample2 = index_read_count_sc_sample2 + 1
-                        
-                    # More than a half has read count > X for INCLUSION in TEST and more than a half has read count > X for EXLUCSION in CONTROL
-                    test1 = 0 
-                    if ( (round(index_read_count_ic_sample1/len(list_int_ic_sample1),1) >=  0.5 ) and (round(index_read_count_sc_sample2/len(list_int_sc_sample2),1) >=  0.5 ) ):
-                        test1 = 1
-                   
-                    # TEST 2        
-                    index_read_count_sc_sample1  = 0  
-                    index_read_count_ic_sample2  = 0
-
-                    for read_count_sc1 in  list_int_sc_sample1  :
-                        if read_count_sc1 >= readsNumber :
-                            index_read_count_sc_sample1 = index_read_count_sc_sample1 + 1
-                    
-
-                    for read_count_ic2 in  list_int_ic_sample2  :
-                        if read_count_ic2 >= readsNumber :
-                            index_read_count_ic_sample2 = index_read_count_ic_sample2 + 1
+                    #highlight=<DB>.<CHROM>:<START>-<END>#<COLOR>|q
+                    if (as_type == "A3SS") : 
+                        if (strand == "-") :
+                            id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[10]+":"+strand  #flankingES    flankingEE
+                            highlight = "hg38."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[6]
+                            if ( int(lineElements[8]) - int(lineElements[6]) >= 200 ) : # Correct bug A3SS , A5SS. Sometimes it uses intron. Correted by length selection.
+                                continue  
+                        if (strand == "+") :
+                            id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[6]+":"+strand  #flankingES    flankingEE
+                            highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[7]
+                            if ( int(lineElements[7]) - int(lineElements[5]) >= 200 ) : # Correct bug A3SS , A5SS. Sometimes it uses intron. Correted by length selection.
+                                continue  
                             
-                    # More than a half has read count > X for EXCLUSION in TEST and more than a half has read count > X for INCLUSION in CONTROL
-                    test2 = 0      
-                    if ( (round(index_read_count_ic_sample2/len(list_int_ic_sample2),1) >=  0.5 ) and  (round(index_read_count_sc_sample1/len(list_int_sc_sample1),1) >=  0.5 ) ) :
-                        test2 = 1
-
+                            
+                    if (as_type == "A5SS") :  
+                        if (strand == "-") :
+                            id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[6]+":"+strand  #flankingES    flankingEE
+                            highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[7]
+                            if ( int(lineElements[7]) - int(lineElements[5]) >= 200 ) : # Correct bug A3SS , A5SS. Sometimes it uses intron. Correted by length selection.
+                                continue  
+                        if (strand =="+") :
+                            id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[10]+":"+strand  #flankingES    flankingEE
+                            highlight = "hg38."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[6]  
+                            if ( int(lineElements[6]) - int(lineElements[8]) >= 200 ) : # Correct bug A3SS , A5SS. Sometimes it uses intron. Correted by length selection.
+                                continue 
+                                
+                    if (as_type == "SE" ) :   
+                        id_ucsc_event = chrom+":"+lineElements[7]+"-"+lineElements[10]+":"+strand  #upstreamES downstreamEE
+                        highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[6]
+                      
                     
-                    if ( test1 + test2 == 0 ) :
-                        continue  
-                         
-                    ic_sample_1_sum = sum(list_int_ic_sample1)/len(ic_sample_1)
-                    sc_sample_1_sum = sum(list_int_sc_sample1)/len(sc_sample_1)
-                    ic_sample_2_sum = sum(list_int_ic_sample2)/len(ic_sample_2)
-                    sc_sample_2_sum = sum(list_int_sc_sample2)/len(sc_sample_2)
-                    
-                           
-                    ''' FISHER TEST '''
-                    #print(str(ic_sample_1_sum)+" ->  "+str(ic_sample_2_sum)+ " -> "+str(sc_sample_1_sum)+" -> "+str(sc_sample_2_sum))
-                    pvalue_fisher = 0
-                    oddsratio, pvalue_fisher = stats.fisher_exact([[ic_sample_1_sum, sc_sample_1_sum], [ic_sample_2_sum, sc_sample_2_sum]])
-                    fisher = "-"
-                    #print(pvalue)
-                    if (pvalue_fisher < 0.05) : fisher = "PASS"
-                    
-                    array_splicing_data[as_type][key_id_ucsc_event] = { "Ensembl":ensembl_id, 
-                                                                    "Symbol":gene, 
-                                                                    "Chromosome":chrom, 
-                                                                    "Strand":strand,
-                                                                    "ic_sample_1" : ic_sample_1,
-                                                                    "sc_sample_1" : sc_sample_1,
-                                                                    "ic_sample_2" : ic_sample_2,
-                                                                    "sc_sample_2" : sc_sample_2,
-                                                                    "incLevel1"  : incLevel1,
-                                                                    "highlight" : highlight,
-                                                                    "incLevel2"   : incLevel2,
-                                                                    "diffinc"     : diffinc,
-                                                                    "logRatioIncLevel"     : logratio,
-                                                                    'fdr' : fdr,
-                                                                    'log10fdr' :  int(abs(math.log10(float(fdr)))) if float(fdr) > 0 else -math.inf,
-                                                                    "psi_classifier"     : psi_classifier,
-                                                                    "FCIncLevel"     : retval,
-                                                                    "pvalueFisher" : pvalue_fisher,
-                                                                    "pval" : pvalue,
-                                                                    "fisher"     : fisher,
-                                                                    "id_ucsc"     : id_ucsc_event[:-2]
-                                                                    #'low_read_count' : low_read_count
-                                                                   
+                    if (as_type == "RI" ) :
+                        id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[6]+":"+strand  #upstreamES downstreamEE
+                        highlight = "hg38."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[9]  
     
-                                                                  }
+                    if (as_type == "MXE" ) :  
+                        key_id_ucsc_event = chrom+":"+(":".join(lineElements[5:13]))+":"+strand  #flankingES    flankingEE    
+                        #print(as_type+key_id_ucsc_event) 
+    
+                        id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[12]+":"+strand #upstreamES downstreamEE
+                        ic_sample_1 = lineElements[14]
+                        sc_sample_1 = lineElements[15]
+                        ic_sample_2 = lineElements[16]
+                        sc_sample_2 = lineElements[17]
+                        incLevel1   = lineElements[22]
+                        incLevel2   = lineElements[23]
+                        diffinc     = lineElements[24]
+                        pvalue      = lineElements[20]
+                        fdr         = lineElements[21]
+         
+                        highlight = "hg38."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[6]+"|"+"hg38."+chrom+":"+str(int(lineElements[7])+1)+"-"+lineElements[8]
+                        trickMXE=lineElements[5]+"\t"+lineElements[7]
+                    # FILTER OUT BAD EVENTS
+                    if (float(pvalue)   < 0.05  and float(fdr)   < 0.01 ) : 
+                        count = count+1
+                        ''' LOG RATIO // FOLD CHANGE '''
+                        incLevel1 = remove_values_from_list(incLevel1.split(","),"NA")
+                        incLevel2 = remove_values_from_list(incLevel2.split(","),"NA")
+                       
+                        average_incLevel1 =  statistics.mean(map(float, incLevel1))
+                        average_incLevel2 =  statistics.mean(map(float, incLevel2))
+                        
+                        max_incLevel1 =  max(map(float, incLevel1))
+                        max_incLevel2 =  max(map(float, incLevel2))
+    
+                        max_incLevel   = max_incLevel1 if max_incLevel1 > max_incLevel2 else max_incLevel2
+                        psi_classifier = abs(float(diffinc)/max_incLevel)
+    
+                        logratio     = "NaN" 
+                        retval       = "NaN"
+                        #print('average'+str(average_incLevel1)+' '+str(average_incLevel2))
+                        if(average_incLevel1 != 0 and average_incLevel2 != 0): 
+                            retval   = foldchange (average_incLevel1,average_incLevel2) 
+                            logratio = foldchange2logratio(retval)
+                            #print('logratio'+str(logratio))
+                        
+                        # List of reads per group
+                        list_int_ic_sample1 = list(map(int,ic_sample_1.split(",")))
+                        list_int_sc_sample1 = list(map(int,sc_sample_1.split(",")))
+                        
+                        list_int_ic_sample2 = list(map(int,ic_sample_2.split(",")))
+                        list_int_sc_sample2 = list(map(int,sc_sample_2.split(",")))
+                        
+                        # List of reads per Inclusion (Control+Test) & Exclusion(Control + Test)
+                        #list_reads_ic = list_int_ic_sample1 + list_int_ic_sample2
+                        #list_reads_sc = list_int_sc_sample1 + list_int_sc_sample2
+                    
+                        #nbr_zero_sc = list_reads_sc.count(0)
+                        
+                        #nbr_zero_ic = list_reads_ic.count(0)
+                        
+                        index_read_count_ic_sample1  = 0
+                        index_read_count_sc_sample2  = 0
+                        
+                        # TEST 1
+                        for read_count_ic1 in  list_int_ic_sample1  :
+                            if read_count_ic1 >= readsNumber :
+                                index_read_count_ic_sample1 = index_read_count_ic_sample1 + 1
+                        
+    
+                        for read_count_sc2 in  list_int_sc_sample2  :
+                            if read_count_sc2 >= readsNumber :
+                                index_read_count_sc_sample2 = index_read_count_sc_sample2 + 1
+                            
+                        # More than a half has read count > X for INCLUSION in TEST and more than a half has read count > X for EXLUCSION in CONTROL
+                        test1 = 0 
+                        if ( (round(index_read_count_ic_sample1/len(list_int_ic_sample1),1) >=  0.5 ) and (round(index_read_count_sc_sample2/len(list_int_sc_sample2),1) >=  0.5 ) ):
+                            test1 = 1
+                       
+                        # TEST 2        
+                        index_read_count_sc_sample1  = 0  
+                        index_read_count_ic_sample2  = 0
+    
+                        for read_count_sc1 in  list_int_sc_sample1  :
+                            if read_count_sc1 >= readsNumber :
+                                index_read_count_sc_sample1 = index_read_count_sc_sample1 + 1
+                        
+    
+                        for read_count_ic2 in  list_int_ic_sample2  :
+                            if read_count_ic2 >= readsNumber :
+                                index_read_count_ic_sample2 = index_read_count_ic_sample2 + 1
+                                
+                        # More than a half has read count > X for EXCLUSION in TEST and more than a half has read count > X for INCLUSION in CONTROL
+                        test2 = 0      
+                        if ( (round(index_read_count_ic_sample2/len(list_int_ic_sample2),1) >=  0.5 ) and  (round(index_read_count_sc_sample1/len(list_int_sc_sample1),1) >=  0.5 ) ) :
+                            test2 = 1
+    
+                        
+                        if ( test1 + test2 == 0 ) :
+                            continue  
+                             
+                        ic_sample_1_sum = sum(list_int_ic_sample1)/len(ic_sample_1)
+                        sc_sample_1_sum = sum(list_int_sc_sample1)/len(sc_sample_1)
+                        ic_sample_2_sum = sum(list_int_ic_sample2)/len(ic_sample_2)
+                        sc_sample_2_sum = sum(list_int_sc_sample2)/len(sc_sample_2)
+                        
+                               
+                        ''' FISHER TEST '''
+                        #print(str(ic_sample_1_sum)+" ->  "+str(ic_sample_2_sum)+ " -> "+str(sc_sample_1_sum)+" -> "+str(sc_sample_2_sum))
+                        pvalue_fisher = 0
+                        oddsratio, pvalue_fisher = stats.fisher_exact([[ic_sample_1_sum, sc_sample_1_sum], [ic_sample_2_sum, sc_sample_2_sum]])
+                        fisher = "-"
+                        #print(pvalue)
+                        if (pvalue_fisher < 0.05) : fisher = "PASS"
+                        
+                        array_splicing_data[as_type][key_id_ucsc_event] = { "Ensembl":ensembl_id, 
+                                                                        "Symbol":gene, 
+                                                                        "Chromosome":chrom, 
+                                                                        "Strand":strand,
+                                                                        "ic_sample_1" : ic_sample_1,
+                                                                        "sc_sample_1" : sc_sample_1,
+                                                                        "ic_sample_2" : ic_sample_2,
+                                                                        "sc_sample_2" : sc_sample_2,
+                                                                        "incLevel1"  : incLevel1,
+                                                                        "highlight" : highlight,
+                                                                         "trickMXE" :  trickMXE,
+                                                                        "incLevel2"   : incLevel2,
+                                                                        "diffinc"     : diffinc,
+                                                                        "logRatioIncLevel"     : logratio,
+                                                                        'fdr' : fdr,
+                                                                        'log10fdr' :  int(abs(math.log10(float(fdr)))) if float(fdr) > 0 else -math.inf,
+                                                                        "psi_classifier"     : psi_classifier,
+                                                                        "FCIncLevel"     : retval,
+                                                                        "pvalueFisher" : pvalue_fisher,
+                                                                        "pval" : pvalue,
+                                                                        "fisher"     : fisher,
+                                                                        "id_ucsc"     : id_ucsc_event[:-2]
+                                                                        #'low_read_count' : low_read_count
+                                                                       
+        
+                                                                      }
         #logger.info("NUMBER OF EVENTS         : "+str(count))
-        f.close()
-        dict_for_analysis.update(array_splicing_data)
+            f.close()
+            dict_for_analysis.update(array_splicing_data)
 
     return dict_for_analysis
 
@@ -637,15 +653,15 @@ if __name__ == '__main__':
     
     parser.add_argument("-c","--config",action="store",help="Path to a json file.",required=True,type=str,dest='file_config')
     parser.add_argument("-mc","--modeCount",action="store", default=1 ,help="with or without ReadsOnTarget",required=False,type=str,dest='modeCount')
-    parser.add_argument("-r","--readsNumber",action="store",help="Number of reads used to filter out events.",required=False,default=10,type=int,dest='readsNumber')
-    parser.add_argument("-d","--classifier",action="store",help="Value of dpsi/max(psi) to filter out bed and gene lists.",required=False,default=0.3,type=float,dest='classifier')
+    parser.add_argument("-r","--readsNumber",action="store",help="Number of reads used to filter out events.",required=False,default=5,type=int,dest='readsNumber')
+    parser.add_argument("-d","--classifier",action="store",help="Value of dpsi to filter out bed and gene lists.",required=False,default=0.1,type=float,dest='classifier')
 
 
     parameters = parser.parse_args()
 
     config = custom_parser.Configuration(parameters.file_config,"json")
     
-    subprocess.run(("mkdir -p "+config.parameters['path_to_output']+"/"+config.chrono),shell=True)
+    subprocess.run(("mkdir -p "+config.parameters['path_to_output']+"/"+config.parameters['list_files_splicing'][0]),shell=True)
 
     logger = create_logger(config)
 
@@ -726,7 +742,7 @@ if __name__ == '__main__':
     logger.info ("######################################################################")
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter(config.parameters['path_to_output']+"/"+config.chrono+'/Events.'+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"."+namefile+'.xlsx', engine='xlsxwriter')
+    writer = pd.ExcelWriter(config.parameters['path_to_output']+"/"+config.parameters['list_files_splicing'][0]+'/Events.'+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"."+namefile+'.xlsx', engine='xlsxwriter')
     logger.info (namefile)
 
     dict_analysis               = config.parameters.get("analysis")
@@ -905,9 +921,9 @@ if __name__ == '__main__':
                         ######UGLY Conversion UGLY#####
                         m            = re.search('^(.*):(\d+)-(\d+)$', id_ucsc_clean)
     
-                        starthg19 = lo.convert_coordinate(chro,int(m.group(2)),catalog[analyse_name][event][id_ucsc]["Strand"])
-                        endhg19   = lo.convert_coordinate(chro, int(m.group(3)),catalog[analyse_name][event][id_ucsc]["Strand"])
-                        
+                        #starthg19 = lo.convert_coordinate(chro,int(m.group(2)),catalog[analyse_name][event][id_ucsc]["Strand"])
+                        #endhg19   = lo.convert_coordinate(chro, int(m.group(3)),catalog[analyse_name][event][id_ucsc]["Strand"])
+                        '''
                         highlight_hg19 = "" 
                         if(event == "MXE") :
                             
@@ -931,7 +947,10 @@ if __name__ == '__main__':
                             #print(endhg19_simple)
                             # ADDED +1 TO CORRECT  O-BASED ERROR DISPLAY
                             highlight_hg19 = "&highlight=hg19."+chro+":"+str(starthg19_simple[0][1]+1 if  starthg19_simple else "None")+"-"+str(endhg19_simple[0][1] if  endhg19_simple else "None")
-    
+                        '''
+                        cleanBed=catalog[analyse_name][event][id_ucsc]["highlight"][catalog[analyse_name][event][id_ucsc]["highlight"].index(":"):][1:].replace("-","\t")
+                        if (event == 'MXE') :
+                            cleanBed = catalog[analyse_name][event][id_ucsc]["trickMXE"]
                         features.extend([ 
                                          "https://genome-euro.ucsc.edu/cgi-bin/hgTracks?hgS_doOtherUser=submit&hgS_otherUserName=jp&hgS_otherUserSessionName=EMT_RNASEQ_hg38&position="+id_ucsc_clean+"&highlight="+catalog[analyse_name][event][id_ucsc]["highlight"],
                                          #"http://genome.ucsc.edu/cgi-bin/hgTracks?hgS_doOtherUser=submit&hgS_otherUserName=jp&hgS_otherUserSessionName=Eneritz_EMT&position="+chro+":"+str(starthg19[0][1] if  starthg19 else "None" )+"-"+str(endhg19[0][1] if  endhg19 else "None" )+highlight_hg19,
@@ -940,8 +959,8 @@ if __name__ == '__main__':
                                          catalog[analyse_name][event][id_ucsc]["Symbol"],
                                          catalog[analyse_name][event][id_ucsc]["Ensembl"],
                                          id_ucsc_clean, #+"|"+chro+":"+str(starthg19[0][1]  if  starthg19 else "None" )+"-"+str(endhg19[0][1]  if  endhg19 else "None")
-                                         chro+" "+catalog[analyse_name][event][id_ucsc]["highlight"][catalog[analyse_name][event][id_ucsc]["highlight"].index(":"):][1:].replace("-"," ")+" "+catalog[analyse_name][event][id_ucsc]["diffinc"]+"_"+catalog[analyse_name][event][id_ucsc]["Symbol"]+" "+str(catalog[analyse_name][event][id_ucsc]["diffinc"])+" "+catalog[analyse_name][event][id_ucsc]["Strand"] ,
-
+                                         chro+"\t"+cleanBed+"\t"+catalog[analyse_name][event][id_ucsc]["diffinc"]+"_"+catalog[analyse_name][event][id_ucsc]["Symbol"]+"\t"+str(catalog[analyse_name][event][id_ucsc]["diffinc"])+"\t"+catalog[analyse_name][event][id_ucsc]["Strand"] ,
+                                         #chr2 178535732 178535828|hg38.chr2:178591139 178591314 0.164_TTN-AS1 0.164 +
                                          catalog[analyse_name][event][id_ucsc]["Strand"],
                                          catalog[analyse_name][event][id_ucsc]["gene_biotype"]
                                         ]
@@ -994,41 +1013,41 @@ if __name__ == '__main__':
       
         clean_tab_name = tab.replace(" ", "_")
         
-        output_gene=config.parameters['path_to_output']+config.chrono+"/"+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"_"+clean_tab_name+"_Ensembl.txt"
-        f = open(output_gene, 'w')
+        #output_gene=config.parameters['path_to_output']+config.parameters['list_files_splicing'][0]+"/"+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"_"+clean_tab_name+"_Ensembl.txt"
+        #gene_list = open(output_gene, 'w')
+   
+        bed_output_gene=config.parameters['path_to_output']+config.parameters['list_files_splicing'][0]+"/"+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"_"+clean_tab_name+".bed"
+        bed_list = open(bed_output_gene, 'w')
         
-        output_gene_filtered=config.parameters['path_to_output']+config.chrono+"/"+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"_classifier_"+str(parameters.classifier)+"_"+clean_tab_name+"_Ensembl.txt"
-        f2 = open(output_gene_filtered, 'w')
+        #bed__inclusion=config.parameters['path_to_output']+config.parameters['list_files_splicing'][0]+"/"+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"_"+clean_tab_name+"_INCLUSION.bed"
+        #bed_list_inclusion = open(bed__inclusion, 'w')
 
-        bed_output_gene=config.parameters['path_to_output']+config.chrono+"/"+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"_"+clean_tab_name+".bed"
-        f3 = open(bed_output_gene, 'w')
-        
-        bed_output_gene_filtered=config.parameters['path_to_output']+config.chrono+"/"+config.parameters["list_files_splicing"][0]+"_"+"reads_"+str(parameters.readsNumber)+"_classificier_"+str(parameters.classifier)+"_"+clean_tab_name+".bed"
-        f4 = open(bed_output_gene_filtered, 'w')
-
-
+        ##bed__exclusion=config.parameters['path_to_output']+config.parameters['list_files_splicing'][0]+"/"+config.parameters["list_files_splicing"][0]+"_reads_"+str(parameters.readsNumber)+"_"+clean_tab_name+"_EXCLUSION.bed"
+        #bed_list_exclusion = open(bed__exclusion, 'w')
 
         for line in lines_for_my_tab :
-            #To change accordingly
-            list_coords_event = line[22].split(":")
 
-            f.write(line[4]+"\n")
-            #list_coords_event[0]+"\t"+str(int(list_coords_event[1])+1)+"\t"+list_coords_event[2]+"\t"+line[3]+"_"+line[12]+"\t"+line[12]+"\t"+line[7]+"\n"
-            f3.write(line[6].replace(" ","\t")+"\n")
+            #gene_list.write(line[3]+"\t"+line[4]+"\n")
+            elements = line[6].split("\t")
+            elements[3]=  elements[3]+"_"+line[4]
+            bed_list.write("\t".join(elements)+"\n")
+
+                #if (float(line[12]) > 0 ) : 
+                #    bed_list_exclusion.write(line[3]+"\t"+line[4]+"\n")
+                # if (float(line[12]) < 0 ) : 
+                #    bed_list_inclusion.write(line[3]+"\t"+line[4]+"\n")
+
             #print(line[12])
-            if(float(line[13]) >= parameters.classifier) :
-                f2.write(line[4]+"\n")
+            #if(float(line[13]) >= parameters.classifier) :
+                #f2.write(line[4]+"\n")
                 #list_coords_event[0]+"\t"+str(int(list_coords_event[1])+1)+"\t"+list_coords_event[2]+"\t"+line[3]+"_"+line[12]+"\t"+line[12]+"\t"+line[7]+"\n"
-                f4.write(line[6].replace(" ","\t")+"\n")
+                #f4.write(line[6]+"\n")
 
-        f.close()
-        f2.close()
-        f3.close()
-        f4.close()
-
-                
-        #output.close()              
-    
+        #gene_list.close()
+        bed_list.close()
+        #bed_list_exclusion.close()
+        #bed_list_inclusion.close()
+        
     workbook = writer.book
     for tab in config.parameters.get("tabs").keys():
 
@@ -1052,7 +1071,7 @@ if __name__ == '__main__':
 
     #Close the Pandas Excel writer and output the Excel file.
     writer.save()
-    #writer.close()
+    writer.close()
     logger.info('=========> Finish !')
 
     
