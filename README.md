@@ -103,6 +103,8 @@ See config directory. You will find an example called paired.set1_align.json for
 	python3 pathTo/alignment.py -c pathToConfigFile/condition.json
 ```
 
+You can test the pipeline on a  short dataset provided in test directory.
+
 It will launch an alignment with STAR.
 It will creates a directory (path defined in your configuration file) with inside :
 
@@ -113,6 +115,13 @@ It will creates a directory (path defined in your configuration file) with insid
 
 
 You need to use this on each sample/replicate.
+
+Finally you get the following directories as output : 
+
+
+![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/output_alignment.png "Outputs")
+
+![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/output_alignment_open.png "Outputs")
 
 ## Gene Expression Analysis
 
