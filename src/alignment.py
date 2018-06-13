@@ -101,15 +101,42 @@ def  read_salmon_output_for_strandness(salmon_output_meta_file):
     
     logger.info(json1_data["expected_format"])
     
-    if (json1_data[0]["expected_format"]=="U" or json1_data[0]["expected_format"]=="IU" ) :
+    if (json1_data["expected_format"]=="U" or json1_data["expected_format"]=="IU" ) :
         return "Unstranded"
     else :  return "Stranded"
 
+def  read_salmon_output_for_libtype(salmon_output_meta_file,typeEnd):
+    
+    json1_file = open(salmon_output_meta_file)
+    json1_str = json1_file.read()
+    json1_data = json.loads(json1_str)
+    
+    logger.info(json1_data["expected_format"])
+    
+    if (typeEnd=="singleEnd") :
+        if (json1_data["expected_format"]=="SR") :
+            return "Reverse"
+        if (json1_data["expected_format"]=="SF") :
+            return "Forward"
+        if (json1_data["expected_format"]=="U" or json1_data["expected_format"]=="IU" ) :
+            return "Unstranded"
+        
+    if (typeEnd=="pairedEnd") :
+
+        if (json1_data["expected_format"]=="ISR") :
+            return "Reverse"
+        if (json1_data["expected_format"]=="ISF") :
+            return "Forward"
+        if (json1_data["expected_format"]=="U" or json1_data["expected_format"]=="IU" ) :
+            return "Unstranded"
     '''
                    Paired-end    Single-end
     -fr-unstranded    -l IU    -l U
     -fr-firststrand    -l ISR    -l SR
     -fr-secondstrand    -l ISF    -l SF  
+    
+    F = read 1 (or single-end read) comes from the forward strand
+    R = read 1 (or single-end read) comes from the reverse strand
     '''   
 
 def print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not):
@@ -131,10 +158,10 @@ def print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not):
      For stranded=reverse, these rules are reversed
     '''
     
-    logger.info("print_count_reads_per_gene")
+    logger.info("Parse STAR counts output.\n")
 
     for core_sample_name in list_core_sample_names :
-        logger.info("print_count_reads_per_gene"+core_sample_name)
+        logger.info(core_sample_name)
         with open(config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/"+core_sample_name+"_ReadsPerGene.out.tab", 'r') as f:
             for line in f:
                 cleanedLine = line.strip()
@@ -183,7 +210,7 @@ def print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not):
     file_Reads_PerGene.close()
 
     logger.info(count)
-    strand_orientation=""
+    strand_orientation="Unstranded"
 
     #mean Unstranded
     #if ( (count['Unstranded'] > count['Stranded_forward'])) or ( count['Unstranded'] > count['Stranded_reverse']) :
@@ -193,7 +220,7 @@ def print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not):
         strand_orientation = "Reverse"
     else : strand_orientation = "Forward"
         
-    logger.info(">>>>>>>>>>>>>>>>>>>  This is a "+strand_orientation)
+    logger.info(">>>>>>>>>>>>>>>>>>>  From Star counts, this library is "+strand_orientation)
 
 
     return strand_orientation
@@ -565,11 +592,23 @@ if __name__ == '__main__':
 
     logger.info("=========> COUNT READS FOR GENE") 
 
-    stranded_or_not= read_salmon_output_for_strandness(salmon_output+"/lib_format_counts.json")
-    logger.info(stranded_or_not)
-    # You want to know if it's forward ou reverse when Stranded using count from STAR
-    strand_orientation = print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not)
+    # You want to know strandness and libtype (forward/reverse)
+
+    stranded_or_not    = read_salmon_output_for_strandness(salmon_output+"/lib_format_counts.json")
+    reverse_or_forward_or_unstrand = read_salmon_output_for_libtype(salmon_output+"/lib_format_counts.json",config.parameters["type"])
+    logger.info(">>>>>>>>>>>>>>>>>>> From Salmon, Library is "+reverse_or_forward_or_unstrand)
+
+    strand_orientation="Unstranded"
+    if (config.parameters["type"]=="pairEnd"):
+        # You want to know if it's forward ou reverse when Stranded using count from STAR
+        strand_orientation = print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not)
     
+    logger.info(stranded_or_not)
+    logger.info(reverse_or_forward_or_unstrand)
+    
+    if(reverse_or_forward_or_unstrand != strand_orientation) :
+        logger.info("Salmon and STAR define different library types.")
+
     stats = read_log_final(list_core_sample_names,config,stranded_or_not)
     #logger.info(stats)
    
@@ -578,7 +617,7 @@ if __name__ == '__main__':
     nameFastq=name[1]
   
     
-    logger.info("=========> STAR GIVE WIG FILES STRANDED") 
+    logger.info("=========> STAR GIVE WIG FILES ") 
 
     logger.info(config.parameters['softs']['star'] \
     +" --runMode inputAlignmentsFromBAM"    \
