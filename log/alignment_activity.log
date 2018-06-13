@@ -1,0 +1,262 @@
+2018-06-13 14:01:24,964 :: INFO :: =========> START:PARSE EACH FASTQ PAIRS FOR AN EXPERIMENT
+2018-06-13 14:01:24,965 :: INFO :: GroupeA
+2018-06-13 14:01:24,965 :: INFO :: set1_1.fastq.gz
+2018-06-13 14:01:24,965 :: INFO :: set1_2.fastq.gz
+2018-06-13 14:01:24,965 :: INFO :: 
+2018-06-13 14:01:24,966 :: INFO :: set1
+2018-06-13 14:01:24,966 :: INFO :: paired.set1.Rep1
+2018-06-13 14:01:24,966 :: INFO :: =========> FASTQC PER FASTQ
+2018-06-13 14:01:24,966 :: INFO :: =========>Fastqc PairedEND
+2018-06-13 14:01:24,966 :: INFO :: fastqc --extract --threads 24 --outdir /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/R1 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_1.fastq.gz
+2018-06-13 14:01:28,308 :: INFO :: Analysis complete for set1_1.fastq.gz
+
+2018-06-13 14:01:28,309 :: INFO :: fastqc --extract --threads 24 --outdir /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/R2 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_2.fastq.gz
+2018-06-13 14:01:30,747 :: INFO :: Analysis complete for set1_2.fastq.gz
+
+2018-06-13 14:01:30,747 :: INFO :: trim_galore --paired --fastqc --output_dir /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_1.fastq.gz /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_2.fastq.gz
+2018-06-13 14:01:56,170 :: INFO :: 1.14
+Analysis complete for set1_1_val_1.fq.gz
+Analysis complete for set1_2_val_2.fq.gz
+
+2018-06-13 14:01:56,171 :: INFO :: =========> SALMON QUANT
+2018-06-13 14:01:56,171 :: INFO :: salmon quant -i /home/jean-philippe.villemin/mount_archive2/commun.luco/ref/transcriptome/GRCh38_PRIM_GENCODE_R25/gencode.v25.transcripts.index -p 24 -l A  -g /home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.primary_assembly.annotation.gtf -1 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_1_val_1.fq.gz -2 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_2_val_2.fq.gz -o /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/salmon_output
+2018-06-13 14:03:48,598 :: INFO :: [1m[2018-06-13 14:01:56.631] [jointLog] [info] parsing read library format
+[00m[1m[2018-06-13 14:01:56.631] [jointLog] [info] There is 1 library.
+[00m[1m[2018-06-13 14:01:56.758] [jointLog] [info] Loading Quasi index
+[00m[1m[2018-06-13 14:01:56.762] [jointLog] [info] Loading 32-bit quasi index
+[00m[1m[2018-06-13 14:01:56.769] [stderrLog] [info] Loading Suffix Array 
+[00m[1m[2018-06-13 14:02:15.995] [stderrLog] [info] Loading Transcript Info 
+[00m[1m[2018-06-13 14:02:23.175] [stderrLog] [info] Loading Rank-Select Bit Array
+[00m[1m[2018-06-13 14:02:24.280] [stderrLog] [info] There were 198093 set bits in the bit array
+[00m[1m[2018-06-13 14:02:24.674] [stderrLog] [info] Computing transcript lengths
+[00m[1m[2018-06-13 14:02:24.675] [stderrLog] [info] Waiting to finish loading hash
+[00m[1m[2018-06-13 14:02:41.240] [stderrLog] [info] Successfully loaded position hash
+[00m[1m[2018-06-13 14:02:41.240] [stderrLog] [info] Done loading index
+[00m[1m[2018-06-13 14:02:41.240] [jointLog] [info] done
+[00m[1m[2018-06-13 14:02:41.240] [jointLog] [info] Index contained 198093 targets
+[00m[1m[2018-06-13 14:02:41.747] [jointLog] [info] Automatically detected most likely library type as IU
+[00m[1m[2018-06-13 14:02:41.828] [jointLog] [info] Computed 13600 rich equivalence classes for further processing
+[00m[1m[2018-06-13 14:02:41.828] [jointLog] [info] Counted 22052 total reads in the equivalence classes 
+[00m[33m[1m[2018-06-13 14:02:41.834] [jointLog] [warning] 0.00400112% of fragments were shorter than the k used to build the index (31).
+If this fraction is too large, consider re-building the index with a smaller k.
+The minimum read size found was 21.
+
+
+[00m[33m[1m[2018-06-13 14:02:41.847] [jointLog] [warning] Only 22052 fragments were mapped, but the number of burn-in fragments was set to 5000000.
+The effective lengths have been computed using the observed mappings.
+
+[00m[1m[2018-06-13 14:02:41.847] [jointLog] [info] Mapping rate = 88.2327%
+
+[00m[1m[2018-06-13 14:02:41.847] [jointLog] [info] finished quantifyLibrary()
+[00m[1m[2018-06-13 14:02:41.847] [jointLog] [info] Starting optimizer
+[00m[1m[2018-06-13 14:02:41.909] [jointLog] [info] Marked 0 weighted equivalence classes as degenerate
+[00m[1m[2018-06-13 14:02:41.911] [jointLog] [info] iteration = 0 | max rel diff. = 0.989015
+[00m[1m[2018-06-13 14:02:42.041] [jointLog] [info] iteration = 100 | max rel diff. = 0.085817
+[00m[1m[2018-06-13 14:02:42.167] [jointLog] [info] iteration = 200 | max rel diff. = 0.0409945
+[00m[1m[2018-06-13 14:02:42.291] [jointLog] [info] iteration = 300 | max rel diff. = 0.0257062
+[00m[1m[2018-06-13 14:02:42.415] [jointLog] [info] iteration = 400 | max rel diff. = 0.0191179
+[00m[1m[2018-06-13 14:02:42.537] [jointLog] [info] iteration = 500 | max rel diff. = 0.0138656
+[00m[1m[2018-06-13 14:02:42.657] [jointLog] [info] iteration = 600 | max rel diff. = 0.0131707
+[00m[1m[2018-06-13 14:02:42.777] [jointLog] [info] iteration = 700 | max rel diff. = 0.0101306
+[00m[1m[2018-06-13 14:02:42.791] [jointLog] [info] iteration = 713 | max rel diff. = 0.00904782
+[00m[1m[2018-06-13 14:02:42.807] [jointLog] [info] Finished optimizer
+[00m[1m[2018-06-13 14:02:42.807] [jointLog] [info] writing output 
+
+[00m
+2018-06-13 14:03:48,599 :: INFO :: =========> ALIGN WITH STAR
+2018-06-13 14:03:48,599 :: INFO :: STAR --runThreadN 32 --genomeDir /home/jean-philippe.villemin/mount_archive2/commun.luco/ref/indexes/GRCh38_PRIM_GENCODE_R25/ --readFilesIn /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_1_val_1.fq.gz /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_2_val_2.fq.gz  --readFilesCommand zcat  --outFileNamePrefix /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/paired.set1.Rep1_ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts 
+2018-06-13 14:11:06,735 :: INFO :: Jun 13 14:03:48 ..... started STAR run
+Jun 13 14:03:48 ..... loading genome
+Jun 13 14:11:01 ..... started mapping
+Jun 13 14:11:06 ..... started sorting BAM
+Jun 13 14:11:06 ..... finished successfully
+
+2018-06-13 14:11:06,740 :: INFO :: =========> INDEX BAM
+2018-06-13 14:11:06,824 :: INFO :: None
+2018-06-13 14:11:06,825 :: INFO :: =========> COUNT READS FOR GENE
+2018-06-13 14:11:06,829 :: INFO :: IU
+2018-06-13 14:11:06,829 :: INFO :: IU
+2018-06-13 14:14:06,112 :: INFO :: =========> START:PARSE EACH FASTQ PAIRS FOR AN EXPERIMENT
+2018-06-13 14:14:06,113 :: INFO :: GroupeA
+2018-06-13 14:14:06,113 :: INFO :: set1_1.fastq.gz
+2018-06-13 14:14:06,113 :: INFO :: set1_2.fastq.gz
+2018-06-13 14:14:06,114 :: INFO :: 
+2018-06-13 14:14:06,114 :: INFO :: set1
+2018-06-13 14:14:06,114 :: INFO :: paired.set1.Rep1
+2018-06-13 14:14:06,114 :: INFO :: =========> FASTQC PER FASTQ
+2018-06-13 14:14:06,115 :: INFO :: =========>Fastqc PairedEND
+2018-06-13 14:14:06,115 :: INFO :: fastqc --extract --threads 24 --outdir /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/R1 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_1.fastq.gz
+2018-06-13 14:14:08,435 :: INFO :: Analysis complete for set1_1.fastq.gz
+
+2018-06-13 14:14:08,436 :: INFO :: fastqc --extract --threads 24 --outdir /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/R2 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_2.fastq.gz
+2018-06-13 14:14:10,746 :: INFO :: Analysis complete for set1_2.fastq.gz
+
+2018-06-13 14:14:10,746 :: INFO :: trim_galore --paired --fastqc --output_dir /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_1.fastq.gz /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_2.fastq.gz
+2018-06-13 14:14:36,150 :: INFO :: 1.14
+Analysis complete for set1_1_val_1.fq.gz
+Analysis complete for set1_2_val_2.fq.gz
+
+2018-06-13 14:14:36,150 :: INFO :: =========> SALMON QUANT
+2018-06-13 14:14:36,150 :: INFO :: salmon quant -i /home/jean-philippe.villemin/mount_archive2/commun.luco/ref/transcriptome/GRCh38_PRIM_GENCODE_R25/gencode.v25.transcripts.index -p 24 -l A  -g /home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.primary_assembly.annotation.gtf -1 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_1_val_1.fq.gz -2 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_2_val_2.fq.gz -o /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/salmon_output
+2018-06-13 14:15:56,173 :: INFO :: [1m[2018-06-13 14:14:36.626] [jointLog] [info] parsing read library format
+[00m[1m[2018-06-13 14:14:36.626] [jointLog] [info] There is 1 library.
+[00m[1m[2018-06-13 14:14:36.728] [jointLog] [info] Loading Quasi index
+[00m[1m[2018-06-13 14:14:36.732] [jointLog] [info] Loading 32-bit quasi index
+[00m[1m[2018-06-13 14:14:36.737] [stderrLog] [info] Loading Suffix Array 
+[00m[1m[2018-06-13 14:14:51.920] [stderrLog] [info] Loading Transcript Info 
+[00m[1m[2018-06-13 14:14:56.557] [stderrLog] [info] Loading Rank-Select Bit Array
+[00m[1m[2018-06-13 14:14:57.145] [stderrLog] [info] There were 198093 set bits in the bit array
+[00m[1m[2018-06-13 14:14:57.231] [stderrLog] [info] Computing transcript lengths
+[00m[1m[2018-06-13 14:14:57.231] [stderrLog] [info] Waiting to finish loading hash
+[00m[1m[2018-06-13 14:15:06.204] [stderrLog] [info] Successfully loaded position hash
+[00m[1m[2018-06-13 14:15:06.204] [stderrLog] [info] Done loading index
+[00m[1m[2018-06-13 14:15:06.204] [jointLog] [info] done
+[00m[1m[2018-06-13 14:15:06.204] [jointLog] [info] Index contained 198093 targets
+[00m[1m[2018-06-13 14:15:06.693] [jointLog] [info] Automatically detected most likely library type as IU
+[00m[1m[2018-06-13 14:15:06.750] [jointLog] [info] Computed 13600 rich equivalence classes for further processing
+[00m[1m[2018-06-13 14:15:06.750] [jointLog] [info] Counted 22052 total reads in the equivalence classes 
+[00m[33m[1m[2018-06-13 14:15:06.756] [jointLog] [warning] 0.00400112% of fragments were shorter than the k used to build the index (31).
+If this fraction is too large, consider re-building the index with a smaller k.
+The minimum read size found was 21.
+
+
+[00m[33m[1m[2018-06-13 14:15:06.768] [jointLog] [warning] Only 22052 fragments were mapped, but the number of burn-in fragments was set to 5000000.
+The effective lengths have been computed using the observed mappings.
+
+[00m[1m[2018-06-13 14:15:06.768] [jointLog] [info] Mapping rate = 88.2327%
+
+[00m[1m[2018-06-13 14:15:06.768] [jointLog] [info] finished quantifyLibrary()
+[00m[1m[2018-06-13 14:15:06.769] [jointLog] [info] Starting optimizer
+[00m[1m[2018-06-13 14:15:06.831] [jointLog] [info] Marked 0 weighted equivalence classes as degenerate
+[00m[1m[2018-06-13 14:15:06.833] [jointLog] [info] iteration = 0 | max rel diff. = 0.989012
+[00m[1m[2018-06-13 14:15:06.959] [jointLog] [info] iteration = 100 | max rel diff. = 0.0857721
+[00m[1m[2018-06-13 14:15:07.077] [jointLog] [info] iteration = 200 | max rel diff. = 0.0409874
+[00m[1m[2018-06-13 14:15:07.194] [jointLog] [info] iteration = 300 | max rel diff. = 0.0257973
+[00m[1m[2018-06-13 14:15:07.310] [jointLog] [info] iteration = 400 | max rel diff. = 0.0192762
+[00m[1m[2018-06-13 14:15:07.427] [jointLog] [info] iteration = 500 | max rel diff. = 0.0138623
+[00m[1m[2018-06-13 14:15:07.545] [jointLog] [info] iteration = 600 | max rel diff. = 0.0131689
+[00m[1m[2018-06-13 14:15:07.661] [jointLog] [info] iteration = 700 | max rel diff. = 0.0101301
+[00m[1m[2018-06-13 14:15:07.675] [jointLog] [info] iteration = 713 | max rel diff. = 0.00904742
+[00m[1m[2018-06-13 14:15:07.691] [jointLog] [info] Finished optimizer
+[00m[1m[2018-06-13 14:15:07.691] [jointLog] [info] writing output 
+
+[00m
+2018-06-13 14:15:56,174 :: INFO :: =========> ALIGN WITH STAR
+2018-06-13 14:15:56,174 :: INFO :: STAR --runThreadN 32 --genomeDir /home/jean-philippe.villemin/mount_archive2/commun.luco/ref/indexes/GRCh38_PRIM_GENCODE_R25/ --readFilesIn /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_1_val_1.fq.gz /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_2_val_2.fq.gz  --readFilesCommand zcat  --outFileNamePrefix /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/paired.set1.Rep1_ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts 
+2018-06-13 14:21:51,144 :: INFO :: Jun 13 14:15:56 ..... started STAR run
+Jun 13 14:15:56 ..... loading genome
+Jun 13 14:21:45 ..... started mapping
+Jun 13 14:21:50 ..... started sorting BAM
+Jun 13 14:21:50 ..... finished successfully
+
+2018-06-13 14:21:51,150 :: INFO :: =========> INDEX BAM
+2018-06-13 14:21:51,251 :: INFO :: None
+2018-06-13 14:21:51,252 :: INFO :: =========> COUNT READS FOR GENE
+2018-06-13 14:21:51,257 :: INFO :: IU
+2018-06-13 14:21:51,257 :: INFO :: IU
+2018-06-13 14:21:51,257 :: INFO :: From Salmon, Library is Unstranded
+2018-06-13 14:21:51,258 :: INFO :: Parse STAR count ouput.
+
+2018-06-13 14:21:51,258 :: INFO :: print_count_reads_per_genepaired.set1.Rep1
+2018-06-13 14:21:51,547 :: INFO :: {'Stranded_reverse': 10629, 'Unstranded': 19029, 'Stranded_forward': 10315}
+2018-06-13 14:21:51,547 :: INFO :: >>>>>>>>>>>>>>>>>>>  From Start count, this library is Reverse
+2018-06-13 14:21:51,551 :: INFO :: Unstranded
+2018-06-13 14:21:51,551 :: INFO :: Unstranded
+2018-06-13 14:21:51,551 :: INFO :: Salmon and STAR define different library types.
+2018-06-13 14:21:51,551 :: INFO :: ['paired', 'set1', 'Rep1']
+2018-06-13 14:21:51,551 :: INFO :: =========> STAR GIVE WIG FILES STRANDED
+2018-06-13 14:21:51,551 :: INFO :: STAR --runMode inputAlignmentsFromBAM --runThreadN 32 --inputBAMfile /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/SORTED.paired.set1.Rep1.bam --outFileNamePrefix /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/paired.set1.Rep1_ --outWigType wiggle  --outWigStrand Unstranded --outWigNorm RPM
+2018-06-13 14:22:28,039 :: INFO :: Jun 13 14:21:51 ..... reading from BAM, output wiggle
+Jun 13 14:22:28 ..... done
+
+2018-06-13 14:22:29,868 :: INFO :: 
+2018-06-13 14:22:29,868 :: INFO :: =========> END 14_22_29
+2018-06-13 14:30:59,791 :: INFO :: =========> START:PARSE EACH FASTQ PAIRS FOR AN EXPERIMENT
+2018-06-13 14:30:59,792 :: INFO :: GroupeA
+2018-06-13 14:30:59,792 :: INFO :: set1_1.fastq.gz
+2018-06-13 14:30:59,792 :: INFO :: set1_2.fastq.gz
+2018-06-13 14:30:59,792 :: INFO :: 
+2018-06-13 14:30:59,793 :: INFO :: set1
+2018-06-13 14:30:59,793 :: INFO :: paired.set1.Rep1
+2018-06-13 14:30:59,793 :: INFO :: =========> FASTQC PER FASTQ
+2018-06-13 14:30:59,793 :: INFO :: =========>Fastqc PairedEND
+2018-06-13 14:30:59,793 :: INFO :: fastqc --extract --threads 24 --outdir /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/R1 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_1.fastq.gz
+2018-06-13 14:31:02,117 :: INFO :: Analysis complete for set1_1.fastq.gz
+
+2018-06-13 14:31:02,117 :: INFO :: fastqc --extract --threads 24 --outdir /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/R2 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_2.fastq.gz
+2018-06-13 14:31:04,433 :: INFO :: Analysis complete for set1_2.fastq.gz
+
+2018-06-13 14:31:04,433 :: INFO :: trim_galore --paired --fastqc --output_dir /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_1.fastq.gz /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/set1_2.fastq.gz
+2018-06-13 14:31:29,879 :: INFO :: 1.14
+Analysis complete for set1_1_val_1.fq.gz
+Analysis complete for set1_2_val_2.fq.gz
+
+2018-06-13 14:31:29,879 :: INFO :: =========> SALMON QUANT
+2018-06-13 14:31:29,880 :: INFO :: salmon quant -i /home/jean-philippe.villemin/mount_archive2/commun.luco/ref/transcriptome/GRCh38_PRIM_GENCODE_R25/gencode.v25.transcripts.index -p 24 -l A  -g /home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.primary_assembly.annotation.gtf -1 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_1_val_1.fq.gz -2 /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_2_val_2.fq.gz -o /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/salmon_output
+2018-06-13 14:32:49,117 :: INFO :: [1m[2018-06-13 14:31:30.375] [jointLog] [info] parsing read library format
+[00m[1m[2018-06-13 14:31:30.375] [jointLog] [info] There is 1 library.
+[00m[1m[2018-06-13 14:31:30.532] [jointLog] [info] Loading Quasi index
+[00m[1m[2018-06-13 14:31:30.537] [jointLog] [info] Loading 32-bit quasi index
+[00m[1m[2018-06-13 14:31:30.543] [stderrLog] [info] Loading Suffix Array 
+[00m[1m[2018-06-13 14:31:44.839] [stderrLog] [info] Loading Transcript Info 
+[00m[1m[2018-06-13 14:31:49.160] [stderrLog] [info] Loading Rank-Select Bit Array
+[00m[1m[2018-06-13 14:31:49.731] [stderrLog] [info] There were 198093 set bits in the bit array
+[00m[1m[2018-06-13 14:31:49.827] [stderrLog] [info] Computing transcript lengths
+[00m[1m[2018-06-13 14:31:49.828] [stderrLog] [info] Waiting to finish loading hash
+[00m[1m[2018-06-13 14:31:58.570] [stderrLog] [info] Successfully loaded position hash
+[00m[1m[2018-06-13 14:31:58.570] [stderrLog] [info] Done loading index
+[00m[1m[2018-06-13 14:31:58.570] [jointLog] [info] done
+[00m[1m[2018-06-13 14:31:58.570] [jointLog] [info] Index contained 198093 targets
+[00m[1m[2018-06-13 14:31:59.053] [jointLog] [info] Automatically detected most likely library type as IU
+[00m[1m[2018-06-13 14:31:59.108] [jointLog] [info] Computed 13600 rich equivalence classes for further processing
+[00m[1m[2018-06-13 14:31:59.108] [jointLog] [info] Counted 22052 total reads in the equivalence classes 
+[00m[33m[1m[2018-06-13 14:31:59.114] [jointLog] [warning] 0.00400112% of fragments were shorter than the k used to build the index (31).
+If this fraction is too large, consider re-building the index with a smaller k.
+The minimum read size found was 21.
+
+
+[00m[33m[1m[2018-06-13 14:31:59.127] [jointLog] [warning] Only 22052 fragments were mapped, but the number of burn-in fragments was set to 5000000.
+The effective lengths have been computed using the observed mappings.
+
+[00m[1m[2018-06-13 14:31:59.127] [jointLog] [info] Mapping rate = 88.2327%
+
+[00m[1m[2018-06-13 14:31:59.127] [jointLog] [info] finished quantifyLibrary()
+[00m[1m[2018-06-13 14:31:59.127] [jointLog] [info] Starting optimizer
+[00m[1m[2018-06-13 14:31:59.189] [jointLog] [info] Marked 0 weighted equivalence classes as degenerate
+[00m[1m[2018-06-13 14:31:59.191] [jointLog] [info] iteration = 0 | max rel diff. = 0.989015
+[00m[1m[2018-06-13 14:31:59.314] [jointLog] [info] iteration = 100 | max rel diff. = 0.085755
+[00m[1m[2018-06-13 14:31:59.433] [jointLog] [info] iteration = 200 | max rel diff. = 0.0409846
+[00m[1m[2018-06-13 14:31:59.552] [jointLog] [info] iteration = 300 | max rel diff. = 0.025841
+[00m[1m[2018-06-13 14:31:59.670] [jointLog] [info] iteration = 400 | max rel diff. = 0.0193618
+[00m[1m[2018-06-13 14:31:59.788] [jointLog] [info] iteration = 500 | max rel diff. = 0.013861
+[00m[1m[2018-06-13 14:31:59.905] [jointLog] [info] iteration = 600 | max rel diff. = 0.0131682
+[00m[1m[2018-06-13 14:32:00.023] [jointLog] [info] iteration = 700 | max rel diff. = 0.0101299
+[00m[1m[2018-06-13 14:32:00.038] [jointLog] [info] iteration = 713 | max rel diff. = 0.00904727
+[00m[1m[2018-06-13 14:32:00.055] [jointLog] [info] Finished optimizer
+[00m[1m[2018-06-13 14:32:00.055] [jointLog] [info] writing output 
+
+[00m
+2018-06-13 14:32:49,118 :: INFO :: =========> ALIGN WITH STAR
+2018-06-13 14:32:49,118 :: INFO :: STAR --runThreadN 32 --genomeDir /home/jean-philippe.villemin/mount_archive2/commun.luco/ref/indexes/GRCh38_PRIM_GENCODE_R25/ --readFilesIn /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_1_val_1.fq.gz /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/trim_galore_output/set1_2_val_2.fq.gz  --readFilesCommand zcat  --outFileNamePrefix /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/paired.set1.Rep1_ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts 
+2018-06-13 14:38:37,643 :: INFO :: Jun 13 14:32:49 ..... started STAR run
+Jun 13 14:32:49 ..... loading genome
+Jun 13 14:38:32 ..... started mapping
+Jun 13 14:38:37 ..... started sorting BAM
+Jun 13 14:38:37 ..... finished successfully
+
+2018-06-13 14:38:37,647 :: INFO :: =========> INDEX BAM
+2018-06-13 14:38:37,699 :: INFO :: None
+2018-06-13 14:38:37,699 :: INFO :: =========> COUNT READS FOR GENE
+2018-06-13 14:38:37,705 :: INFO :: IU
+2018-06-13 14:38:37,705 :: INFO :: IU
+2018-06-13 14:38:37,705 :: INFO :: >>>>>>>>>>>>>>>>>>> From Salmon, Library is Unstranded
+2018-06-13 14:38:37,705 :: INFO :: Unstranded
+2018-06-13 14:38:37,705 :: INFO :: Unstranded
+2018-06-13 14:38:37,705 :: INFO :: ['paired', 'set1', 'Rep1']
+2018-06-13 14:38:37,705 :: INFO :: =========> STAR GIVE WIG FILES STRANDED
+2018-06-13 14:38:37,706 :: INFO :: STAR --runMode inputAlignmentsFromBAM --runThreadN 32 --inputBAMfile /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/SORTED.paired.set1.Rep1.bam --outFileNamePrefix /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/paired/paired.set1.Rep1/star_output/paired.set1.Rep1_ --outWigType wiggle  --outWigStrand Unstranded --outWigNorm RPM
+2018-06-13 14:39:14,164 :: INFO :: Jun 13 14:38:37 ..... reading from BAM, output wiggle
+Jun 13 14:39:14 ..... done
+
+2018-06-13 14:39:16,031 :: INFO :: 
+2018-06-13 14:39:16,032 :: INFO :: =========> END 14_39_16
