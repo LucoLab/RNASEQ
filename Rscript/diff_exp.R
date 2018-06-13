@@ -514,21 +514,21 @@ ggplot(data, aes(PC1, PC2,  shape=condition)) +   geom_point(size=3) +
 
 ########################### MDS  ##################################
 
-mdsData <- data.frame(cmdscale(sampleDistMatrix))
-mds <- cbind(mdsData, as.data.frame(colData(rld)))
+#mdsData <- data.frame(cmdscale(sampleDistMatrix))
+#mds <- cbind(mdsData, as.data.frame(colData(rld)))
 #euclidianMDS <- ggplot(mds, aes(X1,X2,color=emt,shape=condition)) + geom_point(size=3)
-euclidianMDS <- ggplot(mds, aes(X1,X2,shape=condition)) + geom_point(size=3)
+#euclidianMDS <- ggplot(mds, aes(X1,X2,shape=condition)) + geom_point(size=3)
 
-euclidianMDS + ggtitle("MDS - Euclidian Distrance from rlog-transformed values")
+#euclidianMDS + ggtitle("MDS - Euclidian Distrance from rlog-transformed values")
 
 #Creating the same plot for the PoissonDistance :
-mdsPoisData <- data.frame(cmdscale(samplePoisDistMatrix))
-mdsPois <- cbind(mdsPoisData, as.data.frame(colData(dds)))
+#mdsPoisData <- data.frame(cmdscale(samplePoisDistMatrix))
+#mdsPois <- cbind(mdsPoisData, as.data.frame(colData(dds)))
 #poissonMDS <- ggplot(mdsPois, aes(X1,X2,color=emt,shape=condition)) + geom_point(size=3)
-poissonMDS <- ggplot(mdsPois, aes(X1,X2,shape=condition)) + geom_point(size=3)
-poissonMDS + ggtitle("MDS - PoissonDistance values")
+#poissonMDS <- ggplot(mdsPois, aes(X1,X2,shape=condition)) + geom_point(size=3)
+#poissonMDS + ggtitle("MDS - PoissonDistance values")
 
-dev.off()
+#dev.off()
 
 
 #we test for genes that show significant effects of treatment 
@@ -598,7 +598,10 @@ res_data_frame[,1] <- clean_ensembl_id[,2]
 
 res_annotated <- join(gene_infos, res_data_frame, by='ensembl_gene_id', type='left', match='all')
 
+
 ######################## FILTER OUR RESULTS ##################################
+
+res_annotated <- res_annotated[!duplicated(res_annotated$ensembl_gene_id),]
 
 # Sorted by Adjusted
 res_annotated <- res_annotated[order(res_annotated$padj),]
@@ -607,9 +610,15 @@ res_annotated_df <- as.data.frame(res_annotated)
 rownames(res_annotated_df) <- NULL
 
 res_annotated_df$foldchange <- logratio2foldchange(res_annotated_df$log2FoldChange, base=2)
-#data.frame(append(res_annotated_df, list(FC=Foldchange), after=match("log2FoldChange", names(res_annotated_df))))
 
-write.csv(res_annotated_df ,row.names=FALSE,file=paste0(c(dir_final,"DESEQ_all_res_annotated_sorted_pvalAdj.csv"),collapse="/"))
+res_annotated_df$classifier <- -log10(res_annotated_df$padj) * (res_annotated_df$log2FoldChange/abs(res_annotated_df$log2FoldChange))
+res_annotated_df$rank <-  rank(res_annotated_df$classifier)
+
+#data.frame(append(res_annotated_df, list(FC=Foldchange), after=match("log2FoldChange", names(res_annotated_df))))
+res_annotated_df_sorted <- res_annotated_df[order(res_annotated_df$classifier ),decreasing = TRUE),]
+write.csv(res_annotated_df_sorted ,row.names=FALSE,file=paste0(c(dir_final,"DESEQ_all_res_annotated_sorted_pvalAdj.csv"),collapse="/"))
+
+#write.csv(res_annotated_df ,row.names=FALSE,file=paste0(c(dir_final,"DESEQ_all_res_annotated_sorted_pvalAdj.csv"),collapse="/"))
 
 res_annotated_filtered <- subset(res_annotated_df, ( abs(res_annotated_df$log2FoldChange)>= 1.5 & padj < 0.05 ))
 res_annotated_filtered <- res_annotated_filtered[order(abs(res_annotated_filtered$log2FoldChange),decreasing = TRUE),]
@@ -622,135 +631,3 @@ write.csv(res_annotated_filtered_up,row.names=FALSE,file=paste0(c(dir_final,"DES
 res_annotated_filtered_down <- subset(res_annotated_df, ( res_annotated_df$log2FoldChange <= -1.5 & padj < 0.05 ))
 res_annotated_filtered_down <- res_annotated_filtered_down[order(abs(res_annotated_filtered_down$log2FoldChange),decreasing = TRUE),]
 write.csv(res_annotated_filtered_down,row.names=FALSE,file=paste0(c(dir_final,"DESEQ_res_annotated_DE_DOWN.csv"),collapse="/"))
-
-topgenes_ensembl <- head(res_annotated_filtered[,1:2],500)
-
-#DataFrameTransformation
-clean_ensembl_id_data_frame <- as.data.frame(clean_ensembl_id)
-topgenes_ensembl_data_frame <- as.data.frame(topgenes_ensembl)
-
-# Set name for column gene
-colnames(topgenes_ensembl_data_frame)[1] <- "ensembl_gene_id"
-colnames(clean_ensembl_id_data_frame)[2] <- "ensembl_gene_id"
-
-ensembl_id_version <- join(topgenes_ensembl_data_frame, clean_ensembl_id_data_frame, by='ensembl_gene_id', type='left', match='first')
-
-# SOMETIMES SYMBOL IS EMPTY SO COPY COLUMN WITH ENSEMBL ID
-ensembl_id_version$hgnc_symbol <- ifelse(ensembl_id_version$hgnc_symbol == "", ensembl_id_version$ensembl_gene_id, ensembl_id_version$hgnc_symbol )
-
-mat <- assay(rld)[ensembl_id_version$V1,]
-mat <- mat - rowMeans(mat)
-# REPLACE BY SYMBOL
-rownames(mat) <- ensembl_id_version$hgnc_symbol
-
-df <- as.data.frame(colData(dds)[,c("sample_id","condition")])
-#df <- as.data.frame(colData(dds)[,c("emt","condition")])
-
-######################## HEATMAP RESULTS ##################################
-png(paste0(c(dir_final,"DESEQ_HEATMAP_TOP_DE_GENES.png"),collapse="/"),width=1000 , height = 8000)
-pheatmap(mat, annotation_col=df,cellheight=10)
-dev.off()
-
-
-#stop("ENRICHMNENT STEP WILL NOT BE DONE BECAUSE OF libpng16.so.16 bug")
-
-####################################################################################
-##########################      ENRICHMENT    ####################################
-####################################################################################
-
-# SET INPUT LIST
-entrez_id  <- res_annotated_filtered$entrezgene
-ensembl_id <- res_annotated_filtered$ensembl_gene_id
-log2_fold  <- res_annotated_filtered$log2FoldChange
-
-####################################################################################
-##########################      ENRICHMENT    ####################################
-####################################################################################
-
-# ##########################  KEGG ENRICHMENT #########################################
-
-kegg <- enrichKEGG(entrez_id, organism="human", pvalueCutoff=0.05, pAdjustMethod="BH", qvalueCutoff=0.2,use_internal_data=FALSE)
-
-write.csv(as.data.frame (kegg),file=paste0(c(dir_pathway,"DESEQ_KEGG_ENRICHMENT.csv"),collapse="/"))
-
-png(paste0(c(dir_pathway,"DESEQ_KEGG_DOTPLOT.png"),collapse="/"),width=1000,height=1000)
-barplot(kegg, showCategory=30)
-dev.off()
-
-png(paste0(c(dir_pathway,"DESEQ_KEGG_ENRICHMAP.png"),collapse="/"),width=1000,height=1000)
-try(enrichMap(kegg, vertex.label.cex=1.2, layout=igraph::layout.kamada.kawai))
-dev.off()
-
-# ##########################  GO ENRICHMENT #######################################
-# 
-# 
-
-go_mf <- enrichGO(gene=entrez_id,OrgDb = org.Hs.eg.db,ont = "MF",pvalueCutoff = 0.01, pAdjustMethod = "BH", qvalueCutoff = 0.05, readable = TRUE)
-
-write.csv(as.data.frame (go_mf),file=paste0(c(dir_pathway,"DESEQ_GOMF_ENRICHMENT.csv"),collapse="/"))
-
-
-png(paste0(c(dir_pathway,"DESEQ_GOMF_DOTPLOT.png"),collapse="/"),width=1000,height=1000)
-barplot(go_mf, showCategory=30)
-dev.off()
-
-
-pdf(paste0(c(dir_pathway,"DESEQ_GOMF_GOGRAPH.pdf"),collapse="/"))
-try(plotGOgraph(go_mf))
-dev.off()
-
-png(paste0(c(dir_pathway,"DESEQ_GOMF_ENRICHMAP.png"),collapse="/"),width=1000,height=1000)
-try(enrichMap(go_mf, vertex.label.cex=1.2, layout=igraph::layout.kamada.kawai))
-dev.off()
-
-#bp2 <- simplify(go_mf, cutoff=1.2, by="p.adjust", select_fun=min)
-#png("./results/DESEQ_GOMF_ENRICHMAP_SYMPLIFY.png",width=1000,height=1000)
-#enrichMap(bp2,vertex.label.cex=1.2, layout=igraph::layout.kamada.kawai)
-#dev.off()
-
-#go_mf <- setReadable(go_mf, OrgDb = org.Hs.eg.db,keytype="auto")
-#cnetplot(go_mf,foldChange=log2_fold)
-
-
-go_bp <- enrichGO(gene=entrez_id, OrgDb = org.Hs.eg.db,  ont = "BP", pvalueCutoff = 0.01, pAdjustMethod = "BH", qvalueCutoff = 0.05, readable = TRUE)
-
-write.csv(as.data.frame (go_bp),file=paste0(c(dir_pathway,"DESEQ_GO_BP_ENRICHMENT.csv"),collapse="/"))
-
-png(paste0(c(dir_pathway,"DESEQ_GOBP_DOTPLOT.png"),collapse="/"),width=1000,height=1000)
-barplot(go_bp, showCategory=30)
-dev.off()
-
-png(paste0(c(dir_pathway,"DESEQ_GOBP_ENRICHMAP.png"),collapse="/"),width=1000,height=1000)
-try(enrichMap(go_bp, vertex.label.cex=1.2, layout=igraph::layout.kamada.kawai))
-dev.off()
-
-pdf(paste0(c(dir_pathway,"DESEQ_GOBP_GOGRAPH.pdf"),collapse="/"))
-try(plotGOgraph(go_bp))
-dev.off()
-
-#go_bp <- setReadable(go_bp, OrgDb = org.Hs.eg.db,keytype="auto")
-#png(paste0(c(dir_pathway,"DESEQ_GOBP_CNETPLOT.png"),collapse="/"))
-#cnetplot(go_bp,foldChange=log2_fold)
-#dev.off()
-
-
-# ##########################  REACTOME ENRICHMENT #########################################
-
-reactome <- enrichPathway(gene=entrez_id,organism = "human",pvalueCutoff=0.05, pAdjustMethod="BH", qvalueCutoff=0.2,readable=TRUE)
-
-write.csv(as.data.frame (reactome),file=paste0(c(dir_pathway,"DESEQ_REACTOME_ENRICHMENT.csv"),collapse="/"))
-
-png(paste0(c(dir_pathway,"DESEQ_REACTOME_DOTPLOT.png"),collapse="/"),width=1000,height=1000)
-barplot(reactome, showCategory=30)
-dev.off()
-
-png(paste0(c(dir_pathway,"DESEQ_REACTOME_ENRICHMAP.png"),collapse="/"),width=1000,height=1000)
-try(enrichMap(reactome, vertex.label.cex=1.2, layout=igraph::layout.kamada.kawai))
-dev.off()
-
-#reactome <- setReadable(reactome, OrgDb = org.Hs.eg.db, keytype="ENTREZID")
-
-
-
-
-
