@@ -1,0 +1,26 @@
+{
+"project" : "paired" , 
+"star":
+{"runThreadN":"32",
+"genomeDir":"/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/indexes/GRCh38_PRIM_GENCODE_R25/",
+"outSAMtype":"BAM SortedByCoordinate"},
+"fastqc":
+{  "threads":"24"},
+"salmon":
+{ "cpu":"24"},
+"samtools":
+{ "cpu":"24"},
+"softs":
+{ "samtools":"samtools","star":"STAR",  "wigToBigWig":"wigToBigWig"},
+"type": "pairedEnd"
+, "gzip": "yes"
+, "files":{
+ "GroupeA": { "R1": "set1_1.fastq.gz","R2": "set1_2.fastq.gz"}
+},
+"path_to_input" : "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/",
+"path_to_output": "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/",
+"path_to_chrom_length_ref":"/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genome/GRCh38_PRIM_GENCODE_R25/GRCh38.primary_assembly.genome.sizes",
+"final_bam_name": "paired.set1.Rep1",
+"path_to_gtf":"/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.primary_assembly.annotation.gtf",
+"transcriptome_index":"/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/transcriptome/GRCh38_PRIM_GENCODE_R25/gencode.v25.transcripts.index"
+}
