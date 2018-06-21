@@ -60,11 +60,6 @@ samtools faidx reference.fa
 ```
 This creates a file called reference.fa.fai
 
-Generate the sequence dictionary :  
-```shell
-java -jar picard.jar CreateSequenceDictionary REFERENCE=reference.fa OUTPUT=reference.dict 
-```
-
 Generate the sequence genome.2bit :  
 ```shell
 faToTwoBit genome.fa genome.2bit
