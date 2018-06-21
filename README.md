@@ -1,10 +1,10 @@
 
-TAPAS pipeline : Transcrption Analysis Plus Alternative Splicing for RNA_SEQ
+TAPAS pipeline : Transcription Analysis Plus Alternative Splicing for RNA SEQ
 =============
 
 
 <p align="center">
-<img align="center" src="/img/TAPAS.png" alt="TAPAS Logo">
+<img align="center"  style="width: 50%; height: 50%" src="/img/TAPAS.png" alt="TAPAS Logo">
 </p>
 
 ![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/TAPAS.png "TAPAS")
