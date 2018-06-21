@@ -4,7 +4,7 @@ TAPAS pipeline : Transcription Analysis Plus Alternative Splicing for RNA SEQ
 
 
 <p align="center">
-<img align="center"  style="width:25%;height:25%" src="/img/TAPAS.png" alt="TAPAS Logo">
+<img align="center"   src="/img/TAPAS.jpeg" alt="TAPAS Logo">
 </p>
 
 
