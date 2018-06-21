@@ -4,10 +4,9 @@ TAPAS pipeline : Transcription Analysis Plus Alternative Splicing for RNA SEQ
 
 
 <p align="center">
-<img align="center"  style="width: 50%; height: 50%" src="/img/TAPAS.png" alt="TAPAS Logo">
+<img align="center"  style="width:25%;height:25%" src="/img/TAPAS.png" alt="TAPAS Logo">
 </p>
 
-![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/TAPAS.png "TAPAS")
 
 [TAPAS](https://github.com/LucoLab/RNASEQ) is ,for sure , a great tool but it's still in developpment.
 
