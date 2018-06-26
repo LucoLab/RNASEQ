@@ -12,13 +12,78 @@ Transcription Analysis Plus Alternative Splicing for RNA-SEQ
 
 ---
 
-Here we describe the alignment part of the workflow.
+Here we describe the different steps involved in this workflow.
+
+The goal of this tutorial is to help people to reproduce the analysis.
 
 
 ## Quick overview
 
 ---
 
+First, be sure you can call python3 as follows : 
+
+```shell
+python3 --version
+```
+
+Should return something like  : _Python 3.5.5 :: Anaconda custom (64-bit)_
+
+Then you can install all tierce tools needed by the pipeline. See _Set up Tools_ paragraph.
+
+Once you installed all the necessary softs, you need to set up a _init.json_ file inside a directory called _config_ in the RNA-SEQ directory. 
+
+And it's done.
+
+One command is used to launch all steps :
+
+```shell
+    python3 signature.py -l listofRnaSeqProject.tsv
+```
+
+- Alignment with STAR to generate bigWigs for visualisation
+- Transcript Quantification with SALMON
+- Differential Expression with DESEQ2
+- Splicing Analysis with Whippet
+- Splicing Analysis with Rmats
+- Merge and Filters
+
+You end with bed files describing exons more splice In or splice Out between two conditions.
+
+Each step can be launched separately if you need to.
+
+
+## Listing of projects to analyse
+
+---
+
+The file listing all the RNA-SEQ Projects you want to analysis should be as follows :
+
+![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/listing.png "Listing")
+
+Column names has to be the sames as showed in the picture. The order of the columns can be changed.
+
+
+- **STUDY :** Can be anything you want.
+- **RUNACCESSION :** Can be anything you want.
+- **LIBRARY_LAYOUT :** KeyWords to use are "PAIRED" or "SINGLE"
+- **FASTQ :** Absolute path to your dataset or ftp url to download automatically, if paired-end it can be data_1_fastq.gz;data_2_fastq.gz  or data_R1_fastq.gz;data_R2_- fastq.gz 
+- **TREATMENT :** Anything you want
+- **CELL_LINE :** Anything you want
+- **CONDITION :** Keywords to use are "TEST" and "CONTROL"
+- **REP_NUMBER :** should be 1,2,3 or rep1, rep2, rep3
+- **TREATMENT_DAY :** A number.
+- **KMER :** Keywords to use are "normal" or "short". Short is used when read are less than 50 and you want to give a try with whippet with lowers index value for kmersize.
+
+
+---
+1. Quick overview
+2. Listing of projects to analyse
+3. Set up Tools
+4. Set up Files
+5. Set up ConfigFile for Alignment.py
+6. Launch Alignment
+7. Outputs
 
 ## Set up Tools
 
@@ -122,4 +187,7 @@ Finally you get the following directories as output :
 ![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/output_alignment.png "Outputs")
 
 ![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/output_alignment_open.png "Outputs")
+
+
+
 
