@@ -23,12 +23,12 @@ This tutorial goal is to make people understand how the raw data has been proces
 
 One command is used to launch all steps :
 
-1 - Alignment with STAR to generate bigWigs for visualisation
-2 - Transcript Quantification with SALMON
-3 - Differential Expression with DESEQ2
-4 - Splicing Analysis with Whippet
-5 - Splicing Analysis with Rmats
-6 - Merge and Filters
+- Alignment with STAR to generate bigWigs for visualisation
+- Transcript Quantification with SALMON
+- Differential Expression with DESEQ2
+- Splicing Analysis with Whippet
+- Splicing Analysis with Rmats
+- Merge and Filters
 
 You end with bed files describing exons more splice In or splice Out between two conditions.
 You can also retrieve expression values for genes.
@@ -42,16 +42,16 @@ The file with all the RNA-SEQ Projects should be as follows :
 Column names has to be the sames as showed in the picture. The order of the columns can be changed.
 
 
-STUDY : Can be anything you want.
-RUNACCESSION : Can be anything you want.
-LIBRARY_LAYOUT : KeyWords to use are "PAIRED" or "SINGLE"
-FASTQ : Absolute path to your dataset, if paired-end it can be data_1_fastq.gz;data_2_fastq.gz  or data_R1_fastq.gz;data_R2_fastq.gz 
-TREATMENT : Anything you want
-CELL_LINE : Anything you want
-CONDITION : Keywords to use are "TEST" and "CONTROL"
-REP_NUMBER : should be 1,2,3 or rep1, rep2, rep3
-TREATMENT_DAY : A number.
-KMER : Keywords to use are "normal" or "short". Short is used when read are less than 50 and you want to give a try with whippet with lowers index value for kmersize.
+- **STUDY :** Can be anything you want.
+- **RUNACCESSION :** Can be anything you want.
+- **LIBRARY_LAYOUT :** KeyWords to use are "PAIRED" or "SINGLE"
+- **FASTQ : Absolute path to your dataset, if paired-end it can be data_1_fastq.gz;data_2_fastq.gz  or data_R1_fastq.gz;data_R2_- fastq.gz 
+- **TREATMENT :** Anything you want
+- **CELL_LINE :** Anything you want
+- **CONDITION :** Keywords to use are "TEST" and "CONTROL"
+- **REP_NUMBER :** should be 1,2,3 or rep1, rep2, rep3
+- **TREATMENT_DAY :** A number.
+- **KMER :** Keywords to use are "normal" or "short". Short is used when read are less than 50 and you want to give a try with whippet with lowers index value for kmersize.
 
 TODO : describe outputs 
 
