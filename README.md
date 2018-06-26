@@ -4,7 +4,7 @@
 </p>
 
 
-Transcription Analysis Plus Alternative Splicing for RNA SEQ
+Transcription Analysis Plus Alternative Splicing for RNA-SEQ
 =============
 
 
@@ -12,16 +12,29 @@ Transcription Analysis Plus Alternative Splicing for RNA SEQ
 
 ---
 
-Here we describe the different steps involved in the analysis of RNASEQ in the laboratory.  
+Here we describe the different steps involved in the analysis of RNA-SEQ in the laboratory.  
 
 This tutorial goal is to make people understand how the raw data has been processed in the team (tools and workflow) and help them to reproduce analysis.
 
+Be sure you can call python3 as follows : 
+
+```shell
+python3 --version
+```
+
+Sould return something like  : Python 3.5.5 :: Anaconda custom (64-bit)
+
+You need to set up a init.json file inside a directory called _config_ in RNA-SEQ directory.
+
+Then you can go after installing all dependencies. See installing all dependencies.
+
+
+
+One command is used to launch all steps :
 
 ```shell
     python3 signature.py -l listofRnaSeqProject.tsv
 ```
-
-One command is used to launch all steps :
 
 - Alignment with STAR to generate bigWigs for visualisation
 - Transcript Quantification with SALMON
@@ -45,7 +58,7 @@ Column names has to be the sames as showed in the picture. The order of the colu
 - **STUDY :** Can be anything you want.
 - **RUNACCESSION :** Can be anything you want.
 - **LIBRARY_LAYOUT :** KeyWords to use are "PAIRED" or "SINGLE"
-- **FASTQ : Absolute path to your dataset, if paired-end it can be data_1_fastq.gz;data_2_fastq.gz  or data_R1_fastq.gz;data_R2_- fastq.gz 
+- **FASTQ :** Absolute path to your dataset or ftp url to download automatically, if paired-end it can be data_1_fastq.gz;data_2_fastq.gz  or data_R1_fastq.gz;data_R2_- fastq.gz 
 - **TREATMENT :** Anything you want
 - **CELL_LINE :** Anything you want
 - **CONDITION :** Keywords to use are "TEST" and "CONTROL"

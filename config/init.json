@@ -1,0 +1,14 @@
+{
+   "gene_length"                  : "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.gene.length.exon.sums.csv",
+   "genomeDir"                      : "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/indexes/GRCh38_PRIM_GENCODE_R25/",
+   "genes.biomart.ensembl85.human"  : "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_ENSEMBL_85_HUMAN/genes.biomart.ensembl85.human.txt",
+   "path_to_chrom_length_ref"       : "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genome/GRCh38_PRIM_GENCODE_R25/GRCh38.primary_assembly.genome.sizes",
+   "path_to_gtf"                    : "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.primary_assembly.annotation.gtf",
+   "transcriptome_index"            : "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/transcriptome/GRCh38_PRIM_GENCODE_R25/gencode.v25.transcripts.index",
+   "path_to_chrom_length_ref"       : "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genome/GRCh38_PRIM_GENCODE_R25/GRCh38.primary_assembly.genome.sizes",
+   "rmats_new"                      : "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.4.0.2/rMATS-turbo-Linux-UCS4/rmats.py",
+   "rmats_old"                     : "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.3.2.5/RNASeq-MATS.py",
+   "python2"                        : "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2",
+   "scriptDir"                      : "/home/jean-philippe.villemin/code/RNA-SEQ/",
+   "output"                         : "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/"
+}

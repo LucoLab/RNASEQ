@@ -26,6 +26,8 @@ import numpy
 import gzip
 import pathlib
 import shutil
+from pathlib import Path
+
 ###########################################################################################################
 ########################################   Functions   ####################################################
 ###########################################################################################################
@@ -82,7 +84,7 @@ def create_logger(path,LEVEL):
     return logger
 
 
-def write_align_conf(project,id_condition,projet_id,uniq_id_sample,path,path,repNumber):
+def write_align_conf(project,id_condition,projet_id,uniq_id_sample,path,repNumber):
     """
     Write Json configuration file for alignment.
   
@@ -105,7 +107,8 @@ def write_align_conf(project,id_condition,projet_id,uniq_id_sample,path,path,rep
         outfile.write('"project" : "'+projet_id+'" , \n')
         outfile.write('"star":\n')
         outfile.write('{"runThreadN":"32",\n'+
-        '"genomeDir":"/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/indexes/GRCh38_PRIM_GENCODE_R25/",\n'+
+
+        '"genomeDir":"'+config.parameters['gene_length']+'",\n'+
         '"outSAMtype":"BAM SortedByCoordinate"},\n')
         outfile.write('"fastqc":\n'+
                     '{  "threads":"24"},\n'+
@@ -166,14 +169,16 @@ def write_align_conf(project,id_condition,projet_id,uniq_id_sample,path,path,rep
         outfile.write("},\n")
         outfile.write('"path_to_input" : "'+path+'",\n'+
               '"path_to_output": "'+path+'",\n'+
-              '"path_to_chrom_length_ref":"/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genome/GRCh38_PRIM_GENCODE_R25/GRCh38.primary_assembly.genome.sizes",\n'+
+              '"path_to_chrom_length_ref":"'+ config.parameters['gene_length']+'",\n'+
               '"final_bam_name": "'+projet_id+"."+uniq_id_sample+"."+repNumber+'",\n'
-              '"path_to_gtf":"/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.primary_assembly.annotation.gtf",\n'+
-              '"transcriptome_index":"/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/transcriptome/GRCh38_PRIM_GENCODE_R25/gencode.v25.transcripts.index"\n')
+              '"path_to_gtf":"'+ config.parameters['path_to_gtf']+'",\n'+
+              '"transcriptome_index":"'+config.parameters['transcriptome_index']+'"\n')
 
         outfile.write("}")
     outfile.close()
-  
+   
+
+     
 def write_diff_exp_conf(project,projet_id_current,path,hash_fc,analysis,samples_by_project_conditions,libtype):
     """
     Write Json configuration file for differential expression.
@@ -268,16 +273,16 @@ def  write_rmats_conf(project,projet_id_current,path,hash_fc,dataformatedforexpo
             outfile = open(path+projet_id+"_"+"rmats.json", 'w')  
             
             outfile.write(" {\n")
-            outfile.write('"gtf" : "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.primary_assembly.annotation.gtf", \n')
+            outfile.write('"gtf" : "'+config.parameters['path_to_gtf']+'", \n')
             outfile.write('"project" : "'+projet_id+'", \n')
             outfile.write(' "path_to_output":"'+path+"output/"+projet_id+"/RMATS/"+'",\n')
             logger.info(path+"output/"+projet_id+"/RMATS/")
-            outfile.write('"index" : "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/indexes/GRCh38_PRIM_GENCODE_R25/" , \n')
+            outfile.write('"index" : "'+config.parameters['genomeDir']+'" , \n')
             
             if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) > 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) > 1 ) ) : 
-                outfile.write('"softPath" : "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.4.0.2/rMATS-turbo-Linux-UCS4/rmats.py", \n')
+                outfile.write('"softPath" : "'+config.parameters['rmats_new'] +'", \n')
             else : 
-                outfile.write('"softPath" : "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.3.2.5/RNASeq-MATS.py", \n')
+                outfile.write('"softPath" : "'+config.parameters['rmats_old'] +'", \n')
 
             a=0
             outfile.write('"analysis" : {  \n')
@@ -354,7 +359,7 @@ def write_main_conf(project,projet_id_current,path,hash_fc,dataformatedforexport
            outfile.write('"sessionName" : "'+projet_id+'" , \n')
            outfile.write('"path_to_output" : "'+path+'", \n')
            outfile.write('"list_files_splicing" : ["SE"], \n')
-           outfile.write('"gene_length": "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.gene.length.exon.sums.csv", \n')
+           outfile.write('"gene_length": "'+config.parameters['path_to_chrom_length_ref']+'", \n')
            outfile.write('"read_count_matrice": "'+path+"output/"+projet_id+'/Raw_read_counts.csv",\n')
            outfile.write('"analysis": { \n')
            a=0
@@ -362,7 +367,6 @@ def write_main_conf(project,projet_id_current,path,hash_fc,dataformatedforexport
                
                conds=comparision.split("_vs_")
                outfile.write('"'+comparision+'": { \n' )
-               #"splicing_dir":  "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/paired", 
                if(splicing_soft=="RMATS") :
                    outfile.write('"soft":  "'+"RMATS"+'", \n')
                    outfile.write('"splicing_dir":  "'+path+"output/"+projet_id+"/RMATS/"+comparision+'/MATS_output/", \n')
@@ -458,6 +462,25 @@ def  read_salmon_output_for_libtype(salmon_output_meta_file,typeEnd):
     F = read 1 (or single-end read) comes from the forward strand
     R = read 1 (or single-end read) comes from the reverse strand
     '''   
+        
+        
+#def set_constant() :
+    
+   #gene_length                    = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.gene.length.exon.sums.csv"
+   #genomeDir                      = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/indexes/GRCh38_PRIM_GENCODE_R25/"
+   #genes_biomart_ensembl  = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_ENSEMBL_85_HUMAN/genes.biomart.ensembl85.human.txt"
+   #path_to_gtf                    = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.primary_assembly.annotation.gtf"
+   #transcriptome_index            = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/transcriptome/GRCh38_PRIM_GENCODE_R25/gencode.v25.transcripts.index"
+   #path_to_chrom_length_ref       = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genome/GRCh38_PRIM_GENCODE_R25/GRCh38.primary_assembly.genome.sizes"
+   #rmats_new                      = "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.4.0.2/rMATS-turbo-Linux-UCS4/rmats.py"
+   #rmats_old                      = "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.3.2.5/RNASeq-MATS.py"
+   
+   #python2                        = "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2"
+   #scriptDir                      = "/home/jean-philippe.villemin/code/RNA-SEQ/"
+   #output                         = "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/"
+   
+   #print(config.parameters['path_to_chrom_length_ref'])
+
 ###########################################################################################################
 ########################################   Main   #########################################################
 ###########################################################################################################
@@ -474,10 +497,20 @@ if __name__ == '__main__':
     '''),formatter_class=argparse.RawDescriptionHelpFormatter)
     
     parser.add_argument("-l","--listing",action="store",help="File with all files to treat, read docs.",required=True,type=str,dest='path2Refs')
+    parser.add_argument("-c","--config",action="store",help="Path to a json file.",required=False,default=str(Path(os.path.dirname(os.path.realpath(__file__))).parents[0])+"/config/init.json",type=str,dest='file_config')
 
     parameters = parser.parse_args()
+   
+    config = custom_parser.Configuration(parameters.file_config,"json")
+
+    set_constant() 
     
-    path    = "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/"
+    path            = config.parameters['output']
+    python2         = config.parameters['python2']
+    applicatifDir   = config.parameters['scriptDir']
+    rmats_new       = config.parameters['rmats_new']              
+    rmats_old       = config.parameters['rmats_old']             
+   
     
     logger = create_logger(path,"INFO")
     
@@ -602,7 +635,7 @@ if __name__ == '__main__':
                 # remove path , path is then concatened from input
                 dataformatedforexport2Json[id_condition].append ( {id_condition+"."+project[projet_id][uniq_id_sample]["rep_number"] :  { "R1" : os.path.basename(url_1), "R2":os.path.basename(url_2) } }  )
 
-            write_align_conf(project,id_condition,projet_id,uniq_id_sample,path,path,project[projet_id][uniq_id_sample]["rep_number"])
+            write_align_conf(project,id_condition,projet_id,uniq_id_sample,path,project[projet_id][uniq_id_sample]["rep_number"])
 
             
             if projet_id not in analysis : 
@@ -623,7 +656,7 @@ if __name__ == '__main__':
             else :    
                 outfile.write('"path_to_input" : "'+path+'",\n')
 
-            outfile.write('"path_to_cleaner" : "/home/jean-philippe.villemin/code/RNA-SEQ/bash/whippet_filter_eventType_wrapped.sh",\n')
+            outfile.write('"path_to_cleaner" : "'+applicatifDir+'bash/whippet_filter_eventType_wrapped.sh",\n')
             outfile.write('"files": \n')
             json.dump(dataformatedforexport2Json, outfile)
             outfile.write(",\n")
@@ -688,7 +721,7 @@ if __name__ == '__main__':
 
         subprocess.run(("mkdir -p "+path+"output/"+projet_id+"/WHIPPET/"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
 
-        whippet= "python3 /home/jean-philippe.villemin/code/RNA-SEQ/src/splicingWhippet.py -c "+path+projet_id+"_whippet.json -k "+kmer
+        whippet= "python3 "+applicatifDir+"src/splicingWhippet.py -c "+path+projet_id+"_whippet.json -k "+kmer
         whippet_exec = subprocess.run((whippet),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         write_subprocess_log(whippet_exec,logger)
   
@@ -721,7 +754,7 @@ if __name__ == '__main__':
             nameFastq=name[1]
 
 
-            mapping= "python3 /home/jean-philippe.villemin/code/RNA-SEQ/src/alignment.py -c "+oneSample#+"_align.json"
+            mapping= "python3 "+applicatifDir+"src/alignment.py -c "+oneSample#+"_align.json"
             logger.info("\n"+mapping+" \n")
             mapping_exec = subprocess.run((mapping),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             write_subprocess_log(mapping_exec,logger)
@@ -749,14 +782,14 @@ if __name__ == '__main__':
             
             conditions = comparison.split("_vs_")
 
-            expressionAnalyse= "python3 /home/jean-philippe.villemin/code/RNA-SEQ/src/diffGeneExp.py -c "+path+projet_id+"_diff_exp.json -p "+conditions[0]+"_"+conditions[1]
+            expressionAnalyse= "python3 "+applicatifDir+"src/diffGeneExp.py -c "+path+projet_id+"_diff_exp.json -p "+conditions[0]+"_"+conditions[1]
             expressionAnalyse_exec = subprocess.run((expressionAnalyse),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             write_subprocess_log(expressionAnalyse_exec,logger)
             
             
             subprocess.run(("mkdir -p "+path+"output/"+projet_id+"/trimmed"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
 
-            coverageAnalyse= "python3 /home/jean-philippe.villemin/code/RNA-SEQ/src/coverage.py -c "+path+projet_id+"_RMATS_main.json -a "+conditions[0]+"_vs_"+conditions[1]+" "+"--filter=/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_ENSEMBL_85_HUMAN/genes.biomart.ensembl85.human.txt"
+            coverageAnalyse= "python3 "+applicatifDir+"src/coverage.py -c "+path+projet_id+"_RMATS_main.json -a "+conditions[0]+"_vs_"+conditions[1]+" "+"--filter="+config.parameters['genes_biomart_ensembl']
             logger.info("\n"+coverageAnalyse)
             coverageAnalyse_exec = subprocess.run((coverageAnalyse),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             write_subprocess_log(coverageAnalyse_exec,logger)
@@ -764,8 +797,8 @@ if __name__ == '__main__':
         list_size = []
         for file in analysis_2_files[projet_id] :
             logger.info(os.path.basename(file) )
-            res = subprocess.getoutput(("/home/jean-philippe.villemin/code/RNA-SEQ/bash/read_average_size_fastq.sh "+file))
-            logger.info("/home/jean-philippe.villemin/code/RNA-SEQ/bash/read_average_size_fastq.sh "+file)
+            res = subprocess.getoutput((applicatifDir+"bash/read_average_size_fastq.sh "+file))
+            logger.info(applicatifDir+"read_average_size_fastq.sh "+file)
             logger.info(res.split(" ")[0])
             list_size.append(int(res.split(" ")[0]))
             
@@ -805,7 +838,7 @@ if __name__ == '__main__':
                         with open(fileTrimmed_1, 'wb') as f_out:
                             shutil.copyfileobj(f_in, f_out)
                     logger.info("\n-> Trimming for Rmats R1 \n")
-                    trimingForRmats = "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.3.2.5/bin/trimFastq.py "+fileTrimmed_1 +" "+fileTrimmed_1.replace("_1_val_1.fq","_1.trimmed.clipped.fastq")+" "+str(sizeToclip)
+                    trimingForRmats = python2+" "+applicatifDir+"src/trimFastq.py "+fileTrimmed_1 +" "+fileTrimmed_1.replace("_1_val_1.fq","_1.trimmed.clipped.fastq")+" "+str(sizeToclip)
                     logger.info(trimingForRmats)
                     trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
                     write_subprocess_log(trimingForRmats_exec,logger)
@@ -821,7 +854,7 @@ if __name__ == '__main__':
                         with open(fileTrimmed_2, 'wb') as f_out:
                             shutil.copyfileobj(f_in, f_out)
                     logger.info("\n-> Trimming for Rmats R2 \n")
-                    trimingForRmats = "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.3.2.5/bin/trimFastq.py "+fileTrimmed_2 +" "+fileTrimmed_2.replace("_2_val_2.fq","_2.trimmed.clipped.fastq")+" "+str(sizeToclip)
+                    trimingForRmats = python2+" "+applicatifDir+"src/trimFastq.py "+fileTrimmed_2 +" "+fileTrimmed_2.replace("_2_val_2.fq","_2.trimmed.clipped.fastq")+" "+str(sizeToclip)
                     logger.info(trimingForRmats)
                     trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
                     write_subprocess_log(trimingForRmats_exec,logger)
@@ -838,7 +871,7 @@ if __name__ == '__main__':
                         with open(fileTrimmed_1, 'wb') as f_out:
                             shutil.copyfileobj(f_in, f_out)
                     logger.info("\n-> Trimming for Rmats R1 \n")
-                    trimingForRmats = "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.3.2.5/bin/trimFastq.py "+fileTrimmed_1 +" "+fileTrimmed_1.replace("_1_trimmed.fq","_1.trimmed.clipped.fastq")+" "+str(sizeToclip)
+                    trimingForRmats = python2+" "+applicatifDir+"src/trimFastq.py "+fileTrimmed_1 +" "+fileTrimmed_1.replace("_1_trimmed.fq","_1.trimmed.clipped.fastq")+" "+str(sizeToclip)
                     logger.info(trimingForRmats)
                     trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
                     write_subprocess_log(trimingForRmats_exec,logger)
@@ -852,7 +885,7 @@ if __name__ == '__main__':
          
         write_rmats_conf(project,projet_id,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,sizeToclip,libType,project_global[projet_id]["pair"],reads_for_rmats)
 
-        splicingRmats = "python3 /home/jean-philippe.villemin/code/RNA-SEQ/src/splicingRmats.py  -c "+path+projet_id+"_rmats.json"
+        splicingRmats = "python3 "+applicatifDir+"src/splicingRmats.py  -c "+path+projet_id+"_rmats.json"
         logger.info(splicingRmats)
         splicingRmats_exec = subprocess.run((splicingRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         write_subprocess_log(splicingRmats_exec,logger)
@@ -861,7 +894,7 @@ if __name__ == '__main__':
         
         logger.info("\n-> Wrap, Merge and Filter Splicing Analyse with RMATS \n")
 
-        splicingSupperWrapper = "python3 /home/jean-philippe.villemin/code/RNA-SEQ/src/supperWrapperForMerge.py -c "+path+projet_id+"_RMATS_main.json"
+        splicingSupperWrapper =  "python3 "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_RMATS_main.json"
         logger.info(splicingSupperWrapper)
         splicingSupperWrapper_exec = subprocess.run((splicingSupperWrapper),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         write_subprocess_log(splicingSupperWrapper_exec,logger)
@@ -871,7 +904,7 @@ if __name__ == '__main__':
         
         logger.info("\n-> Wrap, Merge and Filter Splicing Analyse with WHIPPET \n")
 
-        splicingSupperWrapper = "python3 /home/jean-philippe.villemin/code/RNA-SEQ/src/supperWrapperForMerge.py -c "+path+projet_id+"_WHIPPET_main.json"
+        splicingSupperWrapper =  "python3 "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_WHIPPET_main.json"
         logger.info(splicingSupperWrapper)
         splicingSupperWrapper_exec = subprocess.run((splicingSupperWrapper),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         write_subprocess_log(splicingSupperWrapper_exec,logger)
