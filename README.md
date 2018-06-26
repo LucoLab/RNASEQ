@@ -8,27 +8,26 @@ Transcription Analysis Plus Alternative Splicing for RNA-SEQ
 =============
 
 
-[TAPAS](https://github.com/LucoLab/RNASEQ) is, for sure, a great tool but it's still in developpment.
+[TAPAS](https://github.com/LucoLab/RNASEQ) is the worklow we use in the lab to process RNA-SEQ.
 
 ---
 
-Here we describe the different steps involved in the analysis of RNA-SEQ in the laboratory.  
+Here we describe the different steps involved in this workflow.
 
-This tutorial goal is to make people understand how the raw data has been processed in the team (tools and workflow) and help them to reproduce analysis.
+The goal of this tutorial is to make people understand how the raw data are processed in the team (tools and workflow) and help them to reproduce analysis.
 
-Be sure you can call python3 as follows : 
+First, be sure you can call python3 as follows : 
 
 ```shell
 python3 --version
 ```
+Should return something like  : _Python 3.5.5 :: Anaconda custom (64-bit)_
 
-Sould return something like  : Python 3.5.5 :: Anaconda custom (64-bit)
+Then you can install all tierce tools needed by the pipeline. See _Set up Tools_ paragraph.
 
-You need to set up a init.json file inside a directory called _config_ in RNA-SEQ directory.
+Once you installed all the necessary softs, you can create your init file config.
 
-Then you can go after installing all dependencies. See installing all dependencies.
-
-
+Then You need to set up a _init.json_ file inside a directory called _config_ in the RNA-SEQ directory.
 
 One command is used to launch all steps :
 
@@ -66,7 +65,6 @@ Column names has to be the sames as showed in the picture. The order of the colu
 - **TREATMENT_DAY :** A number.
 - **KMER :** Keywords to use are "normal" or "short". Short is used when read are less than 50 and you want to give a try with whippet with lowers index value for kmersize.
 
-TODO : describe outputs 
 
 ---
 
@@ -74,7 +72,7 @@ TODO : describe outputs
 2. Set up Files
 3. Set up ConfigFile for Alignment.py
 4. Launch Alignment
-
+5. Outputs
 
 ## Set up Tools
 
