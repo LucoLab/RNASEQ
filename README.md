@@ -8,13 +8,13 @@ Transcription Analysis Plus Alternative Splicing for RNA SEQ
 =============
 
 
-[TAPAS](https://github.com/LucoLab/RNASEQ) is ,for sure , a great tool but it's still in developpment.
+[TAPAS](https://github.com/LucoLab/RNASEQ) is, for sure, a great tool but it's still in developpment.
 
 ---
 
 Here we describe the different steps involved in the analysis of RNASEQ in the laboratory.  
 
-This tutorial goal is to make people understand how the raw data has been process in the team (tools and workflow) and to help them to reproduce analysis.
+This tutorial goal is to make people understand how the raw data has been processed in the team (tools and workflow) and help them to reproduce analysis.
 
 
 ---
@@ -129,6 +129,7 @@ Finally you get the following directories as output :
 ![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/output_alignment_open.png "Outputs")
 
 ## Gene Expression Analysis
+
 
 
 
