@@ -81,9 +81,6 @@ Column names has to be the sames as showed in the picture. The order of the colu
 2. Listing of projects to analyse
 3. Set up Tools
 4. Set up Files
-5. Set up ConfigFile for Alignment.py
-6. Launch Alignment
-7. Outputs
 
 ## Set up Tools
 
@@ -144,46 +141,3 @@ you will create indexes for  Salmon as follows :
 ```shell  
 salmon index -t gencode.vM15.transcripts.fa.gz -i gencode.m15.transcripts.index --type quasi -k 31  
 ```
-## Set up ConfigFile.json
-
----
-
-We use a json file to create a configuration file before doing your alignment. 
-
-The json file is a *key:value* listing which defines all parameters for the pipeline.
-- number of cores used
-- path to output/input directory
-- name of analyse
-- ...
-
-
-See config directory. You will find an example called paired.set1_align.json for a test dataset.
-
-
-## Launch Alignment
-
----
-
-```shell
-	python3 pathTo/alignment.py -c pathToConfigFile/condition.json
-```
-
-You can test the pipeline on a  short dataset provided in test directory.
-
-It will launch an alignment with STAR.
-It will creates a directory (path defined in your configuration file) with inside :
-
-1. Bam file.
-2. Bigwig files per strand normalized by CPM (count per millions) for visualization purpose in UCSC.
-3. Reads count per gene - Sample_ReadsPerGene.tab (used for the gene expression step).
-4. Intermediate files used in the following steps of the pipeline.
-
-
-You need to use this on each sample/replicate.
-
-Finally you get the following directories as output : 
-
-
-![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/output_alignment.png "Outputs")
-
-![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/output_alignment_open.png "Outputs")
