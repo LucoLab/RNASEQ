@@ -8,7 +8,7 @@
 #
 # diff_exp
 # Usage : 
-# diff_expRscript ${PATH_TO_SCRIPT}/diff_exp.R  --dir ${PATH_TO_DATA}/[DIR_NAME] --cond1 [COND1]  --cond2 [COND2]  ${PATH_TO_DATA}/[DESIGN.csv] ${PATH_TO_DATA}/[GENE_READ_COUNT.csv] > ${PATH_TO_DATA}/logR/[ANY_NAME].out
+# diff_expRscript ${PATH_TO_SCRIPT}/diff_exp.R  --dir ${PATH_TO_DATA}/[DIR_NAME] --cond1 [COND1]  --cond2 [COND2]  ${PATH_TO_DATA}/[DESIGN.csv] ${PATH_TO_DATA}/[GENE_READ_COUNT.csv] 
 # 
 # Find Differentially expressed gene.
 # Output list of genes with Fold change values.
@@ -62,18 +62,14 @@ if( !file.exists(file_design_sample) ) {stop(sprintf("Specified file ( %s ) does
 if( !file.exists(file_matrice_sample) ) {stop(sprintf("Specified file ( %s ) does not exist", file_matrice_sample))} 
 
 dir_exploration = paste(opt$dir,"/exploration",sep="")
-dir_pathway     = paste(opt$dir,"/pathway",sep="")
 dir_final       = paste(opt$dir,"/final",sep="")
 dir_scatter       = paste(dir_exploration,"/scatter",sep="")
 
-
-
 #createDir <- ifelse(!dir.exists(file.path(opt$dir)), dir.create(file.path( dir_exploration),recursive = TRUE),FALSE)
-createDir <- ifelse(!dir.exists(opt$dir), dir.create(file.path(dir_exploration),recursive = TRUE),FALSE)
-if(!createDir){stop ("Dir already exist")}
+#createDir <- ifelse(!dir.exists(opt$dir), dir.create(file.path(dir_exploration),recursive = TRUE),FALSE)
+#if(!createDir){stop ("Dir already exist")}
 
 dir.create(file.path(dir_scatter),recursive = TRUE)
-dir.create(file.path(dir_pathway),recursive = TRUE)
 dir.create(file.path(dir_final),recursive = TRUE)
 
 ####################################################################################
@@ -101,8 +97,6 @@ library(plyr)
 library(pheatmap)
 library(PoiClaClu)
 library(gtools)
-library(clusterProfiler)
-library(ReactomePA)
 
 ####################################################################################
 #####################################  Package Loading  ############################
@@ -615,10 +609,8 @@ res_annotated_df$classifier <- -log10(res_annotated_df$padj) * (res_annotated_df
 res_annotated_df$rank <-  rank(res_annotated_df$classifier)
 
 #data.frame(append(res_annotated_df, list(FC=Foldchange), after=match("log2FoldChange", names(res_annotated_df))))
-res_annotated_df_sorted <- res_annotated_df[order(res_annotated_df$classifier ),decreasing = TRUE),]
+res_annotated_df_sorted <- res_annotated_df[order(res_annotated_df$classifier),decreasing = TRUE),]
 write.csv(res_annotated_df_sorted ,row.names=FALSE,file=paste0(c(dir_final,"DESEQ_all_res_annotated_sorted_pvalAdj.csv"),collapse="/"))
-
-#write.csv(res_annotated_df ,row.names=FALSE,file=paste0(c(dir_final,"DESEQ_all_res_annotated_sorted_pvalAdj.csv"),collapse="/"))
 
 res_annotated_filtered <- subset(res_annotated_df, ( abs(res_annotated_df$log2FoldChange)>= 1.5 & padj < 0.05 ))
 res_annotated_filtered <- res_annotated_filtered[order(abs(res_annotated_filtered$log2FoldChange),decreasing = TRUE),]

@@ -1,0 +1,14 @@
+ {
+"project" : "Luco" , 
+   "files" : [ 
+{"sample_id": "Luco.T5REP1.Rep1" ,"condition": "Luco.MCF10A.TAMOXIFEN.SNAIL.TEST.5"},
+{"sample_id": "Luco.T5REP2.Rep2" ,"condition": "Luco.MCF10A.TAMOXIFEN.SNAIL.TEST.5"},
+{"sample_id": "Luco.T5REP3.Rep3" ,"condition": "Luco.MCF10A.TAMOXIFEN.SNAIL.TEST.5"},
+{"sample_id": "Luco.UNT5REP1.Rep1" ,"condition": "Luco.MCF10A.TAMOXIFEN.SNAIL.CONTROL.0"},
+{"sample_id": "Luco.UNT5REP2.Rep2" ,"condition": "Luco.MCF10A.TAMOXIFEN.SNAIL.CONTROL.0"},
+{"sample_id": "Luco.UNT5REP3.Rep3" ,"condition": "Luco.MCF10A.TAMOXIFEN.SNAIL.CONTROL.0"}   ], 
+"organism": "human", 
+"lib-type": "Reverse", 
+"path_to_output":"/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/", 
+"path_to_input":"/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/" 
+ } 

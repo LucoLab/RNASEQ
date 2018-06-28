@@ -139,7 +139,7 @@ def  read_salmon_output_for_libtype(salmon_output_meta_file,typeEnd):
     R = read 1 (or single-end read) comes from the reverse strand
     '''   
 
-def print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not):
+def print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not,type):
     '''
     Pull all the intermediates files _ReadsPerGene.
     Compute a final reads count per gene.
@@ -191,7 +191,8 @@ def print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not):
         f.close()
     count = {}
     
-    file_Reads_PerGene = open(config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/"+config.parameters['final_bam_name']+"_ReadsPerGene.tab", "w")
+    logger.info("Write .tab used after for diff Exp : "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/"+core_sample_name+"_ReadsPerGene.tab")
+    file_Reads_PerGene = open(config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/"+core_sample_name+"_ReadsPerGene.tab", "w")
 
     #file_Reads_PerGene.write("Gene\tUnstranded\tBadPairs(F1R2+/F2R1-)\tGoodPairs(F2R1+/F1R2-)"+"\n")
     file_Reads_PerGene.write("Gene\tUnstranded\tForward(F1R2+/F2R1-)\tReverse(F2R1+/F1R2-)"+"\n")
@@ -211,17 +212,12 @@ def print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not):
 
     logger.info(count)
     strand_orientation="Unstranded"
-
-    #mean Unstranded
-    #if ( (count['Unstranded'] > count['Stranded_forward'])) or ( count['Unstranded'] > count['Stranded_reverse']) :
-    #    pass
-    #else :
-    if (count['Stranded_reverse'] > count['Stranded_forward'] ) :
-        strand_orientation = "Reverse"
-    else : strand_orientation = "Forward"
+    if (type=="pairEnd"):
+        if (count['Stranded_reverse'] > count['Stranded_forward'] ) :
+            strand_orientation = "Reverse"
+        else : strand_orientation = "Forward"
         
     logger.info(">>>>>>>>>>>>>>>>>>>  From Star counts, this library is "+strand_orientation)
-
 
     return strand_orientation
 
@@ -598,10 +594,9 @@ if __name__ == '__main__':
     reverse_or_forward_or_unstrand = read_salmon_output_for_libtype(salmon_output+"/lib_format_counts.json",config.parameters["type"])
     logger.info(">>>>>>>>>>>>>>>>>>> From Salmon, Library is "+reverse_or_forward_or_unstrand)
 
-    strand_orientation="Unstranded"
-    if (config.parameters["type"]=="pairEnd"):
+   
         # You want to know if it's forward ou reverse when Stranded using count from STAR
-        strand_orientation = print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not)
+    strand_orientation = print_count_reads_per_gene(list_core_sample_names,config,stranded_or_not,config.parameters["type"])
     
     logger.info(stranded_or_not)
     logger.info(reverse_or_forward_or_unstrand)
@@ -708,7 +703,10 @@ if __name__ == '__main__':
     #subprocess.run(("mv "+config.parameters['path_to_input']+"*.zip "+config.parameters['path_to_output']+outputdirname+"/" ),shell=True)
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/"+config.parameters['final_bam_name']+".bam" ),shell=True)
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*_Aligned.sortedByCoord.out.bam" ),shell=True)
-    #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+config.chrono+"/*.wig" ),shell=True)
+    subprocess.run(("rm "++config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*.wig" ),shell=True)
+    subprocess.run(("rm "++config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*.bam" ),shell=True)
+    subprocess.run(("rm "++config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*.bam.bai" ),shell=True)
+
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+config.chrono+"/*_ReadsPerGene.out.tab"),shell=True)
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+config.chrono+"/*_Log.out" ),shell=True)
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+config.chrono+"/*_Log.final.out" ),shell=True)
