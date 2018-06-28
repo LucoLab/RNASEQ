@@ -187,17 +187,17 @@ if __name__ == '__main__':
 
             logger.info(("\n Rscript "+init.parameters['scriptDir']+"Rscript/"+script+" " \
                 +"  --dir "+config.parameters.get("path_to_output")+""+test+"_vs_"+control    \
-                +" "+config.parameters.get("path_to_output")+"output/"+config.parameters.get("project")+"/"+"Design.csv"     \
+                +" "+config.parameters.get("path_to_output")+"output/"+config.parameters.get("project")+"/Design.csv"     \
                 +" --cond1 "+test   \
                 +" --cond2 "+control    \
                 +" "+config.parameters.get("path_to_output")+"output/"+config.parameters.get("project")+"/"+"Raw_read_counts.csv \n"))
                         
-            proc = subprocess.run(("Rscript "+init.parameters['scriptDir']+"+Rscript/"+script+" " \
+            proc = subprocess.run(("Rscript "+init.parameters['scriptDir']+"Rscript/"+script+" " \
                 +"  --dir "+config.parameters.get("path_to_output")+""+test+"_vs_"+control    \
-                +" "+config.parameters.get("path_to_output")+"output/"+config.parameters.get("project")+"/"+"Design.csv"     \
+                +" "+config.parameters.get("path_to_output")+"output/"+config.parameters.get("project")+"/Design.csv"     \
                 +" --cond1 "+test    \
                 +" --cond2 "+control    \
-                +" "+config.parameters.get("path_to_output")+"output/"+config.parameters.get("project")+"/"+"Raw_read_counts.csv") \
+                +" "+config.parameters.get("path_to_output")+"output/"+config.parameters.get("project")+"/Raw_read_counts.csv") \
                ,stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             write_subprocess_log(proc,logger)
     

@@ -609,7 +609,7 @@ res_annotated_df$classifier <- -log10(res_annotated_df$padj) * (res_annotated_df
 res_annotated_df$rank <-  rank(res_annotated_df$classifier)
 
 #data.frame(append(res_annotated_df, list(FC=Foldchange), after=match("log2FoldChange", names(res_annotated_df))))
-res_annotated_df_sorted <- res_annotated_df[order(res_annotated_df$classifier),decreasing = TRUE),]
+res_annotated_df_sorted <- res_annotated_df[order(res_annotated_df$classifier,decreasing = TRUE),]
 write.csv(res_annotated_df_sorted ,row.names=FALSE,file=paste0(c(dir_final,"DESEQ_all_res_annotated_sorted_pvalAdj.csv"),collapse="/"))
 
 res_annotated_filtered <- subset(res_annotated_df, ( abs(res_annotated_df$log2FoldChange)>= 1.5 & padj < 0.05 ))

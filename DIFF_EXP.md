@@ -19,11 +19,13 @@ It will make things easier then for installing tools or switching to older pytho
 
 _**Conda**_ : [here](https://www.continuum.io/downloads)
 
+
 **DIFFERENTIAL EXPRESSION :**
 
 _**R**_ : R [here](https://pbil.univ-lyon1.fr/CRAN/)
 
-Install following packages : 
+
+Install following packages for R : 
 
 ```r
 source("https://bioconductor.org/biocLite.R")
