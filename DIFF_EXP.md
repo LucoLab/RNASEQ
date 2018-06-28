@@ -6,7 +6,6 @@
 Here we describe the **differential expression** part of the workflow.
 
 
-
 ## Set up Tools
 
 ---
@@ -20,24 +19,54 @@ It will make things easier then for installing tools or switching to older pytho
 
 _**Conda**_ : [here](https://www.continuum.io/downloads)
 
-DIFFERENTIAL EXPRESSION : 
+**DIFFERENTIAL EXPRESSION :**
 
 _**R**_ : R [here](https://pbil.univ-lyon1.fr/CRAN/)
 
-Packages : 
+Install following packages : 
 
-
-## Set up Files
-
-
-```shell
-conda install pyfaidx
-faidx yourgenome.fasta -i chromsizes > yourgenome.genome.sizes
+```r
+source("https://bioconductor.org/biocLite.R")
+	biocLite("data.table")
+	biocLite("reshape2")
+	biocLite("edgeR")
+	biocLite("DESeq2")
+	biocLite("limma")
+	biocLite("RColorBrewer")
+	biocLite("gplots")
+	biocLite("heatmap3")
+	biocLite("grDevices")
+	biocLite("genefilter")
+	biocLite("ggplot2")
+	biocLite("GenomicFeatures")
+	biocLite("AnnotationDbi")
+	biocLite("biomaRt")
+	biocLite("stringr")
+	biocLite("org.Hs.eg.db")
+	biocLite("vsn")
+	biocLite("plyr")
+	biocLite("pheatmap")
+	biocLite("PoiClaClu")
+	biocLite("gtools")
 ```
 
-Also you need to create index for STAR :  
+## Create config file in json format
 
-See config directory. You will find an example called paired.set1_align.json for a test dataset.
+---
+
+You need an _init.json_ and _diff_exp.json_ to launch this script.
+
+_init.json_ is called automatically. Create the file in in _configs_ directory.
+
+Only scriptDir variable need to be set up in your _init.json_ :
+
+		"scriptDir"                      : "/home/jean-philippe.villemin/code/RNA-SEQ/",
+
+To get an overview of the json, look into configs directory.
+
+Here we show an example for the diff_exp.json :
+
+![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/dif_exp_json.png "Json for Differential Expression")
 
 
 ## Launch differential expression
@@ -48,13 +77,26 @@ See config directory. You will find an example called paired.set1_align.json for
 	python3 pathTo/diffGeneExp.py -c pathToConfigFile/diff_exp.json -p TestConditionName_vs_NormalConditionName
 ```
 
+This script is a wrapper calling a Rscript called diff_exp.R.
 
+_Design.csv_ & _Raw_read_counts.csv_ should be in _$path_to_output/output/$project_name/_ directory.
 
-You need to use this on each sample/replicate.
+This is how _Design.csv_ should be :
+
+![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/design.png "Design")
+
+When you call the script, the p parameter need TestConditionName_vs_NormalConditionName to be set. It should be set in accordance with what you wrote in design.csv.
+
+Note : No need of last column.
+
+This is how _Raw_read_counts.csv_ should be :
+
+![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/raw_read.png "Raw_read")
+
 
 Finally you get the following directories as output : 
 
 
-![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/output_alignment.png "Outputs")
+![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/output_diffexp.png "Outputs")
 )
 
