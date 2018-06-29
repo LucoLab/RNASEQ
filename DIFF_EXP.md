@@ -5,6 +5,8 @@
 
 Here we describe the **differential expression** part of the workflow.
 
+An analyse should not last more than 10 minutes.
+
 
 ## Set up Tools
 
@@ -79,9 +81,15 @@ Here we show an example for the diff_exp.json :
 	python3 pathTo/diffGeneExp.py -c pathToConfigFile/diff_exp.json -p TestConditionName_vs_NormalConditionName
 ```
 
-This script is a wrapper calling a Rscript called diff_exp.R.
+This script is a wrapper calling a Rscript called _diff_exp.R_. _diff_exp.R_ will use _Design.csv_ & _Raw_read_counts.csv_ created by the python wrapper using json configuration file.
 
 _Design.csv_ & _Raw_read_counts.csv_ should be in _$path_to_output/output/$project_name/_ directory.
+
+If you already have _Design.csv_ & _Raw_read_counts.csv_ , you can execute directly the Rscript as follows :
+
+```R
+diff_expRscript ${PATH_TO_SCRIPT}/diff_exp.R  --dir ${PATH_TO_DATA}/[DIR_NAME] --cond1 [COND1]  --cond2 [COND2]  ${PATH_TO_DATA}/[DESIGN.csv] ${PATH_TO_DATA}/[GENE_READ_COUNT.csv] 
+```
 
 This is how _Design.csv_ should be :
 
@@ -89,7 +97,7 @@ This is how _Design.csv_ should be :
 
 When you call the script, the p parameter need TestConditionName_vs_NormalConditionName to be set. It should be set in accordance with what you wrote in design.csv.
 
-Note : No need of last column.
+__Note :__ No need of last column.
 
 This is how _Raw_read_counts.csv_ should be :
 
