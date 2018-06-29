@@ -88,7 +88,7 @@ _Design.csv_ & _Raw_read_counts.csv_ should be in _$path_to_output/output/$proje
 If you already have _Design.csv_ & _Raw_read_counts.csv_ , you can execute directly the Rscript as follows :
 
 ```R
-diff_expRscript ${PATH_TO_SCRIPT}/diff_exp.R  --dir ${PATH_TO_DATA}/[DIR_NAME] --cond1 [COND1]  --cond2 [COND2]  ${PATH_TO_DATA}/[DESIGN.csv] ${PATH_TO_DATA}/[GENE_READ_COUNT.csv] 
+Rscript ${PATH_TO_SCRIPT}/diff_exp.R  --dir ${PATH_TO_DATA}/[DIR_NAME] --cond1 [COND1]  --cond2 [COND2]  ${PATH_TO_DATA}/[DESIGN.csv] ${PATH_TO_DATA}/[GENE_READ_COUNT.csv] 
 ```
 
 This is how _Design.csv_ should be :
