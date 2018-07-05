@@ -159,7 +159,7 @@ if __name__ == '__main__':
             s2_file.write(s2)
             s2_file.close()
             
-            splicingRmats = config.parameters["softPath"]+" --s1 "+s1_path+" --s2 "+s2_path+" --gtf "+config.parameters["gtf"]+" -t "+type_read+" --libType "+libType+" --readLength "+leng +" --bi "+ config.parameters["index"]+" --cstat "+diff+" --od "+config.parameters['path_to_output']+analysis
+            splicingRmats = config.parameters["softPath"]+" --s1 "+s1_path+" --s2 "+s2_path+" --nthread 28 --gtf "+config.parameters["gtf"]+" -t "+type_read+" --libType "+libType+" --readLength "+leng +" --bi "+ config.parameters["index"]+" --cstat "+diff+" --tmpPath "+config.parameters['path_to_output']+analysis+"tmp --od "+config.parameters['path_to_output']+analysis
 
         logger.info(splicingRmats)
         splicingRmats_execLine = subprocess.run((splicingRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
