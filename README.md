@@ -64,6 +64,8 @@ First of all, you need to change init.json inside config directory to set up cor
 
 You will need to download some files from Gencode, create a genome Index with STAR, and create some custom files for which scripts are provided to generate them before using the main pipeline.
 
+An example of the init.json is showed in config directory. In the _Set up Files_ section, you will find the files/path needed to complete it.
+
 
 ## Set up Tools
 
@@ -92,12 +94,28 @@ Follow the links below and look the _Set up tools_ paragraph for each section.
 
 LIGNEMENT_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
 DIFF_EXPRESSION : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)
-
+SPLICING :  
+WHIPPET[here](https://github.com/timbitz/Whippet.jl)  
+RMATS[here](http://rnaseq-mats.sourceforge.net/)
 
 ## Set up Files
 
 
+Download  from ensembl biomart a txt file with _Ensembl Gene ID_ &	_Associated Gene Name_
+Should look as follows : 
+
+```
+Ensembl Gene ID	Associated Gene Name
+ENSG00000252760	RNA5SP54
+ENSG00000252830	5S_rRNA
+```
+
+Now you can set up _genes_biomart_ensembl_ value in init.json  
+
+Download from gencode the gtf file to set up _path_to_gtf_.  
+
 Download  fasta sequence of the genome of interest. (Here we use PRIM_ASSEMBLY from GENCODE R25 based on ENSEMBL 85 for Human and GENCODE M15 based on ENSEMBL 90 for Mouse.  
+
 Create this file with chromosome files.  
 
 ```shell
@@ -105,7 +123,7 @@ conda install pyfaidx
 faidx yourgenome.fasta -i chromsizes > yourgenome.genome.sizes
 ```
 
-Then configure in init.json the value for _path_to_chrom_length_ref_ with the directory where you create yourgenome.genome.sizes directory
+Then configure in init.json the value for _path_to_chrom_length_ref_ & _genomeDir_ with the directory where you create yourgenome.genome.sizes directory as showed in the provided example
 
 Also you need to create index for STAR :  
 
@@ -118,6 +136,8 @@ Generate the fasta file index :
 samtools faidx reference.fa 
 ```
 This creates a file called reference.fa.fai
+
+
 
 Generate the sequence genome.2bit :  
 ```shell
@@ -132,6 +152,8 @@ you will create indexes for  Salmon as follows :
 salmon index -t gencode.vM15.transcripts.fa.gz -i gencode.m15.transcripts.index --type quasi -k 31  
 ```
 
+This gives you the value for _transcriptome_index_ in init.json
+
 Also run this R script. It will create two files : one with genomic non-redundant exons coordinates and the other with gene length using sum of exon length. 
 
 - exons.non-redundant.csv
@@ -141,6 +163,8 @@ Also run this R script. It will create two files : one with genomic non-redundan
 ```R  
 Rscript geneSize.R -f Yourannotation.gtf
 ```
+ 
+Now you can complete _postitionGenomicExon_ and _gene_length_ values in init.json.
 
 
 ## Listing of projects to analyse
