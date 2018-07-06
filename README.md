@@ -21,10 +21,10 @@ The goal of this tutorial is to help people to reproduce the analysis.
 4. Set up Files
 2. Listing of projects to analyse
 
----
 
-Quick overview
----
+
+##Quick overview
+
 
 Once you installed all the necessary softs and files, you need to set up a _init.json_ file inside a directory called _config_ in the RNA-SEQ directory. 
 
