@@ -10,12 +10,9 @@ Transcription Analysis Plus Alternative Splicing for RNA-SEQ
 
 [TAPAS](https://github.com/LucoLab/RNASEQ) is the worklow we use in the lab to process RNA-SEQ.
 
----
-
 Here we describe the different steps involved in this workflow.
 
 The goal of this tutorial is to help people to reproduce the analysis.
-
 
 ---
 
@@ -24,9 +21,9 @@ The goal of this tutorial is to help people to reproduce the analysis.
 4. Set up Files
 2. Listing of projects to analyse
 
+---
 
-## Quick overview
-
+Quick overview
 ---
 
 Once you installed all the necessary softs and files, you need to set up a _init.json_ file inside a directory called _config_ in the RNA-SEQ directory. 
