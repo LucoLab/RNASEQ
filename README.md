@@ -87,9 +87,9 @@ Then you can install all tierce tools needed by the pipeline. See below.
 
 _**Conda**_ : [here](https://www.continuum.io/downloads)
 
-Follow the link and the look set up tools paragraph for each section.
+Follow the links below and look the _Set up tools_ paragraph for each section.
 
-_**ALIGNEMENT**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)
+_**ALIGNEMENT**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
 _**DIFF_EXPRESSION**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)
 
 
