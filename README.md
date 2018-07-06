@@ -93,10 +93,10 @@ _**Conda**_ : [here](https://www.continuum.io/downloads)
 Follow the links below and look the _Set up tools_ paragraph for each section.
 
 LIGNEMENT_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
-DIFF_EXPRESSION : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)
+DIFF_EXPRESSION : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)  
 SPLICING :  
-WHIPPET[here](https://github.com/timbitz/Whippet.jl)  
-RMATS[here](http://rnaseq-mats.sourceforge.net/)
+- WHIPPET : [here](https://github.com/timbitz/Whippet.jl)  
+- RMATS : [here](http://rnaseq-mats.sourceforge.net/)
 
 ## Set up Files
 
