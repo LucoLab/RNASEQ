@@ -16,10 +16,11 @@ The goal of this tutorial is to help people to reproduce the analysis.
 
 ---
 
-1. Quick overview
-2. Set up Tools
-4. Set up Files
-2. Listing of projects to analyse
+1. _**Quick overview**_
+2. _**Create Init File**_
+3. _**Set up Tools**_
+4. _**Set up Files**_
+2. _**Listing of projects to analyse**_
 
 
 
@@ -56,7 +57,7 @@ Here we wrote a resume describing the sequence of scripts and what they do.
 WHOLE STEPS : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALLSCRIPTS.md)
 
 
-## Init file
+## Create Init file
 
 
 First of all, you need to change init.json inside config directory to set up correctly paths and files.
