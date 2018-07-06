@@ -47,13 +47,13 @@ You end with bed files describing exons more splice In or splice Out between two
 
 Each step can be launched separately if you need to (nevertheless previous steps need to be completed).
 
-_**ALIGNEMENT**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
-_**DIFF_EXPRESSION**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)
+ALIGNEMENT : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
+DIFF_EXPRESSION : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)
 
 
 Here we wrote a resume describing the sequence of scripts and what they do.
 
-_**WHOLE STEPS**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALLSCRIPTS.md)
+WHOLE STEPS : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALLSCRIPTS.md)
 
 
 ## Init file
@@ -89,8 +89,8 @@ _**Conda**_ : [here](https://www.continuum.io/downloads)
 
 Follow the links below and look the _Set up tools_ paragraph for each section.
 
-_**ALIGNEMENT**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
-_**DIFF_EXPRESSION**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)
+LIGNEMENT_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
+DIFF_EXPRESSION : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)
 
 
 ## Set up Files
