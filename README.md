@@ -44,14 +44,23 @@ One command is used to launch all steps :
 - Alignment with STAR to generate bigWigs for visualisation
 - Transcript Quantification with SALMON
 - Differential Expression with DESEQ2
-- Splicing Analysis with Whippet
-- Splicing Analysis with Rmats
-- Merge and Filters
+- Splicing Analysis with WHIPPET
+- Splicing Analysis with RMATS
+- Custom filters, formats ...
 
 You end with bed files describing exons more splice In or splice Out between two conditions.
 
 Each step can be launched separately if you need to.
 
+## Init file
+
+First of all, you need to change init.json inside config directory to set up correctly path and files.
+
+You will need to download some files from Gencode, create a genome Index with STAR, and create some custom files for which scripts are provided to generate them before using the main pipeline.
+
+TODO : List all the command.
+
+gencode.v25.exons.non-redundant.csv
 
 ## Listing of projects to analyse
 
@@ -133,11 +142,21 @@ faToTwoBit genome.fa genome.2bit
 ```
 
 
-Last step  : 
+Last steps : 
 
 Download the transcripts from gencode for your genome version and then inside a dir called transcriptome for instance,
 you will create indexes for  Salmon as follows : 
 
 ```shell  
 salmon index -t gencode.vM15.transcripts.fa.gz -i gencode.m15.transcripts.index --type quasi -k 31  
+```
+
+Also run this script. It will create two files : one with genomic non-redundant exons coordinates and the other with gene length using sum of exon length. Yourannotation
+
+- exons.non-redundant.csv
+- gene.length.exon.sums.csv
+
+
+```R  
+Rscript geneSize.R -f Yourannotation.gtf
 ```

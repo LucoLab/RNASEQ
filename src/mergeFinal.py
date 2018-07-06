@@ -298,9 +298,16 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
             array_splicing_data = { as_type :{} }
             namefile = ""
             if (parameters.modeCount == "2" ) :
-                namefile = "MATS.JunctionCountOnly.txt"
+                if(config.parameters["soft_version_rmats"]=="old"):
+                    namefile = "MATS.JunctionCountOnly.txt"
+                if(config.parameters["soft_version_rmats"]=="new"):
+                    namefile = "MATS.JC.txt"
             else  :
-                namefile = "MATS.ReadsOnTargetAndJunctionCounts.txt"
+                if(config.parameters["soft_version_rmats"]=="new"):
+                    namefile = "MATS.JCEC.txt"
+                if(config.parameters["soft_version_rmats"]=="old"):
+                    namefile = "MATS.ReadsOnTargetAndJunctionCounts.txt"
+
                    
             with open(path_to_dir+"/"+as_type+"."+namefile) as f:
                 count = 0
@@ -1210,14 +1217,15 @@ if __name__ == '__main__':
 
     logger = create_logger(config)
 
-    logger.info('\n =========> START PYTHON MERGE :\n ')
+    logger.info('\n =========> START MERGING AND CLEANING : ')
     
     logger.info("Iscontrol ? : "+str(parameters.iscontrol))
     logger.info("file_config : "+parameters.file_config)
     logger.info("path_to_output : "+config.parameters['path_to_output'])
     logger.info("organism : "+config.parameters['organism'])
     logger.info("event : "+parameters.event)
-    
+    logger.info("soft_version_rmats : "+config.parameters['soft_version_rmats'])
+
     events = []
     events.append(parameters.event)
 
@@ -1226,10 +1234,16 @@ if __name__ == '__main__':
 
     namefile = ""
     if (parameters.modeCount == "2" ) :
-        namefile = "MATS.JunctionCountOnly.txt"
+        if(config.parameters["soft_version_rmats"]=="old"):
+            namefile = "MATS.JunctionCountOnly.txt"
+        if(config.parameters["soft_version_rmats"]=="new"):
+            namefile = "MATS.JC.txt"
     else  :
-        namefile = "MATS.ReadsOnTargetAndJunctionCounts.txt"
-    
+        if(config.parameters["soft_version_rmats"]=="new"):
+            namefile = "MATS.JCEC.txt"
+        if(config.parameters["soft_version_rmats"]=="old"):
+            namefile = "MATS.ReadsOnTargetAndJunctionCounts.txt"
+
 
     logger.info ("########################################################################################################################")
     logger.info (" DataFrame Object Construction : First Part)")
@@ -1580,7 +1594,7 @@ if __name__ == '__main__':
 
         bed_list.close()
         
-        postitionGenomiceExon="/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.exons.non-redundant.clean.bed"
+        postitionGenomiceExon=config.parameters['postitionGenomicExon']
         output_crosslink=config.parameters['path_to_output']+"/"+tab+"/"+parameters.event+"/"+parameters.event+"_"+clean_tab_name+"_posRewrited.bed"
         proc_intersect = subprocess.run(("bedtools intersect -loj -a "+bed_output_gene+" -b "+postitionGenomiceExon+ " > "+output_crosslink),shell=True, check=True) 
         write_subprocess_log(proc_intersect,logger)
