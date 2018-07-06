@@ -1209,11 +1209,13 @@ if __name__ == '__main__':
     parser.add_argument("-r","--readsJunction",action="store",help="Number of reads on junction used to filter out events.",required=False,default=10,type=int,dest='readsNumber')
     parser.add_argument("-e","--event",action="store",help="Type of events",required=True,type=str,dest='event')
     parser.add_argument("-ct","--control",action="store_true",help="AS or Control",default=False,dest='iscontrol')
+    parser.add_argument("-i","--init",action="store",help="Path to a json file.",required=False,default=str(Path(os.path.dirname(os.path.realpath(__file__))).parents[0])+"/config/init.json",type=str,dest='init')
 
     parameters = parser.parse_args()
 
     config = custom_parser.Configuration(parameters.file_config,"json")
-    
+    init = custom_parser.Configuration(parameters.init,"json")
+
 
     logger = create_logger(config)
 
@@ -1225,6 +1227,7 @@ if __name__ == '__main__':
     logger.info("organism : "+config.parameters['organism'])
     logger.info("event : "+parameters.event)
     logger.info("soft_version_rmats : "+config.parameters['soft_version_rmats'])
+    logger.info("postitionGenomicExon : "+config.parameters['postitionGenomicExon'])
 
     events = []
     events.append(parameters.event)
@@ -1594,7 +1597,7 @@ if __name__ == '__main__':
 
         bed_list.close()
         
-        postitionGenomiceExon=config.parameters['postitionGenomicExon']
+        postitionGenomiceExon=init.parameters['postitionGenomicExon']
         output_crosslink=config.parameters['path_to_output']+"/"+tab+"/"+parameters.event+"/"+parameters.event+"_"+clean_tab_name+"_posRewrited.bed"
         proc_intersect = subprocess.run(("bedtools intersect -loj -a "+bed_output_gene+" -b "+postitionGenomiceExon+ " > "+output_crosslink),shell=True, check=True) 
         write_subprocess_log(proc_intersect,logger)
