@@ -45,11 +45,19 @@ One command is used to launch all steps :
 
 You end with bed files describing exons more splice In or splice Out between two conditions.
 
-Each step can be launched separately if you need to.
+Each step can be launched separately if you need to (nevertheless previous steps need to be completed).
+
+_**ALIGNEMENT**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)
+_**DIFF_EXPRESSION**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)
+
+
+Here we wrote a resume describing the sequence of scripts and what they do.
+
+_**WHOLE STEPS**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALLSCRIPTS.md)
+
 
 ## Init file
 
----
 
 First of all, you need to change init.json inside config directory to set up correctly paths and files.
 
@@ -58,7 +66,6 @@ You will need to download some files from Gencode, create a genome Index with ST
 
 ## Set up Tools
 
----
 
 First you need to check that the following tools are installed on server/computer.
 
@@ -80,27 +87,14 @@ Then you can install all tierce tools needed by the pipeline. See below.
 
 _**Conda**_ : [here](https://www.continuum.io/downloads)
 
-**ALIGNMENT :**
----
+Follow the link and the look set up tools paragraph for each section.
 
-_**STAR**_ : Aligner [here](https://github.com/alexdobin/STAR)
-
-_**Salmon**_ : Compute TPM values from fastq [here](https://github.com/COMBINE-lab/salmon)
-
-_**Samtools**_ : Bam handler [here](http://www.htslib.org/download/)
-
-_**wigToBigWig**_ : Include in KentTools suite [here](http://hgdownload.soe.ucsc.edu/downloads.html#source_downloads)
-
-
-**DIFFEXP :**
----
-
-TODO
+_**ALIGNEMENT**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)
+_**DIFF_EXPRESSION**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)
 
 
 ## Set up Files
 
----
 
 Download  fasta sequence of the genome of interest. (Here we use PRIM_ASSEMBLY from GENCODE R25 based on ENSEMBL 85 for Human and GENCODE M15 based on ENSEMBL 90 for Mouse.  
 Create this file with chromosome files.  
@@ -150,7 +144,6 @@ Rscript geneSize.R -f Yourannotation.gtf
 
 ## Listing of projects to analyse
 
----
 
 The file listing all the RNA-SEQ Projects you want to analysis should be as follows :
 
