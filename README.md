@@ -47,7 +47,7 @@ You end with bed files describing exons more splice In or splice Out between two
 
 Each step can be launched separately if you need to (nevertheless previous steps need to be completed).
 
-_**ALIGNEMENT**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)
+_**ALIGNEMENT**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
 _**DIFF_EXPRESSION**_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)
 
 
