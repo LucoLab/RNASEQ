@@ -139,27 +139,32 @@ if __name__ == '__main__':
         s1=",".join(config.parameters["analysis"][analysis].get("fastq")["s1"])
         s2=",".join(config.parameters["analysis"][analysis].get("fastq")["s2"])
         
-        if( int(len(config.parameters["analysis"][analysis].get("fastq")["s1"]))==1 and int( len(config.parameters["analysis"][analysis].get("fastq")["s2"]))==1 ) :
-          
-            print( "old version called" )
+        #A: Yes, paired-analysis (-analysis P) option requires at least 3 replicates per sample..
+        analysisType = ""
+        if( int(len(config.parameters["analysis"][analysis].get("fastq")["s1"]))>=3 and int( len(config.parameters["analysis"][analysis].get("fastq")["s2"]))>=3 ) :
+            analysisType = " -analysis P "
+        #if( int(len(config.parameters["analysis"][analysis].get("fastq")["s1"]))>=1 and int( len(config.parameters["analysis"][analysis].get("fastq")["s2"]))>=1 ) :
 
-            splicingRmats = config.parameters["softPath"]+" -s1 "+s1+" -s2 "+s2+" -gtf "+config.parameters["gtf"]+" -t "+type_read+" -libType "+libType+" -len "+leng +" -bi "+ config.parameters["index"]+" -c "+diff+" -o "+config.parameters['path_to_output']+analysis
-    
-        else : 
-            
-            print( "new version called" )
+        print( "old version called" +analysisType )
 
-            s1_path = config.parameters['path_to_output']+"s1.txt"   
-            s1_file = open(s1_path, 'w')
-            s1_file.write(s1)
-            s1_file.close()
+        #splicingRmats = config.parameters["softPath"]+" -s1 "+s1+" -s2 "+s2+" -gtf "+config.parameters["gtf"]+" -t "+type_read+" -libType "+libType+" -len "+leng +" -bi "+ config.parameters["index"]+" -c "+diff+" -o "+config.parameters['path_to_output']+analysis
+        splicingRmats = config.parameters["softPath"]+" -s1 "+s1+" -s2 "+s2+analysisType+" -gtf "+config.parameters["gtf"]+" -t "+type_read+" -libType "+libType+" -len "+leng +" -bi "+ config.parameters["index"]+" -c "+diff+" -o "+config.parameters['path_to_output']+analysis
+
+        #else : 
             
-            s2_path = config.parameters['path_to_output']+"s2.txt"   
-            s2_file = open(s2_path, 'w')
-            s2_file.write(s2)
-            s2_file.close()
+           # print( "new version called" )
+
+           # s1_path = config.parameters['path_to_output']+"s1.txt"   
+           # s1_file = open(s1_path, 'w')
+           # s1_file.write(s1)
+           # s1_file.close()
             
-            splicingRmats = config.parameters["softPath"]+" --s1 "+s1_path+" --s2 "+s2_path+" --nthread 28 --gtf "+config.parameters["gtf"]+" -t "+type_read+" --libType "+libType+" --readLength "+leng +" --bi "+ config.parameters["index"]+" --cstat "+diff+" --tmpPath "+config.parameters['path_to_output']+analysis+"/tmp --od "+config.parameters['path_to_output']+analysis
+           # s2_path = config.parameters['path_to_output']+"s2.txt"   
+           # s2_file = open(s2_path, 'w')
+           # s2_file.write(s2)
+           # s2_file.close()
+            
+           # splicingRmats = config.parameters["softPath"]+" --s1 "+s1_path+" --s2 "+s2_path+" --nthread 28 --gtf "+config.parameters["gtf"]+" -t "+type_read+" --libType "+libType+" --readLength "+leng +" --bi "+ config.parameters["index"]+" --cstat "+diff+" --tmpPath "+config.parameters['path_to_output']+analysis+"/tmp --od "+config.parameters['path_to_output']+analysis
 
         logger.info(splicingRmats)
         splicingRmats_execLine = subprocess.run((splicingRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
@@ -171,5 +176,14 @@ if __name__ == '__main__':
             logger.info("Delete bam file from rmats analysis :")
             subprocess.run("rm "+aFile,shell=True)
             logger.info(aFile)
+            
+        proc_find_files_project = subprocess.getoutput(("find "+config.parameters['path_to_output']+analysis+" -not -name *edgeCount -name "+"*.sam*"))
+        proc_find_files_project = proc_find_files_project.split("\n")
+        for aFile in proc_find_files_project:
+            logger.info("Delete sam file from rmats analysis :")
+            subprocess.run("rm "+aFile,shell=True)
+            logger.info(aFile)   
+            
+            
     logger.info("End")
 

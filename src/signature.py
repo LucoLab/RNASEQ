@@ -27,7 +27,7 @@ import gzip
 import pathlib
 import shutil
 from pathlib import Path
-
+import time
 ###########################################################################################################
 ########################################   Functions   ####################################################
 ###########################################################################################################
@@ -278,8 +278,9 @@ def  write_rmats_conf(project,projet_id_current,path,hash_fc,dataformatedforexpo
             outfile.write(' "path_to_output":"'+path+"output/"+projet_id+"/RMATS/"+'",\n')
             logger.info(path+"output/"+projet_id+"/RMATS/")
             outfile.write('"index" : "'+config.parameters['genomeDir']+'" , \n')
-            
-            if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) > 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) > 1 ) ) : 
+            if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) == 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) == 1 ) ) : 
+
+            #if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) > 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) > 1 ) ) : 
                 outfile.write('"softPath" : "'+config.parameters['rmats_new'] +'", \n')
             else : 
                 outfile.write('"softPath" : "'+config.parameters['rmats_old'] +'", \n')
@@ -308,7 +309,7 @@ def  write_rmats_conf(project,projet_id_current,path,hash_fc,dataformatedforexpo
                     
                if(libType=="Reverse") :
                    outfile.write('"libType" : "fr-secondstrand", \n')
-                   
+
                if(libType=="Unstranded") :
                     outfile.write('"libType" : "fr-unstranded", \n')
                     
@@ -366,10 +367,14 @@ def write_main_conf(project,projet_id_current,path,hash_fc,dataformatedforexport
            outfile.write('"list_files_splicing" : ["SE"], \n')
            outfile.write('"gene_length": "'+config.parameters['gene_length']+'", \n')
            outfile.write('"read_count_matrice": "'+path+"output/"+projet_id+'/Raw_read_counts.csv",\n')
-           if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) > 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) > 1 ) ) : 
-                outfile.write('"soft_version_rmats":  "'+"new"+'", \n')
-           else : 
-                outfile.write('"soft_version_rmats":  "'+"old"+'", \n')
+           
+           #if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) == 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) == 1 ) ) : 
+
+           #if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) > 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) > 1 ) ) : 
+           #     outfile.write('"soft_version_rmats":  "'+"new"+'", \n')
+           #else : 
+           
+           outfile.write('"soft_version_rmats":  "'+"old"+'", \n')
            outfile.write('"postitionGenomicExon": "'+config.parameters['postitionGenomicExon']+'", \n')
      
 
@@ -381,10 +386,12 @@ def write_main_conf(project,projet_id_current,path,hash_fc,dataformatedforexport
                outfile.write('"'+comparision+'": { \n' )
                if(splicing_soft=="RMATS") :
                    outfile.write('"soft":  "'+"RMATS"+'", \n')
-                   if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) > 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) > 1 ) ) : 
-                       outfile.write('"splicing_dir":  "'+path+"output/"+projet_id+"/RMATS/"+comparision+'/", \n') # MATS_output not needed for las version
-                   else : 
-                       outfile.write('"splicing_dir":  "'+path+"output/"+projet_id+"/RMATS/"+comparision+'/MATS_output/", \n') 
+                   #if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) == 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) == 1 ) ) : 
+
+                   #if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) > 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) > 1 ) ) : 
+                   #    outfile.write('"splicing_dir":  "'+path+"output/"+projet_id+"/RMATS/"+comparision+'/", \n') # MATS_output not needed for las version
+                   #else : 
+                   outfile.write('"splicing_dir":  "'+path+"output/"+projet_id+"/RMATS/"+comparision+'/MATS_output/", \n') 
 
                if (splicing_soft=="WHIPPET") :
                    outfile.write('"soft":  "'+"WHIPPET"+'", \n')
@@ -543,42 +550,42 @@ def clipToSameSizeFastq(projet_id,conditions,fastqNameAfterTrimGalore,python2,re
         if conditions[indice] not in avoid_more_add_trick : avoid_more_add_trick[conditions[indice]] = 0
 
         for dir in fastqNameAfterTrimGalore[projet_id][conditions[indice]] :
-            #logger.info("SAMPLE: "+str(dir))
-            #logger.info("FASTQ_for SAMPLE"+str(samples2files[dir]))
-            #avoid_more_add_trick[conditions[indice]] += 1
+            logger.info("SAMPLE: "+str(dir))
+            logger.info("FASTQ_for SAMPLE"+str(samples2files[dir]))
+            avoid_more_add_trick[conditions[indice]] += 1
 
             if(project_global[projet_id]["pair"]  == "PAIRED") :
                          
                 fileTrimmed_1=path+"output/"+projet_id+"/"+dir+"/trim_galore_output/"+os.path.basename(samples2files[dir][0]).split(".")[0]+"_val_1.fq"
                 
                 logger.info("\n-> Unzip "+fileTrimmed_1+".gz\n")
-                #with gzip.open(fileTrimmed_1+".gz", 'rb') as f_in:
-                    #with open(fileTrimmed_1, 'wb') as f_out:
-                        #shutil.copyfileobj(f_in, f_out)
+                with gzip.open(fileTrimmed_1+".gz", 'rb') as f_in:
+                    with open(fileTrimmed_1, 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
                         
                 logger.info("\n-> Trimming for Rmats R1 \n")
                 trimingForRmats = python2+" "+applicatifDir+"src/trimFastq.py "+fileTrimmed_1 +" "+fileTrimmed_1.replace("_val_1.fq",".trimmed.clipped.fastq")+" "+str(sizeToclip)
                 logger.info(trimingForRmats)
-                #trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-                #write_subprocess_log(trimingForRmats_exec,logger)
-                #subprocess.run(("mv "+cwd+"/logtrimFastq*.txt "+path+"logs/"+projet_id+"/trimmed" ),shell=True)
-                #subprocess.run(("rm "+fileTrimmed_1),shell=True)
+                trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+                write_subprocess_log(trimingForRmats_exec,logger)
+                subprocess.run(("mv "+cwd+"/logtrimFastq*.txt "+path+"logs/"+projet_id+"/trimmed" ),shell=True)
+                subprocess.run(("rm "+fileTrimmed_1),shell=True)
 
                 
                 fileTrimmed_2=path+"output/"+projet_id+"/"+dir+"/trim_galore_output/"+os.path.basename(samples2files[dir][1]).split(".")[0]+"_val_2.fq"
                 
                 logger.info("\n-> Unzip  "+fileTrimmed_2+".gz\n")
-                #with gzip.open(fileTrimmed_2+".gz", 'rb') as f_in:
-                    #with open(fileTrimmed_2, 'wb') as f_out:
-                        #shutil.copyfileobj(f_in, f_out)
+                with gzip.open(fileTrimmed_2+".gz", 'rb') as f_in:
+                    with open(fileTrimmed_2, 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
                         
                 logger.info("\n-> Trimming for Rmats R2 \n")
                 trimingForRmats = python2+" "+applicatifDir+"src/trimFastq.py "+fileTrimmed_2 +" "+fileTrimmed_2.replace("_val_2.fq",".trimmed.clipped.fastq")+" "+str(sizeToclip)
                 logger.info(trimingForRmats)
-                #trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-                #write_subprocess_log(trimingForRmats_exec,logger)
-                #subprocess.run(("mv "+cwd+"/logtrimFastq*.txt "+path+"logs/"+projet_id+"/trimmed"),shell=True)
-                #subprocess.run(("rm "+fileTrimmed_2),shell=True)
+                trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+                write_subprocess_log(trimingForRmats_exec,logger)
+                subprocess.run(("mv "+cwd+"/logtrimFastq*.txt "+path+"logs/"+projet_id+"/trimmed"),shell=True)
+                subprocess.run(("rm "+fileTrimmed_2),shell=True)
 
                  
                 reads_for_rmats[projet_id][indice].append(fileTrimmed_1.replace("_val_1.fq",".trimmed.clipped.fastq")+":"+fileTrimmed_2.replace("_val_2.fq",".trimmed.clipped.fastq"))
@@ -588,20 +595,20 @@ def clipToSameSizeFastq(projet_id,conditions,fastqNameAfterTrimGalore,python2,re
                 fileTrimmed_1=path+"output/"+projet_id+"/"+dir+"/trim_galore_output/"+os.path.basename(samples2files[dir][0]).split(".")[0]+"_trimmed.fq"
 
                 logger.info("unzip "+fileTrimmed_1+".gz\n")
-                #with gzip.open(fileTrimmed_1+".gz", 'rb') as f_in:
-                    #with open(fileTrimmed_1, 'wb') as f_out:
-                        #shutil.copyfileobj(f_in, f_out)
+                with gzip.open(fileTrimmed_1+".gz", 'rb') as f_in:
+                    with open(fileTrimmed_1, 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
                         
                 logger.info("\n-> Trimming for Rmats R1 \n")
                 trimingForRmats = python2+" "+applicatifDir+"src/trimFastq.py "+fileTrimmed_1 +" "+fileTrimmed_1.replace("_trimmed.fq",".trimmed.clipped.fastq")+" "+str(sizeToclip)
                 logger.info(trimingForRmats)
-                #trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-                #write_subprocess_log(trimingForRmats_exec,logger)
-                #subprocess.run(("mv "+cwd+"/logtrimFastq*.txt "+path+"logs/"+projet_id+"/trimmed" ),shell=True)
-                #subprocess.run(("rm "+fileTrimmed_1),shell=True)
+                trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+                write_subprocess_log(trimingForRmats_exec,logger)
+                subprocess.run(("mv "+cwd+"/logtrimFastq*.txt "+path+"logs/"+projet_id+"/trimmed" ),shell=True)
+                subprocess.run(("rm "+fileTrimmed_1),shell=True)
 
-                #if(avoid_more_add_trick[conditions[indice]]==1) :  
-                reads_for_rmats[projet_id][indice].append(fileTrimmed_1.replace("_trimmed.fq",".trimmed.clipped.fastq"))
+                if(avoid_more_add_trick[conditions[indice]]==1) :  
+                    reads_for_rmats[projet_id][indice].append(fileTrimmed_1.replace("_trimmed.fq",".trimmed.clipped.fastq"))
                 
 
     return reads_for_rmats   
@@ -676,7 +683,6 @@ if __name__ == '__main__':
                 index_runaccession          = lineElements.index("RUNACCESSION")
                 index_librarylayout         = lineElements.index("LIBRARY_LAYOUT")
                 index_fastq                 = lineElements.index("FASTQ")
-                index_kmer                  = lineElements.index("KMER")
     
                 index_kmer                   = lineElements.index("KMER")
                 
@@ -873,9 +879,10 @@ if __name__ == '__main__':
         
         write_main_conf(project,projet_id,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,"RMATS")
         write_main_conf(project,projet_id,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,"WHIPPET")
-
-        subprocess.run(("mkdir -p "+path+"logs/"+projet_id+"/trimmed"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-    
+        
+        mkdir_trim = "mkdir -p "+path+"logs/"+projet_id+"/trimmed"
+        subprocess.run((mkdir_trim),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+        logger.info(mkdir_trim)        
 
     ###########################################################################################################
     ########################################   Launch Processes   #############################################
@@ -891,6 +898,8 @@ if __name__ == '__main__':
         subprocess.run(("mkdir -p "+path+"output/"+projet_id+"/WHIPPET/"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
 
         whippet= "python3 "+applicatifDir+"src/splicingWhippet.py -c "+path+projet_id+"_whippet.json -k "+kmer
+        logger.info("\n"+whippet+" \n")
+
         whippet_exec = subprocess.run((whippet),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         write_subprocess_log(whippet_exec,logger)
   
@@ -951,7 +960,7 @@ if __name__ == '__main__':
             conditions = comparison.split("_vs_")
 
             expressionAnalyse= "python3 "+applicatifDir+"src/diffGeneExp.py -c "+path+projet_id+"_diff_exp.json -p "+conditions[0]+"_"+conditions[1]
-            logger.info(expressionAnalyse)
+            logger.info("\n"+expressionAnalyse+"\n")
             expressionAnalyse_exec = subprocess.run((expressionAnalyse),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             write_subprocess_log(expressionAnalyse_exec,logger)
 
@@ -960,7 +969,7 @@ if __name__ == '__main__':
             logger.info("Coverage for : "+comparison+"\n")
 
             coverageAnalyse= "python3 "+applicatifDir+"src/coverage.py -c "+path+projet_id+"_RMATS_main.json -a "+conditions[0]+"_vs_"+conditions[1]+" "+"--filter="+config.parameters['genes_biomart_ensembl']
-            logger.info("\n"+coverageAnalyse)
+            logger.info("\n"+coverageAnalyse+"\n")
             coverageAnalyse_exec = subprocess.run((coverageAnalyse),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             write_subprocess_log(coverageAnalyse_exec,logger)
 
@@ -975,9 +984,11 @@ if __name__ == '__main__':
           
         logger.info(list_size)
         sizeToclip = round(int(numpy.mean(list_size)))
-        logger.info('Size to clip is : '+str(sizeToclip))   
         #sizeToclip = 125 - 5
 
+        logger.info('Size to clip is : '+str(sizeToclip))   
+        
+        # Need to remove comment
         reads_for_rmats = clipToSameSizeFastq(projet_id,conditions,fastqNameAfterTrimGalore,python2,reads_for_rmats,sizeToclip,sample2files)
         
         logger.info("\n-> Reads For RMATS \n")
@@ -988,7 +999,7 @@ if __name__ == '__main__':
         write_rmats_conf(project,projet_id,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,sizeToclip,libType,project_global[projet_id]["pair"],reads_for_rmats)
 
         splicingRmats = "python3 "+applicatifDir+"src/splicingRmats.py  -c "+path+projet_id+"_rmats.json"
-        logger.info(splicingRmats)
+        logger.info("\n"+splicingRmats+"\n")
         splicingRmats_exec = subprocess.run((splicingRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         write_subprocess_log(splicingRmats_exec,logger)
         
@@ -996,14 +1007,16 @@ if __name__ == '__main__':
         logger.info("\n-> Wrap, Merge and Filter Splicing Analyse with RMATS \n")
 
         splicingSupperWrapper =  "python3 "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_RMATS_main.json"
-        logger.info(splicingSupperWrapper)
+        logger.info("\n"+splicingSupperWrapper+"\n")
         splicingSupperWrapper_exec = subprocess.run((splicingSupperWrapper),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         write_subprocess_log(splicingSupperWrapper_exec,logger)
         
        
         move ="mv "+path+"/"+comparison+"/ "+path+"output/"+projet_id+"/MERGE.RMATS."+comparison
         subprocess.run(move,shell=True)
-                
+        logger.info(move)
+        time.sleep(10)
+        
         logger.info("\n-> Wrap, Merge and Filter Splicing Analyse with WHIPPET \n")
 
         splicingSupperWrapper =  "python3 "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_WHIPPET_main.json"
@@ -1013,7 +1026,8 @@ if __name__ == '__main__':
         
         move ="mv "+path+"/"+comparison+"/ "+path+"output/"+projet_id+"/MERGE.WHIPPET."+comparison
         subprocess.run(move,shell=True)
-        
+        logger.info(move)
+
         subprocess.run(("mkdir -p "+path+"logs/"+projet_id),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         subprocess.run(("mkdir -p "+path+"configs/"+projet_id),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         
@@ -1021,4 +1035,3 @@ if __name__ == '__main__':
         subprocess.run(("mv "+path+"*.log "+path+"/logs/"+projet_id ),shell=True)
 
 
-        logger.info(move)
