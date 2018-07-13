@@ -154,7 +154,7 @@ salmon index -t gencode.vM15.transcripts.fa.gz -i gencode.m15.transcripts.index 
 
 This gives you the value for _transcriptome_index_ in init.json
 
-Also run this R script. It will create two files : one with genomic non-redundant exons coordinates and the other with gene length using sum of exon length. 
+Also run this R script. It will create two files : one with genomic non-redundant exons coordinates and the other with gene length using sum of exon length. In annot, you have two zipped examples for the human Gencode Annotation version 25 (Ensembl 85) for these two files.
 
 - exons.non-redundant.csv
 - gene.length.exon.sums.csv
