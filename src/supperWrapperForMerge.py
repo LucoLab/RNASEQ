@@ -87,16 +87,20 @@ if __name__ == '__main__':
     
     parser.add_argument("-c","--config",action="store",help="Path to config file.",required=True,type=str,dest='file_config')
     parser.add_argument("-ct","--control",action="store_true",help="AS or Control",default=False,dest='iscontrol')
+    parser.add_argument("-i","--init",action="store",help="Path to a json file.",required=False,default=str(Path(os.path.dirname(os.path.realpath(__file__))).parents[0])+"/config/init.json",type=str,dest='init')
 
     parameters = parser.parse_args()
 
     config = custom_parser.Configuration(parameters.file_config,"json")
-    
+    init = custom_parser.Configuration(parameters.init,"json")
+
     logger = create_logger(config)
 
     iscontrol      = parameters.iscontrol
     read_cutoff    = config.parameters['reads_junction']
     path_to_output =   config.parameters['path_to_output'] 
+    
+    applicatifDir   = init.parameters['scriptDir']
     
     print(os.path.basename(__file__))
     
@@ -107,9 +111,12 @@ if __name__ == '__main__':
             subprocess.run(("mkdir -p "+config.parameters['path_to_output']+"/"+analyse+"/"+event),shell=True)
 
             logger.info(analyse)
-            bashcommand ="/home/jean-philippe.villemin/code/RNA-SEQ/bash/merge.and.clean.splicing.sh "+event+" "+analyse+" "+read_cutoff+" "+parameters.file_config+" "+path_to_output+" "+str(iscontrol)
+            bashcommand =applicatifDir+"bash/merge.and.clean.splicing.sh "+event+" "+analyse+" "+read_cutoff+" "+parameters.file_config+" "+path_to_output+" "+str(iscontrol)
+            
             logger.info(bashcommand)
+            
             bash = subprocess.run((bashcommand),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+            
             logger.info(bash.stdout)
             logger.info(bash.stderr)
 
