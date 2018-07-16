@@ -108,7 +108,7 @@ def write_align_conf(project,id_condition,projet_id,uniq_id_sample,path,repNumbe
         outfile.write('"star":\n')
         outfile.write('{"runThreadN":"32",\n'+
 
-        '"genomeDir":"'+config.parameters['gene_length']+'",\n'+
+        '"genomeDir":"'+config.parameters['genomeDir']+'",\n'+
         '"outSAMtype":"BAM SortedByCoordinate"},\n')
         outfile.write('"fastqc":\n'+
                     '{  "threads":"24"},\n'+
@@ -305,10 +305,12 @@ def  write_rmats_conf(project,projet_id_current,path,hash_fc,dataformatedforexpo
                outfile.write('"len" : "'+str(sizeToclip)+'", \n')
                
                if(libType=="Forward") :
-                    outfile.write('"libType" : "fr-firststrand", \n')
-                    
+                    #outfile.write('"libType" : "fr-firststrand", \n')
+                    outfile.write('"libType" : "fr-secondstrand", \n')
+
                if(libType=="Reverse") :
-                   outfile.write('"libType" : "fr-secondstrand", \n')
+                   #outfile.write('"libType" : "fr-secondstrand", \n')
+                    outfile.write('"libType" : "fr-firststrand", \n')
 
                if(libType=="Unstranded") :
                     outfile.write('"libType" : "fr-unstranded", \n')
@@ -654,6 +656,8 @@ if __name__ == '__main__':
     
     path            = config.parameters['output']
     python2         = config.parameters['python2']
+    #python3         = config.parameters['python3']
+
     applicatifDir   = config.parameters['scriptDir']
     rmats_new       = config.parameters['rmats_new']              
     rmats_old       = config.parameters['rmats_old']             
