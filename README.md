@@ -103,7 +103,22 @@ Follow the links below and look the _Set up tools_ paragraph for each section.
 
 -SPLICING :
 _**JULIA 0.6**_ : [here](https://julialang.org/downloads/)  
+
+ ```shell
+ 	wget https://julialang-s3.julialang.org/bin/linux/x64/0.6/julia-0.6.3-linux-x86_64.tar.gz
+ 	tar -zxvf julia-0.6.3-linux-x86_64.tar.gz
+ ```
+
 _**WHIPPET 10.4**_ : [here](https://github.com/timbitz/Whippet.jl)  
+
+In julia :  
+
+```shell
+	Pkg.update()
+	Pkg.add("Whippet")
+	using Whippet
+```
+
 _**RMATS 3.2.5**_ : [here](http://rnaseq-mats.sourceforge.net/)
 
 -OTHERS :
