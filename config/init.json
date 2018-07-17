@@ -10,6 +10,11 @@
    "rmats_old"                     : "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.3.2.5/RNASeq-MATS.py",
    "python2"                        : "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2",
    "scriptDir"                      : "/home/jean-philippe.villemin/code/RNA-SEQ/",
-   "output"                         : "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/"
+   "output"                         : "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/",
+   "index_whippet_normal"           : "/home/jean-philippe.villemin/data/data/index_whippet/julia-6/human/9kmer/index_whippet",
+   "index_whippet_short"             : "/home/jean-philippe.villemin/data/data/index_whippet/julia-6/human/8kmer/index_whippet",
+   "pathToJulia"             		 : "/home/jean-philippe.villemin/bin/julia-6/julia",
+   "pathToWhippet"                   : "/home/jean-philippe.villemin/bin/Whippet.0.10.4/bin/"
+   
 
 }

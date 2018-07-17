@@ -95,6 +95,7 @@ if __name__ == '__main__':
     parser.add_argument("-c","--config",action="store",help="Path to a json file.",required=True,type=str,dest='file_config')
     parser.add_argument("-a","--analyse",action="store",help="Type of analyse you want to execute.",default="dpsi",required=False,type=str,dest='analyse')
     parser.add_argument("-k","--kmer",action="store",help="KmerSize Index to use.",default="normal",required=False,type=str,dest='kmer')
+    parser.add_argument("-i","--init",action="store",help="Path to a json file.",required=False,default=str(Path(os.path.dirname(os.path.realpath(__file__))).parents[0])+"/config/init.json",type=str,dest='init')
 
     #parser.add_argument("-a","--analysis",action="store",help="Name of analysis",required=True,type=str,dest='analysis')
 
@@ -102,6 +103,9 @@ if __name__ == '__main__':
     print(parameters.file_config)
     
     config = custom_parser.Configuration(parameters.file_config,"json")
+    
+    init = custom_parser.Configuration(parameters.init,"json")
+
     
     path_above = Path(os.path.dirname(config.parameters['path_to_output'])).parents[2]
 
@@ -121,10 +125,10 @@ if __name__ == '__main__':
     if (config.parameters['organism']=="human") :
         if (parameters.kmer=="short") :
             logger.info("Kmer Index used is short ")
-            index_path="/home/jean-philippe.villemin/data/data/index_whippet/julia-6/human/8kmer/index_whippet" #/human_index_whippet
+            index_path=init.parameters['index_whippet_short'] #/human_index_whippet
         if (parameters.kmer=="normal") :
             logger.info("Kmer Index used is default ")
-            index_path="/home/jean-philippe.villemin/data/data/index_whippet/julia-6/human/9kmer/index_whippet"
+            index_path=init.parameters['index_whippet_normal'] #/human_index_whippet
     #if (config.parameters['organism']=="mouse") :
         #index_path="/home/jean-philippe.villemin/data/data/index_whippet/mouse/mouse_index_whippet"
  
@@ -158,14 +162,15 @@ if __name__ == '__main__':
                         logger.info(hash_values.get("R2"))
                         if(hash_values.get("R2")=="None" ) : 
                             if(config.parameters['path_to_input']=="None") :
-                                execLine = "/home/jean-philippe.villemin/bin/julia-6/julia /home/jean-philippe.villemin/bin/Whippet.0.10.4/bin/whippet-quant.jl -x "+index_path+" --url http://"+hash_values.get("R1")[6:]+" -o "+config.parameters['path_to_output']+hash_key
+                                pathToJulia
+                                execLine = init.parameters['pathToJulia']+" "+init.parameters['pathToWhippet']+"whippet-quant.jl -x "+index_path+" --url http://"+hash_values.get("R1")[6:]+" -o "+config.parameters['path_to_output']+hash_key
                             else :
-                                execLine = "/home/jean-philippe.villemin/bin/julia-6/julia /home/jean-philippe.villemin/bin/Whippet.0.10.4/bin/whippet-quant.jl -x "+index_path+" "+config.parameters['path_to_input']+hash_values.get("R1")+" -o "+config.parameters['path_to_output']+hash_key
+                                execLine = init.parameters['pathToJulia']+" "+init.parameters['pathToWhippet']+"whippet-quant.jl -x "+index_path+" "+config.parameters['path_to_input']+hash_values.get("R1")+" -o "+config.parameters['path_to_output']+hash_key
                         else :
                             if(config.parameters['path_to_input']=="None") : 
-                                execLine = "/home/jean-philippe.villemin/bin/julia-6/julia /home/jean-philippe.villemin/bin/Whippet.0.10.4/bin/whippet-quant.jl -x "+index_path+"  --url http://"+hash_values.get("R1")[6:]+" http://"+hash_values.get("R2")[6:]+" -o "+config.parameters['path_to_output']+hash_key
+                                execLine = init.parameters['pathToJulia']+" "+init.parameters['pathToWhippet']+"whippet-quant.jl -x "+index_path+"  --url http://"+hash_values.get("R1")[6:]+" http://"+hash_values.get("R2")[6:]+" -o "+config.parameters['path_to_output']+hash_key
                             else :
-                                execLine = "/home/jean-philippe.villemin/bin/julia-6/julia /home/jean-philippe.villemin/bin/Whippet.0.10.4/bin/whippet-quant.jl -x "+index_path+"  "+config.parameters['path_to_input']+hash_values.get("R1")+" "+config.parameters['path_to_input']+hash_values.get("R2")+" -o "+config.parameters['path_to_output']+hash_key
+                                execLine = init.parameters['pathToJulia']+" "+init.parameters['pathToWhippet']+"whippet-quant.jl -x "+index_path+"  "+config.parameters['path_to_input']+hash_values.get("R1")+" "+config.parameters['path_to_input']+hash_values.get("R2")+" -o "+config.parameters['path_to_output']+hash_key
 
                         logger.info(execLine)
         
@@ -232,7 +237,7 @@ if __name__ == '__main__':
            
             if(skip==0) :
                 logger.info("DELTA ====>")
-                execLine_delta = "/home/jean-philippe.villemin/bin/julia-6/julia /home/jean-philippe.villemin/bin/Whippet.0.10.4/bin/whippet-delta.jl -a "+",".join(test)+trickForOneSample+" -b "+",".join(contr)+trickForOneSample+" -o "+config.parameters['path_to_output']+analyse_key
+                execLine_delta = init.parameters['pathToJulia']+" "+init.parameters['pathToWhippet']+"whippet-delta.jl -a "+",".join(test)+trickForOneSample+" -b "+",".join(contr)+trickForOneSample+" -o "+config.parameters['path_to_output']+analyse_key
                 logger.info(execLine_delta)
                 whippetdelta = subprocess.run((execLine_delta),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
                 write_subprocess_log(whippetdelta,logger)
@@ -263,12 +268,12 @@ if __name__ == '__main__':
                 filter = subprocess.run((filter_command),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
                 write_subprocess_log(filter,logger)
                 
-                Rcommand ="Rscript /home/jean-philippe.villemin/code/RNA-SEQ/Rscript/annotSyymbol.R --organism="+config.parameters['organism']+" --file="+config.parameters['path_to_output']+analyse_key+".clean."+event+".diff"
+                Rcommand ="Rscript "+init.parameters['scriptDir']+"Rscript/annotSyymbol.R --organism="+config.parameters['organism']+" --file="+config.parameters['path_to_output']+analyse_key+".clean."+event+".diff"
                 logger.info(Rcommand)
                 R = subprocess.run((Rcommand),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
                 write_subprocess_log(R,logger)
                 
-                Rcommand2 ="Rscript /home/jean-philippe.villemin/code/RNA-SEQ/Rscript/annotSyymbol.R --organism="+config.parameters['organism']+" --file="+config.parameters['path_to_output']+analyse_key+".bad."+event+".diff"
+                Rcommand2 ="Rscript "+init.parameters['scriptDir']+"Rscript/annotSyymbol.R --organism="+config.parameters['organism']+" --file="+config.parameters['path_to_output']+analyse_key+".bad."+event+".diff"
                 logger.info(Rcommand2)
                 R2 = subprocess.run((Rcommand2),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
                 write_subprocess_log(R2,logger)
