@@ -85,8 +85,6 @@ python3 --version
 
 Should return something like  : _Python 3.5.5 :: Anaconda custom (64-bit)_
 
-Then you can install all tierce tools needed by the pipeline. See below.
-
 _**Conda**_ : [here](https://www.continuum.io/downloads)
 
 You need also to set python2 environment.
@@ -95,19 +93,23 @@ You need also to set python2 environment.
 conda create -n py2 python=2 anaconda
 ```
 
-Download Rmats 3.2.5 :
-
-- RMATS : [here](http://rnaseq-mats.sourceforge.net/)
-
-In MATS directory, you need to change bash scripts. Change python2 call to path where python2 was created in anaconda.
+Then you can install all tierce tools needed by the pipeline. See below.
 
 Follow the links below and look the _Set up tools_ paragraph for each section.
 
-ALIGNEMENT_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
-DIFF_EXPRESSION : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)  
-SPLICING :  
-- WHIPPET : [here](https://github.com/timbitz/Whippet.jl)  
+-ALIGNEMENT : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
 
+-DIFF_EXPRESSION : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)  
+
+-SPLICING :
+_**JULIA 0.6**_ : [here](https://julialang.org/downloads/)  
+_**WHIPPET 10.4**_ : [here](https://github.com/timbitz/Whippet.jl)  
+_**RMATS 3.2.5**_ : [here](http://rnaseq-mats.sourceforge.net/)
+
+-OTHERS :
+_**bedtools**_ : Bed handler [here](http://bedtools.readthedocs.io/en/latest/index.html)
+
+You need to change in RNASeq-MATS.py the python call to path to python2 set with anaconda. You need also to change bash scripts in MATS directory(rMATS.sh,MATS_LRT.sh,rMATS_Paired.sh,rMATS_Unpaired.sh). Change python2 call to the path where python2 was created in anaconda environment.
 
 ## Set up Files
 
