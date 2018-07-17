@@ -278,12 +278,12 @@ def  write_rmats_conf(project,projet_id_current,path,hash_fc,dataformatedforexpo
             outfile.write(' "path_to_output":"'+path+"output/"+projet_id+"/RMATS/"+'",\n')
             logger.info(path+"output/"+projet_id+"/RMATS/")
             outfile.write('"index" : "'+config.parameters['genomeDir']+'" , \n')
-            if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) == 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) == 1 ) ) : 
+            #if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) == 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) == 1 ) ) : 
 
             #if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) > 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) > 1 ) ) : 
-                outfile.write('"softPath" : "'+config.parameters['rmats_new'] +'", \n')
-            else : 
-                outfile.write('"softPath" : "'+config.parameters['rmats_old'] +'", \n')
+            #outfile.write('"softPath" : "'+config.parameters['rmats_new'] +'", \n')
+            #else : 
+            outfile.write('"softPath" : "'+config.parameters['rmats_old'] +'", \n')
 
             a=0
             outfile.write('"analysis" : {  \n')
@@ -506,14 +506,14 @@ def getaverageSize(projet_id,conditions,analysis_2_files,python2,project_global,
                 
                 logger.info(applicatifDir+"bash/read_average_size_fastq.sh "+fileTrimmed_1)
                 res = subprocess.getoutput((applicatifDir+"bash/read_average_size_fastq.sh "+fileTrimmed_1))
-                logger.info(res)
+                #logger.info(res)
                 list_size.append(get_readLength_forMaxEffectif(res))
                 
                 fileTrimmed_2=path+"output/"+projet_id+"/"+dir+"/trim_galore_output/"+os.path.basename(samples2files[dir][1]).split(".")[0]+"_val_2.fq.gz"
                
                 logger.info(applicatifDir+"bash/read_average_size_fastq.sh "+fileTrimmed_2)
                 res = subprocess.getoutput((applicatifDir+"bash/read_average_size_fastq.sh "+fileTrimmed_2))
-                logger.info(res)
+                #logger.info(res)
                 list_size.append(get_readLength_forMaxEffectif(res))
 
         
@@ -523,7 +523,7 @@ def getaverageSize(projet_id,conditions,analysis_2_files,python2,project_global,
 
                 res = subprocess.getoutput((applicatifDir+"bash/read_average_size_fastq.sh "+fileTrimmed_1))
                 logger.info(applicatifDir+"read_average_size_fastq.sh "+fileTrimmed_1)
-                logger.info(res)
+                #logger.info(res)
                 list_size.append(get_readLength_forMaxEffectif(res))
 
     return list_size
@@ -531,7 +531,7 @@ def getaverageSize(projet_id,conditions,analysis_2_files,python2,project_global,
 def get_readLength_forMaxEffectif(res) :
     
     listRes = res.split("\n")
-    logger.info(listRes)
+    #logger.info(listRes)
 
     size2effectif= {}
     for pair in listRes : 
@@ -988,7 +988,8 @@ if __name__ == '__main__':
           
         logger.info(list_size)
         sizeToclip = round(int(numpy.mean(list_size)))
-        #sizeToclip = 125 - 5
+        # remove 5
+        sizeToclip = sizeToclip - 5
 
         logger.info('Size to clip is : '+str(sizeToclip))   
         
