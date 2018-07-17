@@ -87,16 +87,27 @@ Should return something like  : _Python 3.5.5 :: Anaconda custom (64-bit)_
 
 Then you can install all tierce tools needed by the pipeline. See below.
 
-
 _**Conda**_ : [here](https://www.continuum.io/downloads)
+
+You need also to set python2 environment.
+
+```
+conda create -n py2 python=2 anaconda
+```
+
+Download Rmats 3.2.5 :
+
+- RMATS : [here](http://rnaseq-mats.sourceforge.net/)
+
+In MATS directory, you need to change bash scripts. Change python2 call to path where python2 was created in anaconda.
 
 Follow the links below and look the _Set up tools_ paragraph for each section.
 
-LIGNEMENT_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
+ALIGNEMENT_ : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
 DIFF_EXPRESSION : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)  
 SPLICING :  
 - WHIPPET : [here](https://github.com/timbitz/Whippet.jl)  
-- RMATS : [here](http://rnaseq-mats.sourceforge.net/)
+
 
 ## Set up Files
 
