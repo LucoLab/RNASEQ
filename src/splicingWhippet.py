@@ -162,7 +162,7 @@ if __name__ == '__main__':
                         logger.info(hash_values.get("R2"))
                         if(hash_values.get("R2")=="None" ) : 
                             if(config.parameters['path_to_input']=="None") :
-                                pathToJulia
+                                
                                 execLine = init.parameters['pathToJulia']+" "+init.parameters['pathToWhippet']+"whippet-quant.jl -x "+index_path+" --url http://"+hash_values.get("R1")[6:]+" -o "+config.parameters['path_to_output']+hash_key
                             else :
                                 execLine = init.parameters['pathToJulia']+" "+init.parameters['pathToWhippet']+"whippet-quant.jl -x "+index_path+" "+config.parameters['path_to_input']+hash_values.get("R1")+" -o "+config.parameters['path_to_output']+hash_key
