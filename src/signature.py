@@ -656,7 +656,7 @@ if __name__ == '__main__':
     
     path            = config.parameters['output']
     python2         = config.parameters['python2']
-    #python3         = config.parameters['python3']
+    python3         = config.parameters['python3']
 
     applicatifDir   = config.parameters['scriptDir']
     rmats_new       = config.parameters['rmats_new']              
@@ -901,7 +901,7 @@ if __name__ == '__main__':
 
         subprocess.run(("mkdir -p "+path+"output/"+projet_id+"/WHIPPET/"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
 
-        whippet= "python3 "+applicatifDir+"src/splicingWhippet.py -c "+path+projet_id+"_whippet.json -k "+kmer
+        whippet= "python3+" " "+applicatifDir+"src/splicingWhippet.py -c "+path+projet_id+"_whippet.json -k "+kmer
         logger.info("\n"+whippet+" \n")
 
         whippet_exec = subprocess.run((whippet),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
@@ -935,7 +935,7 @@ if __name__ == '__main__':
             name=os.path.basename(oneSample).replace("_align.json",".fastq.gz").split(".")
             nameFastq=name[1]
 
-            mapping= "python3 "+applicatifDir+"src/alignment.py -c "+oneSample#+"_align.json"
+            mapping= python3+" "+applicatifDir+"src/alignment.py -c "+oneSample#+"_align.json"
             logger.info("\n"+mapping+" \n")
             mapping_exec = subprocess.run((mapping),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             write_subprocess_log(mapping_exec,logger)
@@ -963,7 +963,7 @@ if __name__ == '__main__':
             
             conditions = comparison.split("_vs_")
 
-            expressionAnalyse= "python3 "+applicatifDir+"src/diffGeneExp.py -c "+path+projet_id+"_diff_exp.json -p "+conditions[0]+"_"+conditions[1]
+            expressionAnalyse= python3+" "+applicatifDir+"src/diffGeneExp.py -c "+path+projet_id+"_diff_exp.json -p "+conditions[0]+"_"+conditions[1]
             logger.info("\n"+expressionAnalyse+"\n")
             expressionAnalyse_exec = subprocess.run((expressionAnalyse),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             write_subprocess_log(expressionAnalyse_exec,logger)
@@ -972,7 +972,7 @@ if __name__ == '__main__':
             
             logger.info("Coverage for : "+comparison+"\n")
 
-            coverageAnalyse= "python3 "+applicatifDir+"src/coverage.py -c "+path+projet_id+"_RMATS_main.json -a "+conditions[0]+"_vs_"+conditions[1]+" "+"--filter="+config.parameters['genes_biomart_ensembl']
+            coverageAnalyse= python3+" "+applicatifDir+"src/coverage.py -c "+path+projet_id+"_RMATS_main.json -a "+conditions[0]+"_vs_"+conditions[1]+" "+"--filter="+config.parameters['genes_biomart_ensembl']
             logger.info("\n"+coverageAnalyse+"\n")
             coverageAnalyse_exec = subprocess.run((coverageAnalyse),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             write_subprocess_log(coverageAnalyse_exec,logger)
@@ -1003,7 +1003,7 @@ if __name__ == '__main__':
          
         write_rmats_conf(project,projet_id,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,sizeToclip,libType,project_global[projet_id]["pair"],reads_for_rmats)
 
-        splicingRmats = "python3 "+applicatifDir+"src/splicingRmats.py  -c "+path+projet_id+"_rmats.json"
+        splicingRmats = python3+" "+applicatifDir+"src/splicingRmats.py  -c "+path+projet_id+"_rmats.json"
         logger.info("\n"+splicingRmats+"\n")
         splicingRmats_exec = subprocess.run((splicingRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         write_subprocess_log(splicingRmats_exec,logger)
@@ -1011,7 +1011,7 @@ if __name__ == '__main__':
       
         logger.info("\n-> Wrap, Merge and Filter Splicing Analyse with RMATS \n")
 
-        splicingSupperWrapper =  "python3 "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_RMATS_main.json"
+        splicingSupperWrapper =  python3+" "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_RMATS_main.json"
         logger.info("\n"+splicingSupperWrapper+"\n")
         splicingSupperWrapper_exec = subprocess.run((splicingSupperWrapper),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         write_subprocess_log(splicingSupperWrapper_exec,logger)
@@ -1024,7 +1024,7 @@ if __name__ == '__main__':
         
         logger.info("\n-> Wrap, Merge and Filter Splicing Analyse with WHIPPET \n")
 
-        splicingSupperWrapper =  "python3 "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_WHIPPET_main.json"
+        splicingSupperWrapper =  python3+" "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_WHIPPET_main.json"
         logger.info(splicingSupperWrapper)
         splicingSupperWrapper_exec = subprocess.run((splicingSupperWrapper),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         write_subprocess_log(splicingSupperWrapper_exec,logger)
