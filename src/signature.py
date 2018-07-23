@@ -106,7 +106,7 @@ def write_align_conf(project,id_condition,projet_id,uniq_id_sample,path,repNumbe
         outfile.write("{\n")
         outfile.write('"project" : "'+projet_id+'" , \n')
         outfile.write('"star":\n')
-        outfile.write('{"runThreadN":"32",\n'+
+        outfile.write('{"runThreadN":"24",\n'+
 
         '"genomeDir":"'+config.parameters['genomeDir']+'",\n'+
         '"outSAMtype":"BAM SortedByCoordinate"},\n')
