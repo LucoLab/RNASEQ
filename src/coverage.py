@@ -212,7 +212,7 @@ def foldchange2logratio (foldchange) :
 def check_distribution(list_values) :
     
         a = np.array(list_values)
-        logger.info(a)
+        #logger.info(a)
         cutOffPercentile = np.percentile(a, 50) # return 50th percentile, e.g median.
         
         logger.info("Genes : "+str(len(list_values)))
@@ -338,7 +338,7 @@ def complete_with_raw_read_count(matrice_path,dict_for_analysis,names_test_repli
 
     for gene in  indexed_data.index.values :
         
-        logger.info(gene)
+        #logger.info(gene)
 
         m            = re.search('^(\w+)\.(\d+)$', gene)
         if(m):
@@ -538,7 +538,7 @@ if __name__ == '__main__':
         logger.info(config.parameters['gene_length'])
         
         catalog = initialise_subset(gene_subset,gene_length)
-        logger.info(catalog)
+        #logger.info(catalog)
 
         pp = pprint.PrettyPrinter()
 
@@ -561,7 +561,7 @@ if __name__ == '__main__':
         
         catalog = complete_with_raw_read_count(config.parameters["read_count_matrice"], catalog,names_test_replicates_for_raw_count,names_control_replicates_for_raw_count)
         
-        logger.info(catalog)
+        #logger.info(catalog)
         catalog,cutOffDict = complete_with_quantif(return_all_uniq_replicates_object(config.parameters["samples_for_quantification"]), catalog,parameters.tpmNumber)
        
         #pp.pprint(catalog)
