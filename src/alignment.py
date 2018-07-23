@@ -17,6 +17,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import datetime
 import json
+from pathlib import Path
 
 ###########################################################################################################
 ########################################   Functions   ####################################################
@@ -305,8 +306,11 @@ if __name__ == '__main__':
     
     parser.add_argument("-c","--config",action="store",help="Path to a json file for the condition.",required=True,type=str,dest='file_config')
     parser.add_argument("-a","--aligner",action="store",help="Star is default setting.",default="star",type=str,dest='aligner')
+    parser.add_argument("-i","--init",action="store",help="Path to a json file.",required=False,default=str(Path(os.path.dirname(os.path.realpath(__file__))).parents[0])+"/config/init.json",type=str,dest='init')
 
     parameters = parser.parse_args()
+
+    init = custom_parser.Configuration(parameters.init,"json")
 
     config = custom_parser.Configuration(parameters.file_config,"json")
 
@@ -446,14 +450,14 @@ if __name__ == '__main__':
 
             logger.info('=========> SALMON QUANT')
 
-            logger.info("salmon quant -i "+config.parameters['transcriptome_index'] \
+            logger.info(init.parameters['salmonPath']+" quant -i "+config.parameters['transcriptome_index'] \
                 +" -p " +config.parameters['salmon']['cpu'] \
                 +" -l A " \
                 +" -g "+config.parameters['path_to_gtf'] \
                 +" -r "+trim_galore_output+'/'+config.parameters['files'][group_pair]['R1'].replace('.fastq','_trimmed.fq')+" " \
                 +" -o "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"salmon_output")
              
-            salmon= subprocess.run("salmon quant -i "+config.parameters['transcriptome_index'] \
+            salmon= subprocess.run(init.parameters['salmonPath']+" quant -i "+config.parameters['transcriptome_index'] \
                 +" -p " +config.parameters['salmon']['cpu'] \
                 +" -l A " \
                 +" -g "+config.parameters['path_to_gtf']  \
@@ -468,7 +472,7 @@ if __name__ == '__main__':
             logger.info('=========> SALMON QUANT')
     
         ####################### Salmonize ##########################
-            logger.info("salmon quant -i "+config.parameters['transcriptome_index'] \
+            logger.info(init.parameters['salmonPath']+" quant -i "+config.parameters['transcriptome_index'] \
                 +" -p " +config.parameters['salmon']['cpu'] \
                 +" -l A " \
                 +" -g "+config.parameters['path_to_gtf'] \
@@ -476,7 +480,7 @@ if __name__ == '__main__':
                 +" -2 "+trim_galore_output+'/'+config.parameters['files'][group_pair]['R2'].replace('.fastq','_val_2.fq') \
                 +" -o "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"salmon_output")
              
-            salmon= subprocess.run("salmon quant -i "+config.parameters['transcriptome_index'] \
+            salmon= subprocess.run(init.parameters['salmonPath']+" quant -i "+config.parameters['transcriptome_index'] \
                 +" -p " +config.parameters['salmon']['cpu'] \
                 +" -l A " \
                 +" -g "+config.parameters['path_to_gtf']  \
