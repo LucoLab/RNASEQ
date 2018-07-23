@@ -90,10 +90,13 @@ Should return something like  : _Python 3.5.5 :: Anaconda custom (64-bit)_
 
 _**Conda**_ : [here](https://www.continuum.io/downloads)
 
-Conda make also easy the installation of a python2 environment that is also needed by the pipeline.
+Conda make also easy the installation of a python2 environment that is also needed by the pipeline. (pysam module is needed also for Rmats use.)
 
 ```
 conda create -n py2 python=2 anaconda
+
+conda install -n py2 pysam
+
 ```
 
 
@@ -101,12 +104,13 @@ conda create -n py2 python=2 anaconda
 Then you can install all tierce tools needed by the pipeline. See below.
 
 
-
 Follow the links below and look the _Set up tools_ paragraph for each section.
 
 -ALIGNEMENT : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
 
 -DIFF_EXPRESSION : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)  
+
+__NB__ : RMysql package need to be installed in R also.
 
 -SPLICING :
 
