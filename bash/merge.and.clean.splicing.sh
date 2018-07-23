@@ -24,8 +24,7 @@ export LC_ALL=C
 #
 #################################################################
 
-CODE_DIR=/home/jean-philippe.villemin/code/RNA-SEQ/src
-echo "CODE_DIR : ${CODE_DIR}"
+#CODE_DIR=/home/jean-philippe.villemin/code/RNA-SEQ/src
 
 EVENT=$1
 SUBDIR=$2
@@ -34,21 +33,24 @@ PATH_TO_CONFIG=$4
 BASE_PATH=$5
 ID1=${SUBDIR}
 ISCONTROL=$6
+CODE_DIR=$7
+PYTHON3=$8
+
 
 
 echo ""
-echo "==> BASH SCRIPT: "
+echo "=========>>START BASH SCRIPT: "
 
 echo "EVENT : ${EVENT}"
 echo "READS : ${READS}"
 echo "PATH_TO_CONFIG : ${PATH_TO_CONFIG}"
-
 echo "BASE_PATH : ${BASE_PATH}"
 echo "SUBDIR : ${SUBDIR}"
-
 echo "SAMPLE_NAME : ${ID1}"
 echo "ISCONTROL : ${ISCONTROL}"
-echo ""
+echo "CODE_DIR : ${CODE_DIR}"
+echo "PYTHON3 : ${PYTHON3}"
+
 
 ALT=""
 
@@ -65,11 +67,11 @@ echo "FINAL_OUT : ${FINAL_OUT}"
 
 FILE_STAT_OUTPUT=${BASE_PATH}${SUBDIR}/${EVENT}/stats.txt
 
-python3 ${CODE_DIR}/mergeFinal.py -c ${PATH_TO_CONFIG} -r ${READS} -e ${EVENT} ${ALT}
+${PYTHON3} ${CODE_DIR}/mergeFinal.py -c ${PATH_TO_CONFIG} -r ${READS} -e ${EVENT} ${ALT}
 
 echo "SANITIZE : LOOK FOR ${ID1} INSIDE DIR : ${BASE_PATH}${SUBDIR}/${EVENT}/"
 
-python3 ${CODE_DIR}/cleanfusion.py -s1 TMP -p ${FINAL_OUT} -o ${ID1} -ct ${ISCONTROL}
+${PYTHON3} ${CODE_DIR}/cleanfusion.py -s1 TMP -p ${FINAL_OUT} -o ${ID1} -ct ${ISCONTROL}
 
 
 echo "REMOVE RAW BED"
@@ -107,7 +109,7 @@ if [ ${ISCONTROL} == "False" ]; then
 	do
 	echo ""
 	echo "python3 ${CODE_DIR}/addToExcel.py --file ${FILE} --excel  ${EXCEL} "
-	python3 ${CODE_DIR}/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
+	${PYTHON3} ${CODE_DIR}/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
 	
 	done
 	find ${BASE_PATH}${SUBDIR}/${EVENT} -name "*.bed" ! -name "*INC*.bed" ! -name "*EXC*.bed" ! -name "*ALL*.bed"
@@ -150,7 +152,7 @@ if [ ${ISCONTROL} == "True" ]; then
 	do
 	echo ""
 	echo "python3 ${CODE_DIR}/addToExcel.py --file ${FILE} --excel  ${EXCEL} "
-	python3 ${CODE_DIR}/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
+	${PYTHON3} ${CODE_DIR}/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
 	done
 	
 	echo  "CLEAN DIR"
@@ -163,8 +165,7 @@ if [ ${ISCONTROL} == "True" ]; then
 	done
 	
 fi
-echo  "mergeSplicing.From.RMATS.forOneList finished !"
-
+echo "=========>> END BASH SCRIPT: "
 
 
 exit 0

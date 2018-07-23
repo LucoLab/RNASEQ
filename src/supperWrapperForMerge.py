@@ -114,7 +114,7 @@ if __name__ == '__main__':
             subprocess.run(("mkdir -p "+config.parameters['path_to_output']+"/"+analyse+"/"+event),shell=True)
 
             logger.info(analyse)
-            bashcommand =applicatifDir+"bash/merge.and.clean.splicing.sh "+event+" "+analyse+" "+read_cutoff+" "+parameters.file_config+" "+path_to_output+" "+str(iscontrol)
+            bashcommand =applicatifDir+"bash/merge.and.clean.splicing.sh "+event+" "+analyse+" "+read_cutoff+" "+parameters.file_config+" "+path_to_output+" "+str(iscontrol)+" "+applicatifDir+" "+init.parameters['python3']
             
             logger.info(bashcommand)
             
