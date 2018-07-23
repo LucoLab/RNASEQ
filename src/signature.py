@@ -51,7 +51,7 @@ def write_subprocess_log(completedProcess,logger):
                 logger.error("====> Standard Error : ")
                 logger.error(completedProcess.stderr) 
                 
-def create_logger(path,LEVEL):
+def create_logger(path,LEVEL,id):
     """
     Define a logger instance to write in a file and stream.
   
@@ -68,10 +68,10 @@ def create_logger(path,LEVEL):
     logger.setLevel(LEVEL)
     formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')
     script = "signature_activity"
-    print(path+"/"+script+'.log')
+    print(path+"/"+id+"."+script+'.log')
     
     ''' 1 st handler in file'''
-    file_handler = RotatingFileHandler(path+"/"+script+'.log', 'a', 1000000, 1)
+    file_handler = RotatingFileHandler(path+"/"+id+"."+script+'.log', 'a', 1000000, 1)
     file_handler.setLevel(LEVEL)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -663,10 +663,7 @@ if __name__ == '__main__':
     rmats_old       = config.parameters['rmats_old']             
    
     
-    logger = create_logger(path,"INFO")
-    
-    logger.info("\n-> Log is written here : "+path)
-    
+  
     ###########################################################################################################
     ########################################   Read Input list of RnaSq Project   #############################
     ###########################################################################################################
@@ -674,6 +671,8 @@ if __name__ == '__main__':
     project         = {}
     project_global  = {}
     count           = 0
+    
+    projectNameForlog = ""
     
     with open(parameters.path2Refs) as f:
         for line in f:
@@ -683,7 +682,6 @@ if __name__ == '__main__':
                 logger.info(lineElements)
                 
                 index_study                 = lineElements.index("STUDY")
-                
                 index_runaccession          = lineElements.index("RUNACCESSION")
                 index_librarylayout         = lineElements.index("LIBRARY_LAYOUT")
                 index_fastq                 = lineElements.index("FASTQ")
@@ -708,6 +706,8 @@ if __name__ == '__main__':
             # it's a trick
             project_global[lineElements[index_study]]["pair"] =  lineElements[index_librarylayout]    
 
+            projectNameForlog           = lineElements[index_study]
+
             project[lineElements[index_study]][lineElements[index_runaccession]] = {
                      "pair"           : lineElements[index_librarylayout],    
                      "url"            : lineElements[index_fastq],
@@ -727,8 +727,18 @@ if __name__ == '__main__':
 
         f.close()
     
+    logger = create_logger(path,"INFO",projectNameForlog)
+    
+    logger.info("\n-> Log is written here : "+path)
+    #signature_activity.log  
+    #alignment_activity.log  
+    #whippet_activity.log
+    #coverage_activity.log  
+    #supperWrapper_activity.log  
+    #diffExp_activity.log  
 
-
+    #rmats_activity.log  
+    
     ###########################################################################################################
     ########################################   Write Config Json   #############################################
     ###########################################################################################################
@@ -901,7 +911,7 @@ if __name__ == '__main__':
 
         subprocess.run(("mkdir -p "+path+"output/"+projet_id+"/WHIPPET/"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
 
-        whippet= "python3+" " "+applicatifDir+"src/splicingWhippet.py -c "+path+projet_id+"_whippet.json -k "+kmer
+        whippet= python3+" "+applicatifDir+"src/splicingWhippet.py -c "+path+projet_id+"_whippet.json -k "+kmer
         logger.info("\n"+whippet+" \n")
 
         whippet_exec = subprocess.run((whippet),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
@@ -1036,7 +1046,7 @@ if __name__ == '__main__':
         subprocess.run(("mkdir -p "+path+"logs/"+projet_id),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         subprocess.run(("mkdir -p "+path+"configs/"+projet_id),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         
-        subprocess.run(("mv "+path+"*.json "+path+"/configs/"+projet_id ),shell=True)
-        subprocess.run(("mv "+path+"*.log "+path+"/logs/"+projet_id ),shell=True)
+        subprocess.run(("mv "+path+projet_id+"*.json "+path+"/configs/"+projet_id ),shell=True)
+        subprocess.run(("mv "+path+projet_id+"*.log "+path+"/logs/"+projet_id ),shell=True)
 
 

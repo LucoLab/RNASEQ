@@ -44,7 +44,7 @@ def write_subprocess_log(completedProcess,logger):
                 logger.error("====> Standard Error : ")
                 logger.error(completedProcess.stderr) 
                 
-def create_logger(path,LEVEL):
+def create_logger(path,LEVEL,id):
     """
     Define a logger instance to write in a file and stream.
   
@@ -61,9 +61,10 @@ def create_logger(path,LEVEL):
     logger.setLevel(LEVEL)
     formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')
     script = "whippet_activity"
-    print("Log is : "+path+"/"+script+'.log')
+    print(path+"/"+id+"."+script+'.log')
+    
     ''' 1 st handler in file'''
-    file_handler = RotatingFileHandler(path+"/"+script+".log", 'a', 1000000, 1)
+    file_handler = RotatingFileHandler(path+"/"+id+"."+script+'.log', 'a', 1000000, 1)
     file_handler.setLevel(LEVEL)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -109,7 +110,7 @@ if __name__ == '__main__':
     
     path_above = Path(os.path.dirname(config.parameters['path_to_output'])).parents[2]
 
-    logger = create_logger(str(path_above),"INFO")
+    logger = create_logger(str(path_above),"INFO",config.parameters['project'])
 
     print('=========> START:')
     print("file_config : "+parameters.file_config)

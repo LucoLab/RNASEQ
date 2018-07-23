@@ -50,7 +50,7 @@ def write_subprocess_log(completedProcess,logger):
                 logger.error("====> Standard Error : ")
                 logger.error(completedProcess.stderr) 
                 
-def create_logger(path,LEVEL):
+def create_logger(path,LEVEL,id):
     """
     Define a logger instance to write in a file and stream.
   
@@ -67,9 +67,9 @@ def create_logger(path,LEVEL):
     logger.setLevel(LEVEL)
     formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')
     script = "coverage_activity"
-    print(path+script+'.log')
+    print(path+"/"+id+"."+script+'.log')
     ''' 1 st handler in file'''
-    file_handler = RotatingFileHandler(path+"/"+script+'.log', 'a', 1000000, 1)
+    file_handler = RotatingFileHandler(path+"/"+id+"."+script+'.log', 'a', 1000000, 1)
     file_handler.setLevel(LEVEL)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -528,7 +528,8 @@ if __name__ == '__main__':
         catalog = {}
         catalog[parameters.analyse] = {}
 
-        logger = create_logger(config.parameters['path_to_output'],"INFO")
+        logger = create_logger(config.parameters['path_to_output'],"INFO",config.parameters['project'])
+        
         logger.info('\n=========> START:')
         logger.info("Analysis : "+parameters.analyse)
 

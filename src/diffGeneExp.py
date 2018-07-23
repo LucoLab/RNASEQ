@@ -46,7 +46,7 @@ def write_subprocess_log(completedProcess,logger):
                 logger.error("====> Standard Error : ")
                 logger.error(completedProcess.stderr) 
                 
-def create_logger(path,LEVEL):
+def create_logger(path,LEVEL,id):
     """
     Define a logger instance to write in a file and stream.
   
@@ -63,9 +63,9 @@ def create_logger(path,LEVEL):
     logger.setLevel(LEVEL)
     formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')
     script = "diffExp_activity"
-    print(path+"/"+script+'.log')
+    print(path+"/"+id+"."+script+'.log')
     ''' 1 st handler in file'''
-    file_handler = RotatingFileHandler(path+"/"+script+'.log', 'a', 1000000, 1)
+    file_handler = RotatingFileHandler(path+"/"+id+"."+script+'.log', 'a', 1000000, 1)
     file_handler.setLevel(LEVEL)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -104,7 +104,8 @@ if __name__ == '__main__':
         #os.makedirs(config.parameters['path_to_output'])
         
     orderedConditionList = parameters.conditionPrevalenceList.split("_")
-    logger = create_logger(os.path.dirname(parameters.file_config ),"INFO")
+    
+    logger = create_logger(os.path.dirname(parameters.file_config ),"INFO",config.parameters.get("project"))
 
     logger.info('=========> START:')
     logger.info("orderedConditionList : "+str(orderedConditionList))

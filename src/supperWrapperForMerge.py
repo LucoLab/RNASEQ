@@ -46,7 +46,7 @@ def write_subprocess_log(completedProcess,logger):
                 logger.error(completedProcess.stderr) 
                 
 
-def create_logger(config):
+def create_logger(config,id):
     """
     Define a logger instance to write in a file and stream.
   
@@ -63,7 +63,7 @@ def create_logger(config):
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')
     ''' 1 st handler in file'''
-    file_handler = RotatingFileHandler(config.parameters['path_to_output']+"/"+'supperWrapper_activity.log', 'a', 1000000, 1)
+    file_handler = RotatingFileHandler(config.parameters['path_to_output']+"/"+id+"."+'supperWrapper_activity.log', 'a', 1000000, 1)
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     config = custom_parser.Configuration(parameters.file_config,"json")
     init = custom_parser.Configuration(parameters.init,"json")
 
-    logger = create_logger(config)
+    logger = create_logger(config,config.parameters['project'])
 
     iscontrol      = parameters.iscontrol
     read_cutoff    = config.parameters['reads_junction']

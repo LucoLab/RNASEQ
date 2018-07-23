@@ -64,7 +64,7 @@ def core_sample_name(config,group_pair,opt_fastqtype):
     return clean_name
 
 
-def create_logger(config):
+def create_logger(config,id):
     """
     Define a logger instance to write in a file and stream.
   
@@ -81,7 +81,7 @@ def create_logger(config):
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')
     ''' 1 st handler in file'''
-    file_handler = RotatingFileHandler(config.parameters['path_to_output']+'alignment_activity.log', 'a', 1000000, 1)
+    file_handler = RotatingFileHandler(config.parameters['path_to_output']+id+"."+'alignment_activity.log', 'a', 1000000, 1)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -324,7 +324,7 @@ if __name__ == '__main__':
     print("mkdir -p "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/R2")
     print("mkdir -p "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"trim_galore_output")
 
-    logger = create_logger(config)
+    logger = create_logger(config,config.parameters['project'])
     #logger.info(config.chrono)
 
     logger.info('=========> START:PARSE EACH FASTQ PAIRS FOR AN EXPERIMENT')
