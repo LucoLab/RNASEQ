@@ -679,7 +679,7 @@ if __name__ == '__main__':
             if(count==0) : 
                 count=1 
                 lineElements  = line.strip().split("\t")
-                logger.info(lineElements)
+                #logger.info(lineElements)
                 
                 index_study                 = lineElements.index("STUDY")
                 index_runaccession          = lineElements.index("RUNACCESSION")
