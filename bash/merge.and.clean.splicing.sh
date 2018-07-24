@@ -67,11 +67,11 @@ echo "FINAL_OUT : ${FINAL_OUT}"
 
 FILE_STAT_OUTPUT=${BASE_PATH}${SUBDIR}/${EVENT}/stats.txt
 
-${PYTHON3} ${CODE_DIR}/mergeFinal.py -c ${PATH_TO_CONFIG} -r ${READS} -e ${EVENT} ${ALT}
+${PYTHON3} ${CODE_DIR}/src/mergeFinal.py -c ${PATH_TO_CONFIG} -r ${READS} -e ${EVENT} ${ALT}
 
 echo "SANITIZE : LOOK FOR ${ID1} INSIDE DIR : ${BASE_PATH}${SUBDIR}/${EVENT}/"
 
-${PYTHON3} ${CODE_DIR}/cleanfusion.py -s1 TMP -p ${FINAL_OUT} -o ${ID1} -ct ${ISCONTROL}
+${PYTHON3} ${CODE_DIR}/src/cleanfusion.py -s1 TMP -p ${FINAL_OUT} -o ${ID1} -ct ${ISCONTROL}
 
 
 echo "REMOVE RAW BED"
@@ -108,8 +108,8 @@ if [ ${ISCONTROL} == "False" ]; then
 	for FILE in "${arr[@]}";
 	do
 	echo ""
-	echo "python3 ${CODE_DIR}/addToExcel.py --file ${FILE} --excel  ${EXCEL} "
-	${PYTHON3} ${CODE_DIR}/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
+	echo "python3 ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} "
+	${PYTHON3} ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
 	
 	done
 	find ${BASE_PATH}${SUBDIR}/${EVENT} -name "*.bed" ! -name "*INC*.bed" ! -name "*EXC*.bed" ! -name "*ALL*.bed"
@@ -151,8 +151,8 @@ if [ ${ISCONTROL} == "True" ]; then
 	for FILE in "${arr[@]}";
 	do
 	echo ""
-	echo "python3 ${CODE_DIR}/addToExcel.py --file ${FILE} --excel  ${EXCEL} "
-	${PYTHON3} ${CODE_DIR}/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
+	echo "python3 ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} "
+	${PYTHON3} ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
 	done
 	
 	echo  "CLEAN DIR"
