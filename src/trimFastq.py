@@ -25,7 +25,7 @@ head, tail = os.path.split(sys.argv[2])
 ### setting up the logging format 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(message)s',
-                    filename='logtrimFastq.'+ tail+'.txt',
+                    filename=head+'/logtrimFastq.'+ tail+'.txt',
                     filemode='w')
 
 ##### Getting Start Time ######
@@ -33,7 +33,7 @@ logging.debug('Start the program with [%s]\n', listToString(sys.argv));
 startTime = time.time();
 
 ###
-MAX_READ_LENGTH=200;
+MAX_READ_LENGTH=300;
 
 iFile = open(sys.argv[1]); ## input fastq file
 oFile = open(sys.argv[2], 'w'); ## out fastq file
