@@ -41,7 +41,7 @@ def write_subprocess_log(completedProcess,logger):
                 logger.error("====> Standard Error : ")
                 logger.error(completedProcess.stderr) 
                 
-def create_logger(path,type,LEVEL):
+def create_logger(path,type,LEVEL,id):
     """
     Define a logger instance to write in a file and stream.
   
@@ -58,9 +58,10 @@ def create_logger(path,type,LEVEL):
     logger.setLevel(LEVEL)
     formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')
     script = "cleanFusion_activity"
-    print(path+"/"+type+"."+script+'.log')
+    print(path+"/"+id+"."+type+"."+script+'.log')
+     
     ''' 1 st handler in file'''
-    file_handler = RotatingFileHandler(path+"/"+type+"."+script+'.log', 'a', 1000000, 1)
+    file_handler = RotatingFileHandler(path+"/"+id+"."+type+"."+script+'.log', 'a', 1000000, 1)
     file_handler.setLevel(LEVEL)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -127,15 +128,18 @@ if __name__ == '__main__':
     parser.add_argument("-p","--path",action="store",help="path to file",required=True,type=str,dest='path')
     parser.add_argument("-o","--out",action="store",help="path to output file",required=True,type=str,dest='out')
     parser.add_argument("-ct","--control",action="store",help="control or not",required=True,type=str,dest='iscontrol')
+    #parser.add_argument("-i","--init",action="store",help="Path to a json file.",required=False,default=str(Path(os.path.dirname(os.path.realpath(__file__))).parents[0])+"/config/init.json",type=str,dest='init')
 
     parameters = parser.parse_args()
-   
+    
+    #init = custom_parser.Configuration(parameters.init,"json")
+
 
     path_above = Path(os.path.dirname(parameters.path)).parents[1]
    
     type = os.path.basename(os.path.normpath(parameters.path+"/"))
 
-    logger = create_logger(str(path_above),type,"INFO")
+    logger = create_logger(str(path_above),type,"INFO",config.parameters['project'])
     logger.info("type : "+str(type))
 
     logger.info("Log is here : "+str(path_above))
