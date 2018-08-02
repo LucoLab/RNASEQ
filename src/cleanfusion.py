@@ -139,7 +139,7 @@ if __name__ == '__main__':
    
     type = os.path.basename(os.path.normpath(parameters.path+"/"))
 
-    logger = create_logger(str(path_above),type,"INFO",config.parameters['project'])
+    logger = create_logger(str(path_above),type,"INFO",parameters.out)
     logger.info("type : "+str(type))
 
     logger.info("Log is here : "+str(path_above))
