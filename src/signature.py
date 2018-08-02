@@ -1067,7 +1067,7 @@ if __name__ == '__main__':
         subprocess.run(("mkdir -p "+path+"configs/"+projet_id),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         
         subprocess.run(("mv "+path+projet_id+"*.json "+path+"/configs/"+projet_id ),shell=True)
-        subprocess.run(("mv "+path+projet_id+"*.log "+path+"/logs/"+projet_id ),shell=True)
+        subprocess.run(("mv "+path+projet_id+"*.log* "+path+"/logs/"+projet_id ),shell=True)
 
         logger.info("\n-> Remove Cut & trimmed unzipped readfile \n")
 
@@ -1075,6 +1075,14 @@ if __name__ == '__main__':
                 
             for pathToUnzippedreadFile in reads_for_rmats[projet_id][indice] :
                 
-                subprocess.run(("rm "+pathToUnzippedreadFile),shell=True)
+                # Paired
+                if (":" in pathToUnzippedreadFile) :
+                    
+                    subprocess.run(("rm "+pathToUnzippedreadFile.split(":")[0]),shell=True)
+                    subprocess.run(("rm "+pathToUnzippedreadFile.split(":")[1]),shell=True)
+
+                else :
+                    
+                    subprocess.run(("rm "+pathToUnzippedreadFile),shell=True)
 
 
