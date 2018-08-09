@@ -130,7 +130,7 @@ def parse_rmats(lineElements,chrom,strand,as_type,prefix):
         
         id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[12]+":"+strand #upstreamES downstreamEE
         highlight = prefix+"."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[6]+"|"+prefix+"."+chrom+":"+str(int(lineElements[7])+1)+"-"+lineElements[8]
-        trickMXE=lineElements[5]+"\t"+lineElements[7]
+        trickMXE=str(int(lineElements[5])+1)+"\t"+lineElements[6]  # change 7 by 6 and add 1
         
 
     return gonext,id_ucsc_event,highlight,exon_size,trickMXE
