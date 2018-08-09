@@ -101,14 +101,17 @@ if __name__ == '__main__':
 
     iscontrol      = parameters.iscontrol
     read_cutoff    = config.parameters['reads_junction']
-    path_to_output =   config.parameters['path_to_output'] 
+    path_to_output = config.parameters['path_to_output'] 
     
     applicatifDir   = init.parameters['scriptDir']
     
     print(os.path.basename(__file__))
     
-    for event in ["SE","A3SS","A5SS","RI"] : #,"SE" "MXE","SE","A3SS","A5SS","RI""SE"
+    for event in ["SE","A3SS","A5SS","RI","MXE"] : #,"SE" "MXE","SE","A3SS","A5SS","RI""SE"
         
+        if ("WHIPPET" in parameters.file_config and event == "MXE") :
+            continue
+    
         for analyse in config.parameters['tabs'] : 
             
             subprocess.run(("mkdir -p "+config.parameters['path_to_output']+"/"+analyse+"/"+event),shell=True)
