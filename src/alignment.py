@@ -325,6 +325,9 @@ if __name__ == '__main__':
     subprocess.run(("mkdir -p "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/R2"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
     subprocess.run(("mkdir -p "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"trim_galore_output"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
 
+    print("INIT")
+    print(parameters.init)
+
     print("mkdir -p "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/R1")
     print("mkdir -p "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/R2")
     print("mkdir -p "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"trim_galore_output")
@@ -708,8 +711,8 @@ if __name__ == '__main__':
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/"+config.parameters['final_bam_name']+".bam" ),shell=True)
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*_Aligned.sortedByCoord.out.bam" ),shell=True)
     subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*.wig" ),shell=True)
-    subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*.bam" ),shell=True)
-    subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*.bam.bai" ),shell=True)
+    #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*.bam" ),shell=True)
+    #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*.bam.bai" ),shell=True)
 
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+config.chrono+"/*_ReadsPerGene.out.tab"),shell=True)
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+config.chrono+"/*_Log.out" ),shell=True)

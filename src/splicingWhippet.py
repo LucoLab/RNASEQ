@@ -255,13 +255,19 @@ if __name__ == '__main__':
             logger.info(" ")
             logger.info("FILTER ALL EVENTS ====>")
     
-            for event in ["CE","AA","AD","RI"] :
+            for event in ["CE","AA","AD","RI","TS","TE","AF","AL"] : #,"AA","AD","RI"
                 
                 if(os.path.isfile(config.parameters['path_to_output']+analyse_key+".clean."+event+".diffannoted.csv") and os.path.isfile(config.parameters['path_to_output']+analyse_key+".bad."+event+".diffannoted.csv") ) : 
                     logger.info("Already annotated and filtered -> "+config.parameters['path_to_output']+analyse_key+".clean."+event+".diffannoted.csv")
                     logger.info("Already annotated and filtered -> "+config.parameters['path_to_output']+analyse_key+".bad."+event+".diffannoted.csv")
-    
-                    continue
+                    logger.info("BUT BABY I WILL REMOVE IT AND FILTRED THEM AGAIN BECAUSE I AM A FOOL ")
+                    # added
+                    subprocess.run(("rm "+config.parameters['path_to_output']+analyse_key+".clean."+event+".diffannoted.csv" ),shell=True)
+                    subprocess.run(("rm "+config.parameters['path_to_output']+analyse_key+".bad."+event+".diffannoted.csv" ),shell=True)
+                    subprocess.run(("rm "+config.parameters['path_to_output']+analyse_key+".clean."+event+".diff" ),shell=True)
+                    subprocess.run(("rm "+config.parameters['path_to_output']+analyse_key+".bad."+event+".diff" ),shell=True)
+                    
+                    #continue
     
                 filter_command = config.parameters["path_to_cleaner"]+" "+ event +" "+analyse_key+" "+config.parameters['path_to_output']
                 logger.info("EVENT : "+event)

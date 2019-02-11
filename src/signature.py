@@ -1005,47 +1005,47 @@ if __name__ == '__main__':
 
         logger.info("Nb files :  "+str(len(analysis_2_files[projet_id])))
       
-        list_size = getaverageSize(projet_id,conditions,analysis_2_files,python2,project_global,fastqNameAfterTrimGalore,sample2files)    
+        #list_size = getaverageSize(projet_id,conditions,analysis_2_files,python2,project_global,fastqNameAfterTrimGalore,sample2files)    
           
-        logger.info(list_size)
-        sizeToclip = round(int(numpy.mean(list_size)))
+        #logger.info(list_size)
+        #sizeToclip = round(int(numpy.mean(list_size)))
         # remove 5
-        sizeToclip = sizeToclip - 5
+        #sizeToclip = sizeToclip - 5
 
-        logger.info('Size to clip is : '+str(sizeToclip))   
+        #logger.info('Size to clip is : '+str(sizeToclip))   
         
         ########################################################################################## 
         # Go in function to uncomment
-        reads_for_rmats = clipToSameSizeFastq(projet_id,conditions,fastqNameAfterTrimGalore,python2,reads_for_rmats,sizeToclip,sample2files)
+        #reads_for_rmats = clipToSameSizeFastq(projet_id,conditions,fastqNameAfterTrimGalore,python2,reads_for_rmats,sizeToclip,sample2files)
         ########################################################################################## 
 
-        logger.info("\n-> Reads For RMATS \n")
-        logger.info(reads_for_rmats)
+        #logger.info("\n-> Reads For RMATS \n")
+        #logger.info(reads_for_rmats)
 
-        logger.info("\n-> Alternative Splicing Analyse with Rmats \n")
+        #logger.info("\n-> Alternative Splicing Analyse with Rmats \n")
          
-        write_rmats_conf(project,projet_id,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,sizeToclip,libType,project_global[projet_id]["pair"],reads_for_rmats)
+        #write_rmats_conf(project,projet_id,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,sizeToclip,libType,project_global[projet_id]["pair"],reads_for_rmats)
 
-        splicingRmats = python3+" "+applicatifDir+"src/splicingRmats.py  -c "+path+projet_id+"_rmats.json"
-        logger.info("\n"+splicingRmats+"\n")
+        #splicingRmats = python3+" "+applicatifDir+"src/splicingRmats.py  -c "+path+projet_id+"_rmats.json"
+        #logger.info("\n"+splicingRmats+"\n")
         
         ########################################################################################## 
-        splicingRmats_exec = subprocess.run((splicingRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-        write_subprocess_log(splicingRmats_exec,logger)
+        #splicingRmats_exec = subprocess.run((splicingRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+        #write_subprocess_log(splicingRmats_exec,logger)
         ########################################################################################## 
 
       
-        logger.info("\n-> Wrap, Merge and Filter Splicing Analyse with RMATS \n")
+        #logger.info("\n-> Wrap, Merge and Filter Splicing Analyse with RMATS \n")
 
-        splicingSupperWrapper =  python3+" "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_RMATS_main.json"
-        logger.info("\n"+splicingSupperWrapper+"\n")
+        #splicingSupperWrapper =  python3+" "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_RMATS_main.json"
+        #logger.info("\n"+splicingSupperWrapper+"\n")
         
         ########################################################################################## 
-        splicingSupperWrapper_exec = subprocess.run((splicingSupperWrapper),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-        write_subprocess_log(splicingSupperWrapper_exec,logger)
-        move ="mv "+path+"/"+comparison+"/ "+path+"output/"+projet_id+"/MERGE.RMATS."+comparison
-        subprocess.run(move,shell=True)
-        logger.info(move)
+        #splicingSupperWrapper_exec = subprocess.run((splicingSupperWrapper),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+        #write_subprocess_log(splicingSupperWrapper_exec,logger)
+        #move ="mv "+path+"/"+comparison+"/ "+path+"output/"+projet_id+"/MERGE.RMATS."+comparison
+        #subprocess.run(move,shell=True)
+        #logger.info(move)
         ########################################################################################## 
 
         time.sleep(10)
@@ -1070,7 +1070,7 @@ if __name__ == '__main__':
         subprocess.run(("mv "+path+projet_id+"*.log* "+path+"/logs/"+projet_id ),shell=True)
 
         logger.info("\n-> Remove Cut & trimmed unzipped readfile \n")
-
+        '''
         for indice in [0,1] :
                 
             for pathToUnzippedreadFile in reads_for_rmats[projet_id][indice] :
@@ -1084,5 +1084,5 @@ if __name__ == '__main__':
                 else :
                     
                     subprocess.run(("rm "+pathToUnzippedreadFile),shell=True)
-
+        '''
 

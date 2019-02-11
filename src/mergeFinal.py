@@ -521,7 +521,7 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     lineElements    = line.replace("\"", "").strip().split(",")
                     type_event_SE   = lineElements[5]
   
-                    if(type_event_SE in ["RI","A5SS","AD","AA","A3SS","SE","CE"]) :
+                    if(type_event_SE in ["RI","A5SS","AD","AA","A3SS","SE","CE","TS","TE","AF","AL"]) :
                         ensembl   = lineElements[0]
                        
                         if (isControl) :   
@@ -791,19 +791,6 @@ def remove_values_from_list(the_list, val):
     """
     return [value for value in the_list if value != val]
 
-def median(lst):
-    """
-    Compute median from a list
-  
-    Args:
-        list(list): List of values
-   
-    Returns:
-        meian (float): Return median float
-   
-    """
-    return numpy.median(numpy.array(lst))
-
 def _convert_to_number(cell):
     if cell.isnumeric():
         return int(cell)
@@ -938,12 +925,13 @@ def foldchange2logratio (foldchange) :
 def check_distribution(list_values) :
     
         a = np.array(list_values)
-        cutOffPercentile = np.percentile(a, 50) # return 50th percentile, e.g median.
+        cutOffPercentile = np.percentile(a, 25) # return 50th percentile, e.g median.
         logger.info("GENES : "+str(len(list_values)))
         logger.info("    MIN - MAX : ["+str(np.amin(a))+" - "+str(np.amax(a))+"]")   
         logger.info("    MEAN : "+str(np.mean(a)))   
         logger.info("    MEDIAN : "+str(np.median(a)))   
-        
+        logger.info("    CutOFF : "+str(cutOffPercentile))   
+
         return cutOffPercentile
 
 def blacklist_gene_under_median_at_least_in_one_sample(matrice_path,names_test_replicates,names_control_replicates,gene_length):
@@ -1207,7 +1195,7 @@ if __name__ == '__main__':
     
     parser.add_argument("-c","--config",action="store",help="Path to a json file.",required=True,type=str,dest='file_config')
     parser.add_argument("-mc","--modeCount",action="store", default="2" ,help="with or without ReadsOnTarget",required=False,type=str,dest='modeCount')
-    parser.add_argument("-r","--readsJunction",action="store",help="Number of reads on junction used to filter out events.",required=False,default=10,type=int,dest='readsNumber')
+    parser.add_argument("-r","--readsJunction",action="store",help="Number of reads on junction used to filter out events.",required=False,default=5,type=int,dest='readsNumber')
     parser.add_argument("-e","--event",action="store",help="Type of events",required=True,type=str,dest='event')
     parser.add_argument("-ct","--control",action="store_true",help="AS or Control",default=False,dest='iscontrol')
     parser.add_argument("-i","--init",action="store",help="Path to a json file.",required=False,default=str(Path(os.path.dirname(os.path.realpath(__file__))).parents[0])+"/config/init.json",type=str,dest='init')
@@ -1277,13 +1265,22 @@ if __name__ == '__main__':
         
         if (config.parameters["analysis"][analyse_name_loop]["soft"] == "WHIPPET") :
             if (parameters.event == "SE") :
-                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".CE.diffannoted.csv"
+                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".CE.diff.annoted.csv"
             if (parameters.event == "A5SS") :
-                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".AD.diffannoted.csv"
+                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".AD.diff.annoted.csv"
             if (parameters.event == "A3SS") :
-                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".AA.diffannoted.csv"
+                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".AA.diff.annoted.csv"
             if (parameters.event == "RI") :
-                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".RI.diffannoted.csv"
+                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".RI.diff.annoted.csv"
+            
+            if (parameters.event == "AL") :
+                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".AL.diff.annoted.csv"       
+            if (parameters.event == "AF") :
+                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".AF.diff.annoted.csv"
+            if (parameters.event == "TE") :
+                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".TE.diff.annoted.csv"
+            if (parameters.event == "TS") :
+                config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".TS.diff.annoted.csv"
         
         logger.info ("    splicing : "+config.parameters["analysis"][analyse_name_loop]["splicing_dir"])
         logger.info ("    expression : "+config.parameters["analysis"][analyse_name_loop]["expression_file_path"])

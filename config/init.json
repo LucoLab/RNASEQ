@@ -24,6 +24,6 @@
    "pathToJulia"             		 : "/home/jean-philippe.villemin/bin/julia-6/julia",
    "pathToWhippet"                   : "/home/jean-philippe.villemin/bin/Whippet.0.10.4/bin/",
    
-   "salmonPath" :  "/home/jvillemin/save/bin/Salmon-0.7.2_linux_x86_64/bin/salmon"
+   "salmonPath" :  "/home/jean-philippe.villemin/bin/Salmon-0.7.2_linux_x86_64/bin/salmon"
 
 }

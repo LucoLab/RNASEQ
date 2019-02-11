@@ -107,7 +107,7 @@ if __name__ == '__main__':
     
     print(os.path.basename(__file__))
     
-    for event in ["SE","A3SS","A5SS","RI","MXE"] : #,"SE" "MXE","SE","A3SS","A5SS","RI""SE"
+    for event in ["SE","A3SS","A5SS","RI","MXE","TS","TE","AF","AL"] : #,"SE" "MXE","SE","A3SS","A5SS","RI""SE"
         
         if ("WHIPPET" in parameters.file_config and event == "MXE") :
             continue

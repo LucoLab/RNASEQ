@@ -33,7 +33,7 @@ logging.debug('Start the program with [%s]\n', listToString(sys.argv));
 startTime = time.time();
 
 ###
-MAX_READ_LENGTH=300;
+MAX_READ_LENGTH=400;
 
 iFile = open(sys.argv[1]); ## input fastq file
 oFile = open(sys.argv[2], 'w'); ## out fastq file

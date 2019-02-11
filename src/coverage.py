@@ -126,18 +126,7 @@ def remove_values_from_list(the_list, val):
     """
     return [value for value in the_list if value != val]
 
-def median(lst):
-    """
-    Compute median from a list
-  
-    Args:
-        list(list): List of values
-   
-    Returns:
-        meian (float): Return median float
-   
-    """
-    return numpy.median(numpy.array(lst))
+
 
 def _convert_to_number(cell):
     if cell.isnumeric():
@@ -213,7 +202,7 @@ def check_distribution(list_values) :
     
         a = np.array(list_values)
         #logger.info(a)
-        cutOffPercentile = np.percentile(a, 50) # return 50th percentile, e.g median.
+        cutOffPercentile = np.percentile(a, 25) # return 50th percentile, e.g median.
         
         logger.info("Genes : "+str(len(list_values)))
         logger.info("MIN : "+str(np.amin(a)))   # Compute the arithmetic mean along the specified axis.
@@ -221,7 +210,7 @@ def check_distribution(list_values) :
         logger.info("MEAN : "+str(np.mean(a)))   # Compute the arithmetic mean along the specified axis.
         logger.info("MEDIAN : "+str(np.median(a)))   # Compute the arithmetic mean along the specified axis.
         logger.info("STD : "+str(np.std(a)))   #  Compute the standard deviation along the specified axis.
-        logger.info("CUTOFF 50 : "+str(cutOffPercentile))
+        logger.info("CUTOFF 25 : "+str(cutOffPercentile))
         
         return cutOffPercentile
 
@@ -251,19 +240,25 @@ def blacklist_gene_under_median_at_least_in_one_sample(catalog,matrice_path,name
     rpkm               = {}
     rpkm_gene_dic      = {}
     blacklist_gene     = []
-     
+    read   = {}
+      
     for replicate in all_replicates :
         
         logger.info("Replicate: "+replicate)
         
         total_mapped_reads       = indexed_data[replicate].sum()
-        
+        logger.info("Total mapped read")
+
         logger.info(total_mapped_reads)
         
         scaling_factor           = total_mapped_reads / 1000000
+        logger.info("scaling factor")
+        logger.info(scaling_factor)
+
         rpkm[replicate]          = []
         rpkm_gene_dic[replicate] = []
-        
+        read[replicate] = []
+
         for gene in  indexed_data.index.values :
             
             m            = re.search('^(\w+)\.(\d+)$', gene) # Ok you miss somes of them ENSEMBL_PARY that you count in the sum but that nothing compared to the whole thing
@@ -278,7 +273,13 @@ def blacklist_gene_under_median_at_least_in_one_sample(catalog,matrice_path,name
                     if(indexed_data.get_value(gene,replicate) > 0 ) :
                         rpkm_gene      = (indexed_data.get_value(gene,replicate)/scaling_factor)/gene_length_kb 
                         rpkm[replicate].append(rpkm_gene)
+                       
+                        #logger.info(indexed_data.get_value(gene,replicate))
+                        read[replicate].append(indexed_data.get_value(gene,replicate))
+                        #logger.info(rpkm_gene)
+                        #logger.info(gene_length_kb)
                         rpkm_gene_dic[replicate].append(ensembl_id)
+
                         continue
                     
                     if(indexed_data.get_value(gene,replicate) == 0 ) :    
@@ -286,7 +287,18 @@ def blacklist_gene_under_median_at_least_in_one_sample(catalog,matrice_path,name
                         catalog[ensembl_id].update(  {"filter":"YES"}   )
                         catalog[ensembl_id].update(  { replicate  : {"rpkm-like-val":"0","expression":"0"} }  )
                         continue
-   
+        
+        a = np.array(read[replicate])
+        logger.info("#######")
+        logger.info("Genes : "+str(len(read[replicate])))
+        logger.info("MIN : "+str(np.amin(a)))   # Compute the arithmetic mean along the specified axis.
+        logger.info("MAX : "+str(np.amax(a)))   # Compute the arithmetic mean along the specified axis.
+        logger.info("MEAN : "+str(np.mean(a)))   # Compute the arithmetic mean along the specified axis.
+        logger.info("MEDIAN : "+str(np.median(a)))   # Compute the arithmetic mean along the specified axis.
+        logger.info("STD : "+str(np.std(a)))   #  Compute the standard deviation along the specified axis.
+        cutOffPercentile = np.percentile(a, 25) # return 50th percentile, e.g median.
+        logger.info("25Percentile : "+str(cutOffPercentile))   #  Compute the standard deviation along the specified axis.
+
     distrib_path= config.parameters['path_to_output']+"output/"+project_name+"/"+parameters.analyse+".distribution.tsv"
     
     distrib_file = open(distrib_path, 'w')

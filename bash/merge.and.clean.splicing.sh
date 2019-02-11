@@ -167,5 +167,7 @@ if [ ${ISCONTROL} == "True" ]; then
 fi
 echo "=========>> END BASH SCRIPT: "
 
+#/home/jvillemin/save/code/RNASEQ-master/bash/merge.and.clean.splicing.sh SE PRJNA348471.PANC-1.TGFB.TEST.3_vs_PRJNA348471.PANC-1.TGFB.CONTROL.0 10 /home/jvillemin/work/WHOLE_EMT/configs/PRJNA348471/PRJNA348471_RMATS_main.json /home/jvillemin/work/WHOLE_EMT/ False /home/jvillemin/save/code/RNASEQ-master/ /home/jvillemin/save/bin/anaconda3/bin/python3
+
 
 exit 0

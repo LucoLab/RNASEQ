@@ -43,7 +43,7 @@ opt <- arguments$options
 ######################################################
 #########         MAIN                     ###########
 ######################################################
-
+print("Here we go !")
 #' Trick to handle if script is launched directly or by generateDoc
 #+ opt-param, include=FALSE
 if (length(opt) != 3 ) { 
@@ -82,8 +82,13 @@ if (opt$organism=="human") {
 edb = useMart("ENSEMBL_MART_ENSEMBL", dataset=organism,host=host)
 colnames(sampleTable)[colnames(sampleTable) == 'gene'] <- 'ensembl_gene_id'
 
+
 # Retrieve gene infos And entrezeneId needed fr KEGGPATHWAY
 gene_infos = getBM(attributes=c('ensembl_gene_id',symbol_description,'gene_biotype'),values=sampleTable$ensembl_gene_id,filters='ensembl_gene_id',mart=edb)
+# Correction of bug 
+# Output had duplicate lines
+gene_infos_without_dup <- gene_infos[!duplicated(gene_infos$ensembl_gene_id),]
+
 
 res_annotated <- join(gene_infos, sampleTable, by='ensembl_gene_id', type='left', match='all')
 
@@ -96,9 +101,9 @@ if (opt$organism=="mouse") {
 
 filewithoutExtension= unlist(strsplit(opt$file, split='.csv', fixed=TRUE))[1]
 
-output=paste(c(filewithoutExtension,"annoted.csv"),collapse="")
+output=paste(c(filewithoutExtension,".annoted.csv"),collapse="")
 output
 
-write.csv(res_annotated,row.names=FALSE,file=output,quote = FALSE,sep="\t")
+write.csv(res_annotated,row.names=FALSE,file=output,quote = FALSE)
 
- }
+}
