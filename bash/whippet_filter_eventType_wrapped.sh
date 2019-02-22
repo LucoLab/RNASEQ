@@ -115,6 +115,14 @@ fi
 
 #################################################################
 
+#if [ ${EVENT} == "BS"   ] ; then
+
+#TYPE="BS"
+#/usr/bin/gawk -F "\t"  'BEGIN {OFS="\t";}  {  if ( match($1, "^(\\w+)\\.([0-9]+)", ary) && $5=="BS" && sqrt($8*$8) >= sqrt(0.1*0.1) && $9 >= 0.95) print  ary[1],$3,$4,$5,$6,$7,$8,$9,$10,$11 ; }' ${PATH}${FILE}.diff  > ${PATH}${FILE}.clean.${TYPE}.diff
+
+#fi
+
+
 /bin/sed -i $'1 i\\\ngene\tcoordinates\tstrand\tevent\tpsiA\tpsiB\tdpsi\tprobability\tcomplexity\tentropy' ${PATH}${FILE}.clean.${TYPE}.diff
 
 # removed $9 < 0.95
@@ -196,6 +204,16 @@ TYPE="AL"
 fi
 
 #################################################################
+
+#if [ ${EVENT} == "BS"  ] ; then
+
+
+#TYPE="BS"
+#/usr/bin/gawk -F "\t"  'BEGIN {OFS="\t";}  {  if ( match($1, "^(\\w+)\\.([0-9]+)", ary) && $5=="BS" && $6 >= 0.90 && $7 >= 0.90 && sqrt($8*$8) <=  0.01 ) print  ary[1],$3,$4,$5,$6,$7,$8,$9,$10,$11 ; }' ${PATH}${FILE}.diff  > ${PATH}${FILE}.bad.${TYPE}.diff
+
+#fi
+
+
 
 /bin/sed -i $'1 i\\\ngene\tcoordinates\tstrand\tevent\tpsiA\tpsiB\tdpsi\tprobability\tcomplexity\tentropy' ${PATH}${FILE}.bad.${TYPE}.diff
 

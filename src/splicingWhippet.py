@@ -208,7 +208,8 @@ if __name__ == '__main__':
             test = [] 
             trickForOneSample =""
             extension = ".psi.gz"
-            
+            extension_unzipped = ".psi"
+
             ### Sorry mum , it's so ugly, but that for correction of the bug that need a comma & no extension after sample name if only one repicate
             tcheckBug=0
             for sample_groupTest in config.parameters["files"][analyse_values.get("TEST")] : 
@@ -223,6 +224,16 @@ if __name__ == '__main__':
                 for hash_keyTest,hash_valuesTest in sample_groupTest.items() : 
                     logger.info(hash_keyTest) 
                     test.append(config.parameters['path_to_output']+hash_keyTest+extension) #.gz
+                    
+                    # ADD UNZIP TO TEXT
+                    if not (os.path.isfile(config.parameters['path_to_output']+hash_keyTest+extension_unzipped) ): 
+
+                        gunzip_psi_command = "gunzip  -k "+config.parameters['path_to_output']+hash_keyTest+extension
+                        logger.info(gunzip_psi_command)
+                        gunzip = subprocess.run((gunzip_psi_command),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+                        write_subprocess_log(gunzip,logger)
+                    
+                    
             logger.info("CONTROL :     "+analyse_values.get("CONTROL"))
     
             contr = [] 
@@ -230,13 +241,23 @@ if __name__ == '__main__':
                 for hash_keyCon,hash_valuesCon in sample_groupCon.items() : 
                     logger.info(hash_keyCon) 
                     contr.append(config.parameters['path_to_output']+hash_keyCon+extension)   #.gz
-              
+                    
+                    # ADD UNZIP TO TEXT
+                    if not (os.path.isfile(config.parameters['path_to_output']+hash_keyCon+extension_unzipped) ): 
+
+                        gunzip_psi_command = "gunzip  -k "+config.parameters['path_to_output']+hash_keyCon+extension
+                        logger.info(gunzip_psi_command)
+                        gunzip = subprocess.run((gunzip_psi_command),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+                        write_subprocess_log(gunzip,logger)
+                        
             skip=0    
+            
             if(os.path.isfile(config.parameters['path_to_output']+analyse_key+".diff.gz") or os.path.isfile(config.parameters['path_to_output']+analyse_key+".diff")) : 
                 logger.info("No need to process again. File "+hash_key+".diff.gz already exist")
                 skip=1
            
             if(skip==0) :
+                
                 logger.info("DELTA ====>")
                 execLine_delta = init.parameters['pathToJulia']+" "+init.parameters['pathToWhippet']+"whippet-delta.jl -a "+",".join(test)+trickForOneSample+" -b "+",".join(contr)+trickForOneSample+" -o "+config.parameters['path_to_output']+analyse_key
                 logger.info(execLine_delta)
@@ -255,7 +276,7 @@ if __name__ == '__main__':
             logger.info(" ")
             logger.info("FILTER ALL EVENTS ====>")
     
-            for event in ["CE","AA","AD","RI","TS","TE","AF","AL"] : #,"AA","AD","RI"
+            for event in ["CE","AA","AD","RI","TS","TE","AF","AL"] : #,"AA","AD","RI","BS"
                 
                 if(os.path.isfile(config.parameters['path_to_output']+analyse_key+".clean."+event+".diffannoted.csv") and os.path.isfile(config.parameters['path_to_output']+analyse_key+".bad."+event+".diffannoted.csv") ) : 
                     logger.info("Already annotated and filtered -> "+config.parameters['path_to_output']+analyse_key+".clean."+event+".diffannoted.csv")

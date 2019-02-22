@@ -31,11 +31,12 @@ SUBDIR=$2
 READS=$3
 PATH_TO_CONFIG=$4
 BASE_PATH=$5
+#ID1=${SUBDIR}
 ID1=${SUBDIR}
 ISCONTROL=$6
 CODE_DIR=$7
 PYTHON3=$8
-
+PROJECT=$9
 
 
 echo ""
@@ -50,6 +51,7 @@ echo "SAMPLE_NAME : ${ID1}"
 echo "ISCONTROL : ${ISCONTROL}"
 echo "CODE_DIR : ${CODE_DIR}"
 echo "PYTHON3 : ${PYTHON3}"
+echo "PROJECT : ${PROJECT}"
 
 
 ALT=""
@@ -72,7 +74,6 @@ ${PYTHON3} ${CODE_DIR}/src/mergeFinal.py -c ${PATH_TO_CONFIG} -r ${READS} -e ${E
 echo "SANITIZE : LOOK FOR ${ID1} INSIDE DIR : ${BASE_PATH}${SUBDIR}/${EVENT}/"
 
 ${PYTHON3} ${CODE_DIR}/src/cleanfusion.py -s1 TMP -p ${FINAL_OUT} -o ${ID1} -ct ${ISCONTROL}
-
 
 echo "REMOVE RAW BED"
 rm ${BASE_PATH}${SUBDIR}/${EVENT}/*_TMP_*bed
@@ -103,15 +104,16 @@ if [ ${ISCONTROL} == "False" ]; then
 	EXCEL=$(find ${BASE_PATH}${SUBDIR}/${EVENT} -name "*clean.SPLICING.xlsx")
 	echo ${EXCEL}
 	
-	echo "ADD CLEAN TAB TO EXCEL"
-	readarray -t arr < <(find ${BASE_PATH}${SUBDIR}/${EVENT} -name "*sorted.INC*" -o -name "*sorted.EXC*")
-	for FILE in "${arr[@]}";
-	do
-	echo ""
-	echo "python3 ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} "
-	${PYTHON3} ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
 	
-	done
+	#echo "ADD CLEAN TAB TO EXCEL"
+	#readarray -t arr < <(find ${BASE_PATH}${SUBDIR}/${EVENT} -name "*sorted.INC*" -o -name "*sorted.EXC*")
+	#for FILE in "${arr[@]}";
+	#do
+	#echo ""
+	#echo "python3 ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} "
+	#${PYTHON3} ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
+	#done
+	
 	find ${BASE_PATH}${SUBDIR}/${EVENT} -name "*.bed" ! -name "*INC*.bed" ! -name "*EXC*.bed" ! -name "*ALL*.bed"
 	echo  "CLEAN DIR"
 	readarray -t filesToRemove < <(find ${BASE_PATH}${SUBDIR}/${EVENT} -name "*.bed"  ! -name "*INC*.bed" ! -name "*EXC*.bed" ! -name "*ALL*.bed")
@@ -145,15 +147,15 @@ if [ ${ISCONTROL} == "True" ]; then
 	EXCEL=$(find ${BASE_PATH}${SUBDIR}/${EVENT} -name "*bad.SPLICING.xlsx")
 	echo ${EXCEL}
 	
-	echo "ADD CLEAN TAB TO EXCEL"
+	#echo "ADD CLEAN TAB TO EXCEL"
+	#readarray -t arr < <(find ${BASE_PATH}${SUBDIR}/${EVENT} -name "*sorted.CONTROL*")
+	#for FILE in "${arr[@]}";
+	#do
+	#echo ""
+	#echo "python3 ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} "
+	#${PYTHON3} ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
+	#done
 	
-	readarray -t arr < <(find ${BASE_PATH}${SUBDIR}/${EVENT} -name "*sorted.CONTROL*")
-	for FILE in "${arr[@]}";
-	do
-	echo ""
-	echo "python3 ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} "
-	${PYTHON3} ${CODE_DIR}/src/addToExcel.py --file ${FILE} --excel  ${EXCEL} 
-	done
 	
 	echo  "CLEAN DIR"
 	readarray -t filesToRemove < <(find ${BASE_PATH}${SUBDIR}/${EVENT} -name "*.bed"  ! -name "*INC*.bed" ! -name "*EXC*.bed" !  -name "*ALL*.bed" ! -name "*CONTROL*.bed")
@@ -166,6 +168,11 @@ if [ ${ISCONTROL} == "True" ]; then
 	
 fi
 echo "=========>> END BASH SCRIPT: "
+
+echo "=========>> RELOCATE FILE "
+
+mkdir -p ${BASE_PATH}/output/${PROJECT}/FINAL
+mv ${BASE_PATH}${SUBDIR}/* ${BASE_PATH}/output/${PROJECT}/FINAL/
 
 #/home/jvillemin/save/code/RNASEQ-master/bash/merge.and.clean.splicing.sh SE PRJNA348471.PANC-1.TGFB.TEST.3_vs_PRJNA348471.PANC-1.TGFB.CONTROL.0 10 /home/jvillemin/work/WHOLE_EMT/configs/PRJNA348471/PRJNA348471_RMATS_main.json /home/jvillemin/work/WHOLE_EMT/ False /home/jvillemin/save/code/RNASEQ-master/ /home/jvillemin/save/bin/anaconda3/bin/python3
 

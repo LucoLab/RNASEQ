@@ -233,107 +233,6 @@ def write_diff_exp_conf(project,projet_id_current,path,hash_fc,analysis,samples_
    #      index=1
    #  if(config.parameters.get("lib-type")=="Unstranded") :
 
-
-def  write_rmats_conf(project,projet_id_current,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,sizeToclip,libType,single_or_paired,reads_for_rmats) :
-    """
-    Write Json configuration file for launching Rmats command for splicing.
-  
-    Args:
-        project (dict): project.
-        projet_id_current (str): projet_id_current.
-        path (str): path.
-        hash_fc (dict): hash_fc.
-        dataformatedforexport2Json_2 (dict): dataformatedforexport2Json_2.
-        samples_by_project_test_or_control (dict): samples_by_project_test_or_control.
-        sizeToclip (str): sizeToclip.
-        libType (str): libType.
-        single_or_paired (str): single_or_paired.
-        analysis (str): analysis.
-        reads_for_rmats (str): reads_for_rmats.
-
-    """  
-    
-    logger.info("\n-> Write RMATS JSON Configuration File \n")  
-    #logger.info(hash_fc)  
-    #logger.info(dataformatedforexport2Json_2)  
-    #logger.info(analysis)  
-    #logger.info(samples_by_project_test_or_control)  
-
-
-    for projet_id in sorted(project.keys()) :
-
-
-        if(projet_id==projet_id_current) :
-            
-            # Create RMats Ouput
-
-            pathlib.Path(path+"output/"+projet_id+"/RMATS/").mkdir(parents=True, exist_ok=True) 
-
-            logger.info("Config file is : ")
-            outfile = open(path+projet_id+"_"+"rmats.json", 'w')  
-            
-            outfile.write(" {\n")
-            outfile.write('"gtf" : "'+config.parameters['path_to_gtf']+'", \n')
-            outfile.write('"project" : "'+projet_id+'", \n')
-            outfile.write(' "path_to_output":"'+path+"output/"+projet_id+"/RMATS/"+'",\n')
-            logger.info(path+"output/"+projet_id+"/RMATS/")
-            outfile.write('"index" : "'+config.parameters['genomeDir']+'" , \n')
-            #if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) == 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) == 1 ) ) : 
-
-            #if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) > 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) > 1 ) ) : 
-            #outfile.write('"softPath" : "'+config.parameters['rmats_new'] +'", \n')
-            #else : 
-            outfile.write('"softPath" : "'+config.parameters['rmats_old'] +'", \n')
-
-            a=0
-            outfile.write('"analysis" : {  \n')
-            logger.info("Files written in s1 / s2.txt")
-            logger.info(hash_fc[projet_id_current])
-
-            for comparision in hash_fc[projet_id_current] :
-
-               outfile.write('"'+comparision+'" : {  \n')
-               outfile.write('    "fastq" :  { \n')
-               outfile.write('        "s1" : \n')
-               outfile.write( str(reads_for_rmats[projet_id_current][0]).replace("'","\"")+' ,\n')
-               outfile.write('        "s2" :  \n')
-               outfile.write( str(reads_for_rmats[projet_id_current][1]).replace("'","\"")+'\n')
-               outfile.write('}, \n')
-               #logger.info(reads_for_rmats[projet_id_current][0])
-               #logger.info(reads_for_rmats[projet_id_current][1])
-
-               outfile.write('"len" : "'+str(sizeToclip)+'", \n')
-               
-               if(libType=="Forward") :
-                    #outfile.write('"libType" : "fr-firststrand", \n')
-                    outfile.write('"libType" : "fr-secondstrand", \n')
-
-               if(libType=="Reverse") :
-                   #outfile.write('"libType" : "fr-secondstrand", \n')
-                    outfile.write('"libType" : "fr-firststrand", \n')
-
-               if(libType=="Unstranded") :
-                    outfile.write('"libType" : "fr-unstranded", \n')
-                    
-               if(single_or_paired=="SINGLE") :
-                   outfile.write('"type_read" : "single", \n')
-                   
-               if(single_or_paired=="PAIRED") :
-                   outfile.write('"type_read" : "paired", \n')
-    
-               outfile.write('"diff" : "0.1" \n')
-               outfile.write('} \n')
-               if(a!=len(hash_fc)-1) :  outfile.write(",")
-               a+=1
-            outfile.write('} \n')
-            outfile.write('} \n')
-
-           #"test" : "P", by default Unpaired and in the last version no different test to select
-           #outfile.write('"diff" : "0.1", \n')
-
-           #for  uniq_id_sample in project[projet_id] :
-    outfile.close()
-           
              
 def write_main_conf(project,projet_id_current,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,splicing_soft):
     """
@@ -369,7 +268,8 @@ def write_main_conf(project,projet_id_current,path,hash_fc,dataformatedforexport
            outfile.write('"list_files_splicing" : ["SE"], \n')
            outfile.write('"gene_length": "'+config.parameters['gene_length']+'", \n')
            outfile.write('"read_count_matrice": "'+path+"output/"+projet_id+'/Raw_read_counts.csv",\n')
-           
+           outfile.write('"read_count_matrice_normalized": "'+path+"output/"+projet_id+'/Raw_read_counts_normalized.csv",\n')
+
            #if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) == 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) == 1 ) ) : 
 
            #if ( (len(samples_by_project_test_or_control[projet_id_current]["CONTROL"]) > 1 ) and  (len(samples_by_project_test_or_control[projet_id_current]["TEST"]) > 1 ) ) : 
@@ -487,150 +387,7 @@ def  read_salmon_output_for_libtype(salmon_output_meta_file,typeEnd):
     F = read 1 (or single-end read) comes from the forward strand
     R = read 1 (or single-end read) comes from the reverse strand
     '''   
-def getaverageSize(projet_id,conditions,analysis_2_files,python2,project_global,fastqNameAfterTrimGalore,samples2files) :
-    
-    list_size = []
-    
-    # For cond test / control
-    for indice in [0,1] :
-        
-        for dir in  fastqNameAfterTrimGalore[projet_id][conditions[indice]] :
-            
-            
-            #logger.info("SAMPLE: "+str(dir))
-            #logger.info("FASTQ_for SAMPLE"+str(samples2files[dir]))
-      
-            if(project_global[projet_id]["pair"]  == "PAIRED") :
-                         
-                fileTrimmed_1=path+"output/"+projet_id+"/"+dir+"/trim_galore_output/"+os.path.basename(samples2files[dir][0]).split(".")[0]+"_val_1.fq.gz"
-                
-                logger.info(applicatifDir+"bash/read_average_size_fastq.sh "+fileTrimmed_1)
-                res = subprocess.getoutput((applicatifDir+"bash/read_average_size_fastq.sh "+fileTrimmed_1))
-                #logger.info(res)
-                list_size.append(get_readLength_forMaxEffectif(res))
-                
-                fileTrimmed_2=path+"output/"+projet_id+"/"+dir+"/trim_galore_output/"+os.path.basename(samples2files[dir][1]).split(".")[0]+"_val_2.fq.gz"
-               
-                logger.info(applicatifDir+"bash/read_average_size_fastq.sh "+fileTrimmed_2)
-                res = subprocess.getoutput((applicatifDir+"bash/read_average_size_fastq.sh "+fileTrimmed_2))
-                #logger.info(res)
-                list_size.append(get_readLength_forMaxEffectif(res))
 
-        
-            else : 
-                
-                fileTrimmed_1=path+"output/"+projet_id+"/"+dir+"/trim_galore_output/"+os.path.basename(samples2files[dir][0]).split(".")[0]+"_trimmed.fq.gz"
-
-                res = subprocess.getoutput((applicatifDir+"bash/read_average_size_fastq.sh "+fileTrimmed_1))
-                logger.info(applicatifDir+"read_average_size_fastq.sh "+fileTrimmed_1)
-                #logger.info(res)
-                list_size.append(get_readLength_forMaxEffectif(res))
-
-    return list_size
-
-def get_readLength_forMaxEffectif(res) :
-    
-    listRes = res.split("\n")
-    #logger.info(listRes)
-
-    size2effectif= {}
-    for pair in listRes : 
-        size2effectif[int(pair.split(" ")[0])] =  int(pair.split(" ")[1])
-    
-    max_key = max(size2effectif, key=lambda k: size2effectif[k])
-                
-    return max_key
-             
-def clipToSameSizeFastq(projet_id,conditions,fastqNameAfterTrimGalore,python2,reads_for_rmats,sizeToclip,samples2files) :
-    
-    avoid_more_add_trick =  {}
-
-    # For cond test / control
-    for indice in [0,1] :
-        
-        if indice not in reads_for_rmats[projet_id] : reads_for_rmats[projet_id][indice] = []
-        if conditions[indice] not in avoid_more_add_trick : avoid_more_add_trick[conditions[indice]] = 0
-
-        for dir in fastqNameAfterTrimGalore[projet_id][conditions[indice]] :
-            logger.info("SAMPLE: "+str(dir))
-            logger.info("FASTQ_for SAMPLE"+str(samples2files[dir]))
-            avoid_more_add_trick[conditions[indice]] += 1
-
-            if(project_global[projet_id]["pair"]  == "PAIRED") :
-                         
-                fileTrimmed_1=path+"output/"+projet_id+"/"+dir+"/trim_galore_output/"+os.path.basename(samples2files[dir][0]).split(".")[0]+"_val_1.fq"
-                
-                logger.info("\n-> Unzip "+fileTrimmed_1+".gz\n")
-                with gzip.open(fileTrimmed_1+".gz", 'rb') as f_in:
-                    with open(fileTrimmed_1, 'wb') as f_out:
-                        shutil.copyfileobj(f_in, f_out)
-                        
-                logger.info("\n-> Trimming for Rmats R1 \n")
-                trimingForRmats = python2+" "+applicatifDir+"src/trimFastq.py "+fileTrimmed_1 +" "+fileTrimmed_1.replace("_val_1.fq",".trimmed.clipped.fastq")+" "+str(sizeToclip)
-                logger.info(trimingForRmats)
-                trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-                write_subprocess_log(trimingForRmats_exec,logger)
-                subprocess.run(("rm "+fileTrimmed_1),shell=True)
-                subprocess.run(("rm "+fileTrimmed_1+".gz"),shell=True)
-
-                
-                fileTrimmed_2=path+"output/"+projet_id+"/"+dir+"/trim_galore_output/"+os.path.basename(samples2files[dir][1]).split(".")[0]+"_val_2.fq"
-                
-                logger.info("\n-> Unzip  "+fileTrimmed_2+".gz\n")
-                with gzip.open(fileTrimmed_2+".gz", 'rb') as f_in:
-                    with open(fileTrimmed_2, 'wb') as f_out:
-                        shutil.copyfileobj(f_in, f_out)
-                        
-                logger.info("\n-> Trimming for Rmats R2 \n")
-                trimingForRmats = python2+" "+applicatifDir+"src/trimFastq.py "+fileTrimmed_2 +" "+fileTrimmed_2.replace("_val_2.fq",".trimmed.clipped.fastq")+" "+str(sizeToclip)
-                logger.info(trimingForRmats)
-                trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-                write_subprocess_log(trimingForRmats_exec,logger)
-                subprocess.run(("rm "+fileTrimmed_2),shell=True)
-                subprocess.run(("rm "+fileTrimmed_2+".gz"),shell=True)
-
-                 
-                reads_for_rmats[projet_id][indice].append(fileTrimmed_1.replace("_val_1.fq",".trimmed.clipped.fastq")+":"+fileTrimmed_2.replace("_val_2.fq",".trimmed.clipped.fastq"))
-        
-            else : 
-                
-                fileTrimmed_1=path+"output/"+projet_id+"/"+dir+"/trim_galore_output/"+os.path.basename(samples2files[dir][0]).split(".")[0]+"_trimmed.fq"
-
-                logger.info("unzip "+fileTrimmed_1+".gz\n")
-                with gzip.open(fileTrimmed_1+".gz", 'rb') as f_in:
-                    with open(fileTrimmed_1, 'wb') as f_out:
-                        shutil.copyfileobj(f_in, f_out)
-                        
-                logger.info("\n-> Trimming for Rmats R1 \n")
-                trimingForRmats = python2+" "+applicatifDir+"src/trimFastq.py "+fileTrimmed_1 +" "+fileTrimmed_1.replace("_trimmed.fq",".trimmed.clipped.fastq")+" "+str(sizeToclip)
-                logger.info(trimingForRmats)
-                
-                trimingForRmats_exec = subprocess.run((trimingForRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-                write_subprocess_log(trimingForRmats_exec,logger)
-                subprocess.run(("rm "+fileTrimmed_1),shell=True)
-                subprocess.run(("rm "+fileTrimmed_1+".gz"),shell=True)
-
-                #if(avoid_more_add_trick[conditions[indice]]==1) :  
-                reads_for_rmats[projet_id][indice].append(fileTrimmed_1.replace("_trimmed.fq",".trimmed.clipped.fastq"))
-                
-
-    return reads_for_rmats   
-#def set_constant() :
-    
-   #gene_length                    = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.gene.length.exon.sums.csv"
-   #genomeDir                      = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/indexes/GRCh38_PRIM_GENCODE_R25/"
-   #genes_biomart_ensembl  = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_ENSEMBL_85_HUMAN/genes.biomart.ensembl85.human.txt"
-   #path_to_gtf                    = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genes/GRCh38_PRIM_GENCODE_R25/gencode.v25.primary_assembly.annotation.gtf"
-   #transcriptome_index            = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/transcriptome/GRCh38_PRIM_GENCODE_R25/gencode.v25.transcripts.index"
-   #path_to_chrom_length_ref       = "/home/jean-philippe.villemin/mount_archive2/commun.luco/ref/genome/GRCh38_PRIM_GENCODE_R25/GRCh38.primary_assembly.genome.sizes"
-   #rmats_new                      = "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.4.0.2/rMATS-turbo-Linux-UCS4/rmats.py"
-   #rmats_old                      = "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2 /home/jean-philippe.villemin/bin/rMATS.3.2.5/RNASeq-MATS.py"
-   
-   #python2                        = "/home/jean-philippe.villemin/bin/anaconda3/envs/python2/bin/python2"
-   #scriptDir                      = "/home/jean-philippe.villemin/code/RNA-SEQ/"
-   #output                         = "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/"
-   
-   #print(config.parameters['path_to_chrom_length_ref'])
 
 ###########################################################################################################
 ########################################   Main   #########################################################
@@ -796,7 +553,10 @@ if __name__ == '__main__':
             
             analysis_2_files[projet_id].append(url_1)
             
-            dataformatedforexport2Json_2[id_condition].append ( { '{"replicat_id": "'+  projet_id+"."+uniq_id_sample+"."+project[projet_id][uniq_id_sample]["rep_number"]+'","file_path":"'+path+"output/"+projet_id+"/"+projet_id+"."+uniq_id_sample+"."+project[projet_id][uniq_id_sample]["rep_number"]+"/"+'salmon_output/quant.genes.sf"}' } )
+            # USE TPM CALCULATOR
+            dataformatedforexport2Json_2[id_condition].append ( { '{"replicat_id": "'+  projet_id+"."+uniq_id_sample+"."+project[projet_id][uniq_id_sample]["rep_number"]+'","file_path":"'+path+"output/"+projet_id+"/"+projet_id+"."+uniq_id_sample+"."+project[projet_id][uniq_id_sample]["rep_number"]+"/"+'star_output/tpm_genes.tsv"}' } )
+
+            #dataformatedforexport2Json_2[id_condition].append ( { '{"replicat_id": "'+  projet_id+"."+uniq_id_sample+"."+project[projet_id][uniq_id_sample]["rep_number"]+'","file_path":"'+path+"output/"+projet_id+"/"+projet_id+"."+uniq_id_sample+"."+project[projet_id][uniq_id_sample]["rep_number"]+"/"+'salmon_output/quant.genes.sf"}' } )
             
             fastqNameAfterTrimGalore[projet_id][id_condition].append (projet_id+"."+uniq_id_sample+"."+project[projet_id][uniq_id_sample]["rep_number"])
             #
@@ -895,9 +655,9 @@ if __name__ == '__main__':
         write_main_conf(project,projet_id,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,"RMATS")
         write_main_conf(project,projet_id,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,"WHIPPET")
         
-        mkdir_trim = "mkdir -p "+path+"logs/"+projet_id+"/trimmed"
-        subprocess.run((mkdir_trim),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-        logger.info(mkdir_trim)        
+        #mkdir_trim = "mkdir -p "+path+"logs/"+projet_id+"/trimmed"
+        #subprocess.run((mkdir_trim),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+        #logger.info(mkdir_trim)        
 
     ###########################################################################################################
     ########################################   Launch Processes   #############################################
@@ -986,7 +746,7 @@ if __name__ == '__main__':
             write_subprocess_log(expressionAnalyse_exec,logger)
             ##########################################################################################
 
-            subprocess.run(("mkdir -p "+path+"output/"+projet_id+"/trimmed"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+            #subprocess.run(("mkdir -p "+path+"output/"+projet_id+"/trimmed"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             
             logger.info("Coverage for : "+comparison+"\n")
 
@@ -1005,52 +765,11 @@ if __name__ == '__main__':
 
         logger.info("Nb files :  "+str(len(analysis_2_files[projet_id])))
       
-        #list_size = getaverageSize(projet_id,conditions,analysis_2_files,python2,project_global,fastqNameAfterTrimGalore,sample2files)    
-          
-        #logger.info(list_size)
-        #sizeToclip = round(int(numpy.mean(list_size)))
-        # remove 5
-        #sizeToclip = sizeToclip - 5
-
-        #logger.info('Size to clip is : '+str(sizeToclip))   
-        
-        ########################################################################################## 
-        # Go in function to uncomment
-        #reads_for_rmats = clipToSameSizeFastq(projet_id,conditions,fastqNameAfterTrimGalore,python2,reads_for_rmats,sizeToclip,sample2files)
-        ########################################################################################## 
-
-        #logger.info("\n-> Reads For RMATS \n")
-        #logger.info(reads_for_rmats)
-
-        #logger.info("\n-> Alternative Splicing Analyse with Rmats \n")
-         
-        #write_rmats_conf(project,projet_id,path,hash_fc,dataformatedforexport2Json_2,analysis,samples_by_project_test_or_control,sizeToclip,libType,project_global[projet_id]["pair"],reads_for_rmats)
-
-        #splicingRmats = python3+" "+applicatifDir+"src/splicingRmats.py  -c "+path+projet_id+"_rmats.json"
-        #logger.info("\n"+splicingRmats+"\n")
-        
-        ########################################################################################## 
-        #splicingRmats_exec = subprocess.run((splicingRmats),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-        #write_subprocess_log(splicingRmats_exec,logger)
-        ########################################################################################## 
-
-      
-        #logger.info("\n-> Wrap, Merge and Filter Splicing Analyse with RMATS \n")
-
-        #splicingSupperWrapper =  python3+" "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_RMATS_main.json"
-        #logger.info("\n"+splicingSupperWrapper+"\n")
-        
-        ########################################################################################## 
-        #splicingSupperWrapper_exec = subprocess.run((splicingSupperWrapper),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
-        #write_subprocess_log(splicingSupperWrapper_exec,logger)
-        #move ="mv "+path+"/"+comparison+"/ "+path+"output/"+projet_id+"/MERGE.RMATS."+comparison
-        #subprocess.run(move,shell=True)
-        #logger.info(move)
-        ########################################################################################## 
 
         time.sleep(10)
         
         logger.info("\n-> Wrap, Merge and Filter Splicing Analyse with WHIPPET \n")
+
 
         splicingSupperWrapper =  python3+" "+applicatifDir+"src/supperWrapperForMerge.py -c "+path+projet_id+"_WHIPPET_main.json"
         logger.info(splicingSupperWrapper)
@@ -1058,9 +777,12 @@ if __name__ == '__main__':
         splicingSupperWrapper_exec = subprocess.run((splicingSupperWrapper),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
         write_subprocess_log(splicingSupperWrapper_exec,logger)
         
-        move ="mv "+path+"/"+comparison+"/ "+path+"output/"+projet_id+"/MERGE.WHIPPET."+comparison
-        subprocess.run(move,shell=True)
-        logger.info(move)
+        # add the move dan merge and clean splicing
+        #move ="mv "+path+"/"+comparison+"/ "+path+"output/"+projet_id+"/MERGE.WHIPPET."+comparison
+        #move ="mv "+path+"/FINAL/ "+path+"output/"+projet_id+"/FINAL"
+        #subprocess.run(move,shell=True)
+        #logger.info(move)
+
         ########################################################################################## 
 
         subprocess.run(("mkdir -p "+path+"logs/"+projet_id),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)

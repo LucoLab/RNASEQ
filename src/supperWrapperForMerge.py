@@ -102,22 +102,27 @@ if __name__ == '__main__':
     iscontrol      = parameters.iscontrol
     read_cutoff    = config.parameters['reads_junction']
     path_to_output = config.parameters['path_to_output'] 
+    project        = config.parameters['project'] 
     
+    print(project)
+
     applicatifDir   = init.parameters['scriptDir']
     
     print(os.path.basename(__file__))
     
-    for event in ["SE","A3SS","A5SS","RI","MXE","TS","TE","AF","AL"] : #,"SE" "MXE","SE","A3SS","A5SS","RI""SE"
+    for event in ["SE","A3SS","A5SS","RI","MXE","TS","TE","AF","AL"] :#"BS" #,"SE" "MXE","SE","A3SS","A5SS","RI""SE"
         
         if ("WHIPPET" in parameters.file_config and event == "MXE") :
             continue
     
         for analyse in config.parameters['tabs'] : 
             
-            subprocess.run(("mkdir -p "+config.parameters['path_to_output']+"/"+analyse+"/"+event),shell=True)
+            #subprocess.run(("mkdir -p "+config.parameters['path_to_output']+"/"+analyse+"/"+event),shell=True)
+            subprocess.run(("mkdir -p "+config.parameters['path_to_output']+"/FINAL/"+event),shell=True)
 
             logger.info(analyse)
-            bashcommand =applicatifDir+"bash/merge.and.clean.splicing.sh "+event+" "+analyse+" "+read_cutoff+" "+parameters.file_config+" "+path_to_output+" "+str(iscontrol)+" "+applicatifDir+" "+init.parameters['python3']
+            # FINAL avant etait analyse
+            bashcommand =applicatifDir+"bash/merge.and.clean.splicing.sh "+event+" "+"FINAL"+" "+read_cutoff+" "+parameters.file_config+" "+path_to_output+" "+str(iscontrol)+" "+applicatifDir+" "+init.parameters['python3']+" "+project
             
             logger.info(bashcommand)
             

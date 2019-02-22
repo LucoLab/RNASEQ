@@ -84,146 +84,6 @@ def create_logger(config,id):
     return logger
 
 
-def parse_rmats(lineElements,chrom,strand,as_type,prefix):
-    
-    exon_size =  "."
-    trickMXE     =  ""
-
-    gonext=""
-    if (as_type == "A3SS") : 
-        if (strand == "-") :
-            id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[10]+":"+strand  #flankingES    flankingEE
-            highlight = prefix+"."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[6]
-            if ( int(lineElements[8]) - int(lineElements[6]) >= 200 ) : # Correct bug A3SS , A5SS. Sometimes it uses intron. Correted by length selection.
-                return "next",id_ucsc_event,highlight,exon_size,trickMXE
-  
-        if (strand == "+") :
-            id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[6]+":"+strand  #flankingES    flankingEE
-            highlight = prefix+"."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[7]
-            if ( int(lineElements[7]) - int(lineElements[5]) >= 200 ) : # Correct bug A3SS , A5SS. Sometimes it uses intron. Correted by length selection.
-                return "next",id_ucsc_event,highlight,exon_size,trickMXE
-    
-    if (as_type == "A5SS") :  
-        if (strand == "-") :
-            id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[6]+":"+strand  #flankingES    flankingEE
-            highlight = prefix+"."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[7]
-            if ( int(lineElements[7]) - int(lineElements[5]) >= 200 ) : # Correct bug A3SS , A5SS. Sometimes it uses intron. Correted by length selection.
-                return "next",id_ucsc_event,highlight,exon_size,trickMXE
-  
-        if (strand =="+") :
-            id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[10]+":"+strand  #flankingES    flankingEE
-            highlight = prefix+"."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[6]  
-            if ( int(lineElements[6]) - int(lineElements[8]) >= 200 ) : # Correct bug A3SS , A5SS. Sometimes it uses intron. Correted by length selection.
-                return "next",id_ucsc_event,highlight,exon_size,trickMXE
- 
-                
-    if (as_type == "SE" ) :   
-        id_ucsc_event = chrom+":"+lineElements[7]+"-"+lineElements[10]+":"+strand  #upstreamES downstreamEE
-        exon_size = int(lineElements[6]) - int(lineElements[5]) # + 1 0-Based pr Rmats   example 0 99 
-        highlight = prefix+"."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[6]
-    
-    if (as_type == "RI" ) :
-        id_ucsc_event = chrom+":"+lineElements[5]+"-"+lineElements[6]+":"+strand  #upstreamES downstreamEE
-        highlight = prefix+"."+chrom+":"+str(int(lineElements[8])+1)+"-"+lineElements[9]  
-    
-    if (as_type == "MXE" ) :
-        
-        id_ucsc_event = chrom+":"+lineElements[9]+"-"+lineElements[12]+":"+strand #upstreamES downstreamEE
-        highlight = prefix+"."+chrom+":"+str(int(lineElements[5])+1)+"-"+lineElements[6]+"|"+prefix+"."+chrom+":"+str(int(lineElements[7])+1)+"-"+lineElements[8]
-        trickMXE=str(int(lineElements[5])+1)+"\t"+lineElements[6]  # change 7 by 6 and add 1
-        
-
-    return gonext,id_ucsc_event,highlight,exon_size,trickMXE
-
-
-def filter_rmats(incLevel1,incLevel2,diffinc,ic_sample_1,sc_sample_1,ic_sample_2,sc_sample_2,readsNumber,isControl) : 
-    
-    ''' LOG RATIO // FOLD CHANGE '''
-    incLevel1 = remove_values_from_list(incLevel1.split(","),"NA")
-    incLevel2 = remove_values_from_list(incLevel2.split(","),"NA")
-    
-    average_incLevel1 =  statistics.mean(map(float, incLevel1))
-    average_incLevel2 =  statistics.mean(map(float, incLevel2))
-    
-    max_incLevel1 =  max(map(float, incLevel1))
-    max_incLevel2 =  max(map(float, incLevel2))
-    
-    max_incLevel   = max_incLevel1 if max_incLevel1 > max_incLevel2 else max_incLevel2
-    if(max_incLevel==0):
-        psi_classifier = "NaN"
-    else :
-        psi_classifier = abs(float(diffinc)/max_incLevel)
-    
-    logratio     = "NaN" 
-    retval       = "NaN"
-    #print('average'+str(average_incLevel1)+' '+str(average_incLevel2))
-    if(average_incLevel1 != 0 and average_incLevel2 != 0): 
-        retval   = foldchange (average_incLevel1,average_incLevel2) 
-        logratio = foldchange2logratio(retval)
-        #print('logratio'+str(logratio))
-    
-    # List of reads per group
-    list_int_ic_sample1 = list(map(int,ic_sample_1.split(",")))
-    list_int_sc_sample1 = list(map(int,sc_sample_1.split(",")))
-
-    list_int_ic_sample2 = list(map(int,ic_sample_2.split(",")))
-    list_int_sc_sample2 = list(map(int,sc_sample_2.split(",")))
-    
-    index_read_count_ic_sample1  = 0
-    index_read_count_sc_sample2  = 0
-    
-    # TEST 1
-    for read_count_ic1 in  list_int_ic_sample1  :
-        if read_count_ic1 >= readsNumber :
-            index_read_count_ic_sample1 = index_read_count_ic_sample1 + 1
-    
-    
-    for read_count_sc2 in  list_int_sc_sample2  :
-        if read_count_sc2 >= readsNumber :
-            index_read_count_sc_sample2 = index_read_count_sc_sample2 + 1
-        
-    # More than a half has read count > X for INCLUSION in TEST and more than a half has read count > X for EXLUCSION in CONTROL
-    test1 = 0 
-    if ( (round(index_read_count_ic_sample1/len(list_int_ic_sample1),1) >=  0.5 ) and (round(index_read_count_sc_sample2/len(list_int_sc_sample2),1) >=  0.5 ) ):
-        test1 = 1
-    
-    # TEST 2        
-    index_read_count_sc_sample1  = 0  
-    index_read_count_ic_sample2  = 0
-    
-    for read_count_sc1 in  list_int_sc_sample1  :
-        if read_count_sc1 >= readsNumber :
-            index_read_count_sc_sample1 = index_read_count_sc_sample1 + 1
-    
-    
-    for read_count_ic2 in  list_int_ic_sample2  :
-        if read_count_ic2 >= readsNumber :
-            index_read_count_ic_sample2 = index_read_count_ic_sample2 + 1
-            
-    # More than a half has read count > X for EXCLUSION in TEST and more than a half has read count > X for INCLUSION in CONTROL
-    test2 = 0 
-    if ( (round(index_read_count_ic_sample2/len(list_int_ic_sample2),1) >=  0.5 ) and  (round(index_read_count_sc_sample1/len(list_int_sc_sample1),1) >=  0.5 ) ) :
-        test2 = 1
-    
-    # IF TEST1 OR TEST2 failed , go next
-    test = ""
-    if(not isControl) :
-        if ( test1 + test2 == 0 ) :
-            test = "next"  
-         
-    ic_sample_1_sum = sum(list_int_ic_sample1)/len(ic_sample_1)
-    sc_sample_1_sum = sum(list_int_sc_sample1)/len(sc_sample_1)
-    ic_sample_2_sum = sum(list_int_ic_sample2)/len(ic_sample_2)
-    sc_sample_2_sum = sum(list_int_sc_sample2)/len(sc_sample_2)
-    
-    ''' FISHER TEST '''
-    pvalue_fisher = 0
-    oddsratio, pvalue_fisher = stats.fisher_exact([[ic_sample_1_sum, sc_sample_1_sum], [ic_sample_2_sum, sc_sample_2_sum]])
-    fisher = "-"
-    if (pvalue_fisher < 0.05) : fisher = "PASS"
-
-    return  test,average_incLevel1, average_incLevel2,logratio,psi_classifier,retval,pvalue_fisher,fisher 
-
 def get_position_exons(ext) : 
     
     server = "https://rest.ensembl.org"
@@ -267,6 +127,73 @@ def get_position_exons(ext) :
                     
     return nb_transcripts,nb_exon_transcripts,position_list,skip
 
+def parse_psi_from_whippet_output(replicats,as_type,type) : 
+
+
+    magicDict = {} 
+    if(as_type =='SE') :as_type ='CE'
+    if(as_type =='IR') :as_type ='RI'
+    if(as_type =='A3SS') :as_type ='AA'
+    if(as_type =='A5SS') :as_type ='AD'
+    
+    logger.info("Go throught psi files : "+type)
+    logger.info("-> "+as_type)
+
+    for rep in replicats : 
+        
+        with open(rep) as f:
+            
+            count = 0
+            for line in f:
+                #print(line)
+                if count == 0 : 
+                    count = count +1
+             
+                    continue
+                
+                lineElements    = line.strip().split("\t")
+                #['ENSG00000140396.12', '10', 'chr8:70159505-70159652', '-', 'CE', '1.0', '0.093', '0.905,0.998', '29.0', 'K0', '0.0', '9-10-11:1.0', 'NA', '9-10:13.0,10-11:16.0']
+             
+                #Raw PSI FILE Contains all Events
+                #Gene0    Node1    Coord2    Strand3    Type4    Psi5    CI_Width6    CI_Lo,Hi7    Total_Reads8    Complexity9    Entropy    Inc_Paths    Exc_Paths    Edges
+                #ENSG00000162851.7    1    chr1:246565826-246566324    -    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+                #ENSG00000162851.7    2    chr1:246564346-246564434    -    CE    1.0    0.005    0.995,1.0    565.0    K0    0.0    1-2-3:1.0    NA    1-2:357.0,2-3:208.0
+                
+                #Diff PSI COntains ONLY 
+                #gene    coordinates    strand    event    psiA    psiB    dpsi    probability    complexity    entropy
+                #ENSG00000060656    chr1:29311545-29311553    +    AD    0.58275    0.4427    0.14005    0.997    K1    0.9973
+
+                coords          =  lineElements[2]
+                
+                psi             =  lineElements[5]
+                totRead         =  lineElements[8]
+                complexity      =  lineElements[9]
+                event           =  lineElements[4]
+               
+                if not (event == as_type) : continue
+                
+                m            = re.search('^(\w+)\.(\d+)$', lineElements[0])
+                
+                if(m):
+                    ensembl_id = m.group(1)
+
+                        
+                    if ensembl_id+"::"+coords not in  magicDict : magicDict[ensembl_id+"::"+coords] = {}
+                    
+                    if 'psi' not in magicDict[ensembl_id+"::"+coords] : magicDict[ensembl_id+"::"+coords]['psi']               = []
+                    if 'totRead' not in magicDict[ensembl_id+"::"+coords] : magicDict[ensembl_id+"::"+coords]['totRead']       = []
+                    if 'complexity' not in magicDict[ensembl_id+"::"+coords] : magicDict[ensembl_id+"::"+coords]['complexity'] = []
+                    
+                    magicDict[ensembl_id+"::"+coords]['psi'].append(psi)
+                    magicDict[ensembl_id+"::"+coords]['totRead'].append(totRead)
+                    magicDict[ensembl_id+"::"+coords]['complexity'].append(complexity)
+     
+        f.close()
+    
+    
+    return magicDict
+
+
 def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNumber,gene_length,soft,list_replicates_test,list_replicates_control,organism,genes,isControl):
     """
     Parse all files produced by RMATS.
@@ -288,226 +215,58 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
     if(organism=="mus_musculus") :
         prefix="mm10"
     
-                    ############################################################# #############################################################
-                    ###############           RMATS            ###############
-                    ###############                               ###############
-                    ############################################################# #############################################################
-                    
-    if (soft=="RMATS")  :
-        for as_type in list_as_type :
-            logger.info("LOOK SPLICING FOR AS_TYPE: "+as_type)
-            array_splicing_data = { as_type :{} }
-            namefile = ""
-            if (parameters.modeCount == "2" ) :
-                if(config.parameters["soft_version_rmats"]=="old"):
-                    namefile = "MATS.JunctionCountOnly.txt"
-                if(config.parameters["soft_version_rmats"]=="new"):
-                    namefile = "MATS.JC.txt"
-            else  :
-                if(config.parameters["soft_version_rmats"]=="new"):
-                    namefile = "MATS.JCEC.txt"
-                if(config.parameters["soft_version_rmats"]=="old"):
-                    namefile = "MATS.ReadsOnTargetAndJunctionCounts.txt"
-
-                   
-            with open(path_to_dir+"/"+as_type+"."+namefile) as f:
-                count = 0
-                for line in f:
-                    #print(line)
-                    if count == 0 : 
-                        count = count +1
-                        continue
-
-                    id_ucsc_event = ""
-                    lineElements = line.replace("\"", "").strip().split("\t")
-                    m            = re.search('^(\w+)\.(\d+)$', lineElements[1])
-                    ensembl_id   = m.group(1)
-                    gene_size = gene_length[ensembl_id]
-                    gene         = lineElements[2]
-                    chrom        = lineElements[3]
-                    strand       = lineElements[4]
-                    ic_sample_1 = lineElements[12]
-                    sc_sample_1 = lineElements[13]
-                    ic_sample_2 = lineElements[14]
-                    sc_sample_2 = lineElements[15]
-                    incLevel1   = lineElements[20]
-                    incLevel2   = lineElements[21]
-                    diffinc     = lineElements[22]
-                    pvalue      = lineElements[18]
-                    fdr         = lineElements[19]
-                    highlight   = ""
-                
-                    #############################################################
-                    ###############           SPLICING            ###############
-                    ###############                               ###############
-                    #############################################################
-                    if(not isControl):
-                        if( ( (as_type != "MXE") and (abs(float(diffinc)) >= 0.2 ) ) or ( (as_type == "MXE") and (abs(float(lineElements[24])) >= 0.2) ) ) : 
-                            
-                            key_id_ucsc_event = chrom+":"+(":".join(lineElements[5:11]))+":"+strand  #flankingES    flankingEE   
-                            gonext,id_ucsc_event,highlight,exon_size,trickMXE = parse_rmats(lineElements,chrom,strand,as_type,prefix)
-                            if(gonext=="next"): continue
-
-                            # Need to rewrite some stuffs because format is different for MXE !!
-                            if (as_type == "MXE" ) :
-        
-                                key_id_ucsc_event = chrom+":"+(":".join(lineElements[5:13]))+":"+strand  #flankingES    flankingEE    
     
-                                ic_sample_1 = lineElements[14]
-                                sc_sample_1 = lineElements[15]
-                                ic_sample_2 = lineElements[16]
-                                sc_sample_2 = lineElements[17]
-                                incLevel1   = lineElements[22]
-                                incLevel2   = lineElements[23]
-                                diffinc     = lineElements[24]
-                                pvalue      = lineElements[20]
-                                fdr         = lineElements[21]
-                                
-                            #logger.info(highlight[highlight.index(":"):][1:])
-                            
-                            # Avant j'avais mis and   avec le float 
-                            if (float(fdr)   < 0.05 ) : 
-                                    test,average_incLevel1, average_incLevel2,logratio,psi_classifier,retval,pvalue_fisher,fisher  = filter_rmats(incLevel1,incLevel2,diffinc,ic_sample_1,sc_sample_1,ic_sample_2,sc_sample_2,readsNumber,isControl)
-                                    
-                                    if(test=="next"): continue
-                                    
-                                    ext = "/overlap/region/"+config.parameters['organism']+"/"+chrom.replace("chr","")+":"+highlight[highlight.index(":"):][1:]+"?feature=exon;feature=transcript;content-type=application/json"
+    dirToLookIn = os.path.dirname(path_to_dir)
 
-                                    # Too much time when a lot of exons
-                                    if (as_type != "MXE" ) :
-
-                                        nb_transcripts,nb_exon_transcripts,position_list,skip = get_position_exons(ext)
-                                    else :
-                                        nb_transcripts,nb_exon_transcripts,position_list,skip = 0,0,["0"],0
-                                        
-                                    #if(skip==1): continue
- 
-                                    array_splicing_data[as_type][key_id_ucsc_event] = { "Ensembl"  :ensembl_id, 
-                                                                                    "Symbol"       :gene, 
-                                                                                    "Chromosome"   :chrom, 
-                                                                                    "Strand"       :strand,
-                                                                                    "ic_sample_1"  : ic_sample_1,
-                                                                                    "sc_sample_1"  : sc_sample_1,
-                                                                                    "ic_sample_2"  : ic_sample_2,
-                                                                                    "sc_sample_2"  : sc_sample_2,
-                                                                                    "incLevel1"    : incLevel1,
-                                                                                    "psiLevel1"    : average_incLevel1,
-                                                                                    "psiLevel2"    : average_incLevel2,
-                                                                                    "highlight"    : highlight,
-                                                                                     "trickMXE"    : trickMXE,
-                                                                                    "incLevel2"    : incLevel2,
-                                                                                    "diffinc"      : diffinc ,
-                                                                                    "logRatioIncLevel"     : logratio,
-                                                                                    'fdr'          : fdr,
-                                                                                    'log10fdr'     :  int(abs(math.log10(float(fdr)))) if float(fdr) > 0 else -math.inf,
-                                                                                    "psi_classifier"     : psi_classifier,
-                                                                                    "FCIncLevel"   : retval,
-                                                                                    "pvalueFisher" : pvalue_fisher,
-                                                                                    "pval"         : "NA",
-                                                                                    "fisher"       : fisher,
-                                                                                    "id_ucsc"      : id_ucsc_event[:-2],
-                                                                                    "gene_size"    : gene_size,
-                                                                                    "exon_size"    : exon_size,
-                                                                                    "cleanBed"     : highlight[highlight.index(":"):][1:].replace("-","\t"),
-                                                                                    "NB_total_transcripts": nb_transcripts,
-                                                                                    "NB_exon_transcripts_": nb_exon_transcripts,
-                                                                                    "pos_exon_in_transcripts": "::".join(position_list)                                                                       
-                            
-                                                                                  }
-                    #############################################################
-                    ###############           CONTROL            ###############
-                    ###############                               ###############
-                    #############################################################
-                    if(isControl):
-                        
-                        if (ensembl_id not in genes.keys() ) : continue
-                        
-                        if( ( (as_type != "MXE") and (abs(float(diffinc)) <= 0.01 ) ) or ( (as_type == "MXE") and (abs(float(lineElements[24])) <= 0.01 ) ) ) : 
-                            
-                            key_id_ucsc_event = chrom+":"+(":".join(lineElements[5:11]))+":"+strand  #flankingES    flankingEE   
-                            gonext,id_ucsc_event,highlight,exon_size,trickMXE = parse_rmats(lineElements,chrom,strand,as_type,prefix)
-
-                            if(gonext=="next"): continue
-
-                            # Need to rewrite some stuffs because format is different for MXE !!
-                            if (as_type == "MXE" ) :
-        
-                                key_id_ucsc_event = chrom+":"+(":".join(lineElements[5:13]))+":"+strand  #flankingES    flankingEE    
+    proc_find_test = subprocess.getoutput(("find "+dirToLookIn+"  -maxdepth 1 -name '"+"*.TEST.*.psi"+"' -not -path '*/\.*' "))
+    proc_find_test = proc_find_test.split("\n")
+    logger.info(("find "+dirToLookIn+" -maxdepth 1 -name '"+"*.TEST.*.psi"+"'"))
+    logger.info(proc_find_test)
     
-                                ic_sample_1 = lineElements[14]
-                                sc_sample_1 = lineElements[15]
-                                ic_sample_2 = lineElements[16]
-                                sc_sample_2 = lineElements[17]
-                                incLevel1   = lineElements[22]
-                                incLevel2   = lineElements[23]
-                                diffinc     = lineElements[24]
-                                pvalue      = lineElements[20]
-                                fdr         = lineElements[21]
-                            
-                            #if (float(pvalue)   > 0.05  and float(fdr)   > 0.05 ) : 
-                              
-                            test,average_incLevel1, average_incLevel2,logratio,psi_classifier,retval,pvalue_fisher,fisher  = filter_rmats(incLevel1,incLevel2,diffinc,ic_sample_1,sc_sample_1,ic_sample_2,sc_sample_2,readsNumber,isControl)
-                            
-                            if(average_incLevel1 < 0.9 and average_incLevel2 < 0.9) : continue
-                            
-                            if(test=="next"): continue
-                            
-                            ext = "/overlap/region/"+config.parameters['organism']+"/"+chrom.replace("chr","")+":"+highlight[highlight.index(":"):][1:]+"?feature=exon;feature=transcript;content-type=application/json"
+    proc_find_control = subprocess.getoutput(("find "+dirToLookIn+" -maxdepth 1 -name '"+"*.CONTROL.*.psi"+"' -not -path '*/\.*'"))
+    proc_find_control = proc_find_control.split("\n")
+    logger.info(("find "+dirToLookIn+" -maxdepth 1 -name '"+"*.CONTROL.*.psi"+"'"))
+    logger.info(proc_find_control)
+  
+    ################################################### #############################################################
+    ###############           WHIPPET            ###############
+    ###############                               ###############
+    ############################################################# #############################################################
+    #/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/PolyAT6/WHIPPET/PolyAT6.MCF10A.TAMOXIFEN.SNAIL.TEST.5_vs_PolyAT6.MCF10A.TAMOXIFEN.SNAIL.CONTROL.0.clean.AA.diff.annoted.csv
 
-                            # Too much time when a lot of exons
-                            nb_transcripts,nb_exon_transcripts,position_list,skip = get_position_exons(ext)
-                            if(skip==1): continue
+    #test_psi = parse_psi_from_whippet_output(path_to_dir,list_replicates_test)
+    #control_psi = parse_psi_from_whippet_output(path_to_dir,list_replicates_test)
 
-                            array_splicing_data[as_type][key_id_ucsc_event] = { "Ensembl"  :ensembl_id, 
-                                                                            "Symbol"       :gene, 
-                                                                            "Chromosome"   :chrom, 
-                                                                            "Strand"       :strand,
-                                                                            "ic_sample_1"  : ic_sample_1,
-                                                                            "sc_sample_1"  : sc_sample_1,
-                                                                            "ic_sample_2"  : ic_sample_2,
-                                                                            "sc_sample_2"  : sc_sample_2,
-                                                                            "incLevel1"    : incLevel1,
-                                                                            "psiLevel1"    : average_incLevel1,
-                                                                            "psiLevel2"    : average_incLevel2,
-                                                                            "highlight"    : highlight,
-                                                                             "trickMXE"    : trickMXE,
-                                                                            "incLevel2"    : incLevel2,
-                                                                            "diffinc"      : diffinc ,
-                                                                            "logRatioIncLevel"     : logratio,
-                                                                            'fdr'          : fdr,
-                                                                            'log10fdr'     :  int(abs(math.log10(float(fdr)))) if float(fdr) > 0 else -math.inf,
-                                                                            "psi_classifier"     : psi_classifier,
-                                                                            "FCIncLevel"   : retval,
-                                                                            "pvalueFisher" : pvalue_fisher,
-                                                                            "pval"         : "NA",
-                                                                            "fisher"       : fisher,
-                                                                            "id_ucsc"      : id_ucsc_event[:-2],
-                                                                            "gene_size"    : gene_size,
-                                                                            "exon_size"    : exon_size,
-                                                                            "cleanBed"     : highlight[highlight.index(":"):][1:].replace("-","\t"),
-                                                                            "NB_total_transcripts": nb_transcripts,
-                                                                            "NB_exon_transcripts_": nb_exon_transcripts,
-                                                                            "pos_exon_in_transcripts": "::".join(position_list)                                                               
-            
-                                                                          }                
-                                        
-                f.close()
-                dict_for_analysis.update(array_splicing_data)
-    
-        return dict_for_analysis
-    
-                    ############################################################# #############################################################
-                    ###############           WHIPPET            ###############
-                    ###############                               ###############
-                    ############################################################# #############################################################
-    
     if (soft=="WHIPPET"):
+      
+       
         for as_type in list_as_type :
             
+            #if(as_type =='SE') :as_type ='CE'
+            #if(as_type =='IR') :as_type ='RI'
+            #if(as_type =='A3SS') :as_type ='AA'
+            #if(as_type =='A5SS') :as_type ='AD'
+
             logger.info("LOOK SPLICING FOR AS_TYPE: "+as_type)
+            print(path_to_dir)
+            
+            # Je le parcours trop de fois mais bon.
+            magicDictTest    = parse_psi_from_whippet_output(proc_find_test,as_type,"TEST")
+           
+            magicDictControl = parse_psi_from_whippet_output(proc_find_control,as_type,"CONTROL")
+          
             array_splicing_data = { as_type :{} }
             namefile = ""
          
+            #Raw PSI FILE Contains all Events
+            #Gene    Node    Coord    Strand    Type    Psi    CI_Width    CI_Lo,Hi    Total_Reads    Complexity    Entropy    Inc_Paths    Exc_Paths    Edges
+            #ENSG00000162851.7    1    chr1:246565826-246566324    -    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+            #ENSG00000162851.7    2    chr1:246564346-246564434    -    CE    1.0    0.005    0.995,1.0    565.0    K0    0.0    1-2-3:1.0    NA    1-2:357.0,2-3:208.0
+            
+            # DPSI
+            #ensembl_gene_id,hgnc_symbol,gene_biotype,coordinates,strand,event,psiA,psiB,dpsi,probability,complexity,entropy
+            #ENSG00000001167,NFYA,protein_coding,chr6:41080811-41080897,+,CE,0.48328,0.17858,0.3047,1,K2,1.1506
+            print(path_to_dir)
             with open(path_to_dir) as f:
                 count = 0
                 for line in f:
@@ -521,82 +280,105 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     lineElements    = line.replace("\"", "").strip().split(",")
                     type_event_SE   = lineElements[5]
   
-                    if(type_event_SE in ["RI","A5SS","AD","AA","A3SS","SE","CE","TS","TE","AF","AL"]) :
-                        ensembl   = lineElements[0]
-                       
-                        if (isControl) :   
-                            if (ensembl not in genes.keys() ) : continue
-                            
-                        #logger.info(ensembl)  
-                        strand           = lineElements[4]
-                        ic_sample_1      = "NA"
-                        sc_sample_1      = "NA"
-                        ic_sample_2      = "NA"
-                        sc_sample_2      = "NA"
-                        psi_test_mean    = lineElements[6]
-                        psi_control_mean = lineElements[7]
-                        dpsi             = lineElements[8]
-                        fisher          = "-"
-                        pvalue_fisher   = '-'
-                        highlight       = ""
-                        psi_classifier = "NaN" 
-                        logratio       = "NaN" 
-                        retval         = "NaN"
-                        firstelement   = lineElements[3].split(":")
-                        chrom          = firstelement[0]
-                        section        = lineElements[3].split(":")[1]
-                        start_end      = section.split("-")
-                        exon_size      = int(start_end[1])-int(start_end[0]) +1 
-                        id_ucsc_event  = lineElements[3]+":"+strand  
-                        highlight      = prefix+"."+lineElements[3]
-                        gene_size      = gene_length[ensembl]
-
-                        key_id_ucsc_event   = lineElements[3]+":"+strand
-
+                    #if(type_event_SE in ["RI","A5SS","AD","AA","A3SS","SE","CE","TS","TE","AF","AL"]) : # ,"BS"
+                    ensembl   = lineElements[0]
+                    coord     = lineElements[3]
+                    
+                    #KeyError: 'ENSG00000001167::chr6:41080811-41080897'
+                    #KeyError:  'ENSG00000008283::chr17:63438023-63438040'
+                    #Diff PSI COntains ONLY 
+                    #gene    coordinates    strand    event    psiA    psiB    dpsi    probability    complexity    entropy
+                    #ENSG00000060656    chr1:29311545-29311553    +    AD    0.58275    0.4427    0.14005    0.997    K1    0.9973
+                    #ensembl_gene_id,hgnc_symbol,gene_biotype,coordinates,strand,event,psiA,psiB,dpsi,probability,complexity,entropy
+                    #ENSG00000005059,CCDC109B,protein_coding,chr4:109687515-109687716,+,TE,0.60128,0.71251,-0.11123,0.988,K1,0.984
+                   
+                   #lineElements[6]
+                    if (isControl) :   
+                        if (ensembl not in genes.keys() ) : continue
                         
-                        ext = "/overlap/region/"+config.parameters['organism']+"/"+chrom.replace("chr","")+":"+highlight[highlight.index(":"):][1:]+"?feature=exon;feature=transcript;content-type=application/json"
-                        nb_transcripts,nb_exon_transcripts,position_list,skip = get_position_exons(ext)
-                        if(isControl):
-                            if(skip==1): continue
+                    #logger.info(ensembl)  
+                    strand           = lineElements[4]
+                    test_all_psi      = ",".join(magicDictTest[ensembl+"::"+coord]['psi'])
+                    control_all_psi      = ",".join(magicDictControl[ensembl+"::"+coord]['psi'])
+                    
+                    test_all_reads      = ",".join(magicDictTest[ensembl+"::"+coord]['totRead'])
+                    control_all_reads      = ",".join(magicDictControl[ensembl+"::"+coord]['totRead'])
+                    
+                    ic_sample_2      = "NA"
+                    sc_sample_2      = "NA"
+                    psi_test_mean    = lineElements[6]
+                    gene_biotype     = lineElements[2]
+                    psi_test_mean    = lineElements[6]
+                    psi_control_mean = lineElements[7]
+                    dpsi             = lineElements[8]
+                    probability      = lineElements[9]
+                    complexity      = lineElements[10]
+                    fisher          = "-"
+                    pvalue_fisher   = '-'
+                    highlight       = ""
+                    psi_classifier = "NaN" 
+                    logratio       = "NaN" 
+                    retval         = "NaN"
+                    firstelement   = lineElements[3].split(":")
+                    chrom          = firstelement[0]
+                    section        = lineElements[3].split(":")[1]
+                    start_end      = section.split("-")
+                    exon_size      = int(start_end[1])-int(start_end[0]) +1 
+                    id_ucsc_event  = lineElements[3]+":"+strand  
+                    highlight      = prefix+"."+lineElements[3]
+                    gene_size      = gene_length[ensembl]
 
-                        array_splicing_data[as_type][key_id_ucsc_event] = { "Ensembl":ensembl, 
-                                                                                "Symbol":lineElements[1], 
-                                                                                "Chromosome": chrom, 
-                                                                                "NB_total_transcripts": nb_transcripts,
-                                                                                "NB_exon_transcripts_": nb_exon_transcripts,
-                                                                                "pos_exon_in_transcripts": "::".join(position_list),
-                                                                                "Strand": strand,
-                                                                                "ic_sample_1" : "NA" ,
-                                                                                "sc_sample_1" : "NA" ,
-                                                                                "ic_sample_2" : "NA" ,
-                                                                                "sc_sample_2" : "NA" ,
-                                                                                "incLevel1"   : "NA" ,
-                                                                                "incLevel2"   : "NA" ,
-                                                                                "psiLevel1"   : float(psi_test_mean),
-                                                                                "psiLevel2"   : float(psi_control_mean),
-                                                                                "highlight"   : highlight,
-                                                                                 "trickMXE"   : "NA",
-                                                                                "diffinc"     : dpsi,
-                                                                                "logRatioIncLevel"   : logratio,
-                                                                                'fdr'                : -math.inf,
-                                                                                'log10fdr'           :   -math.inf,
-                                                                                "psi_classifier"     : psi_classifier,
-                                                                                "FCIncLevel"         : retval,
-                                                                                "pvalueFisher"       : pvalue_fisher,
-                                                                                "pval"      : "NA",
-                                                                                "fisher"    : fisher,
-                                                                                "id_ucsc"      : id_ucsc_event[:-2],
-                                                                                "gene_size" : gene_size,
-                                                                                "exon_size" : exon_size,
-                                                                                "cleanBed"     : highlight[highlight.index(":"):][1:].replace("-","\t"),
-                                                                                 "NB_total_transcripts": nb_transcripts,
-                                                                                "NB_exon_transcripts_": nb_exon_transcripts,
-                                                                                 "pos_exon_in_transcripts": "::".join(position_list)                       
+                    key_id_ucsc_event   = lineElements[3]+":"+strand
 
-                                                                              }
-                f.close()
-                dict_for_analysis.update(array_splicing_data)
-                logger.info("    Whippet parsing output done :: ")
+                    
+                    ext = "/overlap/region/"+config.parameters['organism']+"/"+chrom.replace("chr","")+":"+highlight[highlight.index(":"):][1:]+"?feature=exon;feature=transcript;content-type=application/json"
+                    nb_transcripts,nb_exon_transcripts,position_list,skip = get_position_exons(ext)
+                    if(isControl):
+                        if(skip==1): continue
+
+                    array_splicing_data[as_type][key_id_ucsc_event] = { "Ensembl":ensembl, 
+                                                                            "Symbol":lineElements[1], 
+                                                                            "Chromosome": chrom, 
+                                                                            "NB_total_transcripts": nb_transcripts,
+                                                                            "NB_exon_transcripts_": nb_exon_transcripts,
+                                                                            "pos_exon_in_transcripts": "::".join(position_list),
+                                                                            "Strand": strand,
+                                                                            "test_all_psi" : test_all_psi ,
+                                                                            "control_all_psi" :control_all_psi ,
+                                                                            "gene_biotype" : gene_biotype,
+                                                                            "test_all_reads" :test_all_reads    ,
+                                                                            "control_all_reads" :control_all_reads     ,
+                                                                            "complexity" : complexity,
+                                                                            "probability" :probability,
+                                                                            "ic_sample_2" : "NA" ,
+                                                                            "sc_sample_2" : "NA" ,
+                                                                            "incLevel1"   : "NA" ,
+                                                                            "incLevel2"   : "NA" ,
+                                                                            "psiLevel1"   : float(psi_test_mean),
+                                                                            "psiLevel2"   : float(psi_control_mean),
+                                                                            "highlight"   : highlight,
+                                                                             "trickMXE"   : "NA",
+                                                                            "diffinc"     : dpsi,
+                                                                            "logRatioIncLevel"   : logratio,
+                                                                            'fdr'                : -math.inf,
+                                                                            'log10fdr'           :   -math.inf,
+                                                                            "psi_classifier"     : psi_classifier,
+                                                                            "FCIncLevel"         : retval,
+                                                                            "pvalueFisher"       : pvalue_fisher,
+                                                                            "pval"      : "NA",
+                                                                            "fisher"    : fisher,
+                                                                            "id_ucsc"      : id_ucsc_event[:-2],
+                                                                            "gene_size" : gene_size,
+                                                                            "exon_size" : exon_size,
+                                                                            "cleanBed"     : highlight[highlight.index(":"):][1:].replace("-","\t"),
+                                                                             "NB_total_transcripts": nb_transcripts,
+                                                                            "NB_exon_transcripts_": nb_exon_transcripts,
+                                                                             "pos_exon_in_transcripts": "::".join(position_list)                       
+
+                                                                          }
+            f.close()
+            dict_for_analysis.update(array_splicing_data)
+            logger.info("    Whippet parsing output done :: ")
     
         return dict_for_analysis
 
@@ -615,6 +397,10 @@ def complete_with_expression(path_to_expression_file,dict_for_analysis):
         
     """
     geneExpression = {}
+    
+    logger.info("GO THROUGH MATRICE OF READS")
+    logger.info(path_to_expression_file)
+   
     if (os.path.isfile(path_to_expression_file)) : 
         with open(path_to_expression_file) as f:
             logger.info("LOOK EXPRESSION FOR: "+path_to_expression_file)
@@ -627,9 +413,9 @@ def complete_with_expression(path_to_expression_file,dict_for_analysis):
                     continue
                 id_ucsc_event = ""
                 lineElements  = line.replace("\"", "").strip().split(",")
-                if (lineElements[12] != "NA") : 
-                    if (float(lineElements[12]) > 0.05) : 
-                        lineElements[12] = "NaN" 
+                #if (lineElements[12] != "NA") : 
+                    #if (float(lineElements[12]) > 0.05) : 
+                        #lineElements[12] = "NaN" 
                 geneExpression[lineElements[0]] = {"Symbol_biomart":lineElements[1],"gene_biotype":lineElements[2],"log2fc" :lineElements[8],"fc":lineElements[13],"padj": ( "NaN" if (lineElements[12] == "NA") else lineElements[12].replace("e","E"))} 
                 #print(line)
         f.close()
@@ -677,32 +463,45 @@ def complete_with_quantif(list_all_replicates,dict_for_analysis):
         tpms = []
         numReads = []
         
-        if (os.path.isfile(replicat["file_path"])) : 
-            with open(replicat["file_path"]) as f:
-                count = -1
-                for line in f:
-                   
-                    if count == -1 : 
-                        count = 0
-                        continue
+        # We don't need this tpm from salmon
+        if not ("quant.genes.sf"  in replicat["file_path"]) :
+            
+            if (os.path.isfile(replicat["file_path"])) : 
+                with open(replicat["file_path"]) as f:
+                    count = -1
+                    for line in f:
+                       
+                        if count == -1 : 
+                            count = 0
+                            continue
+            
+                        lineElements = line.strip().split("\t")
+                        
+                        m            = re.search('^(\w+)\.(\d+)$', lineElements[0])
+                        # SALMON OUTPUT
+                        #NB : ENST00000638165.1|ENSG00000147862.15|OTTHUMG00000021027.6|OTTHUMT00000488972.1|NFIB-018|NFIB|1783|processed_transcript|    1783    1619.23    0.0452832    7.15216
+                        # TPMCalucator OUTPUT
+                        #Gene_Id    Chr    Start    End    Length    Reads    TPM    ExonLength    ExonReads    ExonTPM    IntronLength    IntronReads    IntronTPM    UniqueLegth    UniqueReads    UniqueTPM    UniqueExonLength    UniqueExonReads    UniqueExonTPM    UniqueIntronLength    UniqueIntronReads    UniqueIntronTPM
+                        #ENSG00000283047.1    chr22    10939387    10961337    21951    30    0.0294248    749    20    0.342037    21202    11    0.120129    21951    30    0.0340604    749    20    0.40519    21202    11    0.596371
+                        
+                        if(m):
+                            ensembl_id = m.group(1)
+                            if ensembl_id not in quantification : quantification[ensembl_id] = {}
+                            # Salmon
+                            #quantification[ensembl_id].update( { replicat["replicat_id"]  : {"TPM":lineElements[3],"NumReads" :lineElements[4]} })
+                            quantification[ensembl_id].update( { replicat["replicat_id"]  : {"TPM":lineElements[9],"NumReads" :lineElements[8]} })
+                            if(float(lineElements[9]) > 0 ) : 
+                                tpms.append( float(lineElements[9]))
+                                numReads.append( float(lineElements[8]))
+                            #if(float(lineElements[3]) > 0 ) : 
+                                #tpms.append( float(lineElements[3]))
+                                #numReads.append( float(lineElements[4]))
+                        else : 
+                            if ensembl_id not in quantification : quantification[ensembl_id] = {}
+                            quantification[ensembl_id].update( {  replicat["replicat_id"]  : {"TPM":"NaN","NumReads" :"NaN"} })
         
-                    lineElements = line.strip().split("\t")
-                    
-                    m            = re.search('^(\w+)\.(\d+)$', lineElements[0])
-                    #NB : ENST00000638165.1|ENSG00000147862.15|OTTHUMG00000021027.6|OTTHUMT00000488972.1|NFIB-018|NFIB|1783|processed_transcript|    1783    1619.23    0.0452832    7.15216
-                    if(m):
-                        ensembl_id = m.group(1)
-                        if ensembl_id not in quantification : quantification[ensembl_id] = {}
-                        quantification[ensembl_id].update( { replicat["replicat_id"]  : {"TPM":lineElements[3],"NumReads" :lineElements[4]} })
-                        if(float(lineElements[3]) > 0 ) : 
-                            tpms.append( float(lineElements[3]))
-                            numReads.append( float(lineElements[4]))
-                    else : 
-                        if ensembl_id not in quantification : quantification[ensembl_id] = {}
-                        quantification[ensembl_id].update( {  replicat["replicat_id"]  : {"TPM":"NaN","NumReads" :"NaN"} })
-    
-                    #print(line)
-            f.close()
+                        #print(line)
+                f.close()
         
         # USE DEFINED USER CUT OFF SET FOR ALL SAMPLES . DEFAULT 0
         cutOffDict[replicat["replicat_id"]]=tpm_cutoff
@@ -720,8 +519,8 @@ def complete_with_quantif(list_all_replicates,dict_for_analysis):
                 if  dict_for_analysis[event][id_ucsc_event]["Ensembl"] in quantification :
                     
                     dict_for_analysis[event][id_ucsc_event].update(quantification[dict_for_analysis[event][id_ucsc_event]["Ensembl"]])
-                else : 
-                    logger.info("Error in complete_with_quantif")
+                #else : 
+                    #logger.info("Error in complete_with_quantif")
 
             #pp.pprint(dict_for_analysis[event][id_ucsc_event])
 
@@ -819,7 +618,9 @@ def create_header(dict_samples, list_analysis_to_check):
 
     headerListOfFields                                    = []
     list_all_TPM_replicates_in_samples_for_quantification = []
-    header_variabe = ["Coordinates","Test:inclusion.reads|exclusion.reads","Control:inclusion.reads|exclusion.reads","Test.PSI|Control.PSI","Test.Average.PSI","Control.Average.PSI","dPSI","Fisher","LOG10-PSI-FDR","PSI-FoldChange","Gene-Log2FoldChange","Gene-Padj","Gene.Raw.Reads","Test:Gene.Raw.Reads","Control:Gene.Raw.Reads","TotalRawReadsNormalisedPerGeneSize"] 
+    # after dpsi j'ai removed ,"Fisher","LOG10-PSI-FDR","PSI-FoldChange"
+    #"Coordinates",
+    header_variabe = ["coords","Test:ReadsInEvent|Control:ReadsInEvent","Test:Psi|Control:Psi","Test.Predicted.PSI","Control.Predicted.PSI","dPSI","Probability","Complexity","Gene-DESEQ2.Log2FoldChange","Gene-DESEQ2.Padj","Test:Gene.Mean.STAR.Reads","Control:Gene.Mean.STAR.Reads"] #,"TotalRawReadsNormalisedPerGeneSize"
     coreHeaderFields =  ['ID-UCSC','Epissage','Event','Symbol','Ensembl','Track Bed Style','Strand','Gene_biotype','Gene_size','Exon_size',"TranscriptsWithExon","AllTranscripts","Pos_exon_in_transcripts"]               
                                                                                   
     
@@ -834,17 +635,17 @@ def create_header(dict_samples, list_analysis_to_check):
     #keep unique only
     # tpm_header  = list(OrderedDict.fromkeys(list_all_TPM_replicates_in_samples_for_quantification))
     tpm_header= []
-    tpm_header.append("Test:Gene.Estimated.Reads")
-    tpm_header.append("Test:Gene.TPMs")
+    #tpm_header.append("Test:Gene.TPMCalculator.Reads")
+    #tpm_header.append("Test:Gene.TPMCalculator.TPMs")
 
-    tpm_header.append("Control:Gene.Estimated.Reads")
-    tpm_header.append("Control:Gene.TPMs")
+    #tpm_header.append("Control:Gene.TPMCalculator.Reads")
+    #tpm_header.append("Control:Gene.TPMCalculator.TPMs")
     
-    tpm_header.append("Test:Gene.Mean.Estimated.Reads")
-    tpm_header.append("Test:Gene.Mean.TPM")
+    #tpm_header.append("Test:Gene.Mean.TPMCalculator.Reads")
+    #tpm_header.append("Test:Gene.Mean.TPMCalculator.TPM")
     
-    tpm_header.append("Control:Gene.Mean.Estimated.Reads")
-    tpm_header.append("Control:Gene.Mean.TPM")
+    #tpm_header.append("Control:Gene.Mean.TPMCalculator.Reads")
+    #tpm_header.append("Control:Gene.Mean.TPMCalculator.TPM")
 
     
     #logger.info("  TPM_HEADER  :: "+" - ".join(tpm_header))
@@ -853,7 +654,9 @@ def create_header(dict_samples, list_analysis_to_check):
             
                 for x in range(0,len(header_variabe)) :
                     
-                    headerListOfFields.append(condition+"-"+header_variabe[x])
+                    headerListOfFields.append(header_variabe[x])
+
+                    #headerListOfFields.append(condition+"-"+header_variabe[x])
 
     
     headerListOfFields = sum([coreHeaderFields,headerListOfFields,tpm_header],[]) 
@@ -1141,6 +944,8 @@ def rewriteBed(output_crosslink,rewritedBed) :
             
             if(lineElements[7]=="-1") :
                 logger.info ("==========> EXON WAS NOT FOUND WTF !!!!")
+                logger.info (lineElements)
+
                 continue
             
             chr_init = lineElements[0]
@@ -1205,7 +1010,6 @@ if __name__ == '__main__':
     config = custom_parser.Configuration(parameters.file_config,"json")
     init = custom_parser.Configuration(parameters.init,"json")
 
-
     logger = create_logger(config,config.parameters['project'])
 
     logger.info('\n =========> START MERGING AND CLEANING : ')
@@ -1222,6 +1026,8 @@ if __name__ == '__main__':
     events.append(parameters.event)
 
     sessionName=config.parameters['sessionName']
+    sessionName="EMT_RNASEQ_hg38 _NORM"  
+    
     logger.info("sessionName :  "+sessionName)
 
     namefile = ""
@@ -1254,7 +1060,7 @@ if __name__ == '__main__':
  
     for analyse_name_loop in (config.parameters.get("analysis").keys() ):
             
-
+    
         genes = {}
         if(parameters.iscontrol) :
             genes = sublist(config.parameters['path_to_output']+"/"+analyse_name_loop+"/"+parameters.event+"/"+analyse_name_loop+"."+'gene.ensembl.txt')
@@ -1281,7 +1087,10 @@ if __name__ == '__main__':
                 config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".TE.diff.annoted.csv"
             if (parameters.event == "TS") :
                 config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".TS.diff.annoted.csv"
-        
+            #if (parameters.event == "BS") :
+                #config.parameters["analysis"][analyse_name_loop]["splicing_dir"] = config.parameters["analysis"][analyse_name_loop]["splicing_dir"]+analyse_name_loop+"."+mode+".BS.diff.annoted.csv"
+                
+
         logger.info ("    splicing : "+config.parameters["analysis"][analyse_name_loop]["splicing_dir"])
         logger.info ("    expression : "+config.parameters["analysis"][analyse_name_loop]["expression_file_path"])
         logger.info ("    sample_control_for_quantification : "+config.parameters["analysis"][analyse_name_loop]["sample_control_for_quantification"])
@@ -1311,8 +1120,12 @@ if __name__ == '__main__':
         catalog[analyse_name_loop] = parse_all_splicing_files(config.parameters["analysis"][analyse_name_loop]["splicing_dir"],events, catalog[analyse_name_loop],parameters.readsNumber,gene_length,config.parameters["analysis"][analyse_name_loop]["soft"],config.parameters["analysis"][analyse_name_loop]["replicates_test"],config.parameters["analysis"][analyse_name_loop]["replicates_control"],config.parameters["organism"],genes,parameters.iscontrol)
         
         logger.info ("")
-
-        catalog[analyse_name_loop] = complete_with_expression(config.parameters["analysis"][analyse_name_loop]["expression_file_path"], catalog[analyse_name_loop])
+        #"read_count_matrice": "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/PolyAT6/Raw_read_counts.csv",
+        #"read_count_matrice_normalized": "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/PolyAT6/Raw_read_counts_normalized.csv",
+        #"expression_file_path": "/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/PolyAT6", 
+        #/home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT/output/PolyAT6/FINAL/final/DESEQ_all_res_annotated_sorted_pvalAdj.csv
+        #config.parameters["analysis"][analyse_name_loop]["expression_file_path"]
+        catalog[analyse_name_loop] = complete_with_expression(config.parameters["analysis"][analyse_name_loop]["expression_file_path"]+"/FINAL/final/DESEQ_all_res_annotated_sorted_pvalAdj.csv", catalog[analyse_name_loop])
         
         logger.info ("")
         
@@ -1358,7 +1171,9 @@ if __name__ == '__main__':
    # 2018-06-20 16:05:30,326 :: INFO :: Excel : /home/jean-philippe.villemin/data/data/PROJECT/WHOLE_EMT//paired.HMLE.TAMOXIFEN.SNAIL.TEST.0.5_vs_paired.HMLE.TAMOXIFEN.SNAIL.CONTROL.0/RI/RI.paired.HMLE.TAMOXIFEN.SNAIL.TEST.0.5_vs_paired.HMLE.TAMOXIFEN.SNAIL.CONTROL.0.clean.SPLICING.xlsx
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    file = config.parameters['path_to_output']+"/"+analyse_name_loop+"/"+parameters.event+"/"+parameters.event+"."+analyse_name_loop+"."+mode+'.SPLICING.xlsx'
+    #file = config.parameters['path_to_output']+"/"+analyse_name_loop+"/"+parameters.event+"/"+parameters.event+"."+analyse_name_loop+"."+mode+'.SPLICING.xlsx'
+    file = config.parameters['path_to_output']+"/FINAL/"+parameters.event+"/"+parameters.event+"."+analyse_name_loop+"."+mode+'.SPLICING.xlsx'
+    
     logger.info ("Excel : "+file)
 
     writer = pd.ExcelWriter(file, engine='xlsxwriter')
@@ -1373,7 +1188,8 @@ if __name__ == '__main__':
     #Foreach tab you want to create
     for tab in config.parameters.get("tabs").keys():
     
-        subprocess.run(("mkdir -p "+config.parameters['path_to_output']+"/"+tab+"/"+parameters.event),shell=True)
+        #subprocess.run(("mkdir -p "+config.parameters['path_to_output']+"/"+tab+"/"+parameters.event),shell=True)
+        subprocess.run(("mkdir -p "+config.parameters['path_to_output']+"/FINAL/"+parameters.event),shell=True)
 
         logger.info("")
         logger.info("  TAB  :: "+tab)
@@ -1503,30 +1319,34 @@ if __name__ == '__main__':
                                                 raw_read_control.append(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name]][rep+"_rc"]["rawReads"])
 
                                         features.extend([
-                                                          analysis_to_ucscKey[analyse_name_bis],
+                                                          analysis_to_ucscKey[analyse_name_bis]
+                                                          ,str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["test_all_reads"]).replace(",","::")+"|"+str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["control_all_reads"]).replace(",","::")
 
-                                                          str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["ic_sample_1"]).replace(",","::")+"|"+str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["sc_sample_1"]).replace(",","::")
-                                                         
-                                                          ,str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["ic_sample_2"]).replace(",","::")+"|"+str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["sc_sample_2"]).replace(",","::")
-                                                           ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["incLevel1"].replace(",","::")+"|"+catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["incLevel2"].replace(",","::")
+                                                          ,str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["test_all_psi"]).replace(",","::")+"|"+str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["control_all_psi"]).replace(",","::")
+                                                         # ,str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["ic_sample_2"]).replace(",","::")+"|"+str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["sc_sample_2"]).replace(",","::")
+                                                         #  ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["incLevel1"].replace(",","::")+"|"+catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["incLevel2"].replace(",","::")
 
                                                           #,"::".join(str(x) for x in catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["incLevel1"])+"|"+"::".join(str(x) for x in catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["incLevel2"])
                                                           ,"{0:.2f}".format(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["psiLevel1"])
                                                           ,"{0:.2f}".format(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["psiLevel2"])
-                                                          ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["diffinc"]
-                                                          ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["fisher"] 
-                                                          ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["log10fdr"]
+                                                          ,"{0:.2f}".format(float(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["diffinc"]))
+                                                          ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["probability"]
+
+                                                          ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["complexity"]
+
+                                                          #,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["fisher"] 
+                                                          #,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["log10fdr"]
                                                           #  ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["psi_classifier"]  
                                                           #,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["logRatioIncLevel"])
-                                                          ,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["FCIncLevel"])
+                                                          #,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["FCIncLevel"])
                                                           #,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["pval"].replace("e","E")                                           
                                                             ,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["log2fc"] )
                                                           #,return_formated(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["fc"] )
                                                            ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["padj"]
-                                                            ,"::".join(str(x) for x in raw_read)
+                                                            #,"::".join(str(x) for x in raw_read)
                                                             ,"{0:.2f}".format(statistics.mean(raw_read_test))
                                                             ,"{0:.2f}".format(statistics.mean(raw_read_control))
-                                                           ,(sum(raw_read)/catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["gene_size"])
+                                                           #,(sum(raw_read)/catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["gene_size"])
                                                           
 
                                                          ])
@@ -1534,31 +1354,31 @@ if __name__ == '__main__':
                                         for i in range(0,length_fields_sometimes_empty) : features.extend(["."])
     
     
-                        tpm_test  = []
-                        read_test = []
+                        #tpm_test  = []
+                        #read_test = []
 
-                        for rep_test in replicates_per_condition(config.parameters["samples_for_quantification"],conditions[0]) :  #config.parameters["samples_for_quantification"][sample]
-                                tpm_test.append(catalog[analyse_name][event][id_ucsc][rep_test]["TPM"])
-                                read_test.append(catalog[analyse_name][event][id_ucsc][rep_test]["NumReads"])
+                        #for rep_test in replicates_per_condition(config.parameters["samples_for_quantification"],conditions[0]) :  #config.parameters["samples_for_quantification"][sample]
+                        #        tpm_test.append(catalog[analyse_name][event][id_ucsc][rep_test]["TPM"])
+                        #        read_test.append(catalog[analyse_name][event][id_ucsc][rep_test]["NumReads"])
 
-                        tpm_control  = []                        
-                        read_control = []
+                        #tpm_control  = []                        
+                        #read_control = []
 
-                        for rep_control in replicates_per_condition(config.parameters["samples_for_quantification"],conditions[1]) :  #config.parameters["samples_for_quantification"][sample]
-                                tpm_control.append(catalog[analyse_name][event][id_ucsc][rep_control]["TPM"])
-                                read_control.append(catalog[analyse_name][event][id_ucsc][rep_control]["NumReads"])
+                        #for rep_control in replicates_per_condition(config.parameters["samples_for_quantification"],conditions[1]) :  #config.parameters["samples_for_quantification"][sample]
+                        #        tpm_control.append(catalog[analyse_name][event][id_ucsc][rep_control]["TPM"])
+                        #        read_control.append(catalog[analyse_name][event][id_ucsc][rep_control]["NumReads"])
                         
-                        features.extend( ["::".join(str(x) for x in read_test)]) 
-                        features.extend( ["::".join(str(x) for x in tpm_test)]) 
+                        #features.extend( ["::".join(str(x) for x in read_test)]) 
+                        #features.extend( ["::".join(str(x) for x in tpm_test)]) 
                         
-                        features.extend( ["::".join(str(x) for x in read_control)]) 
-                        features.extend( ["::".join(str(x) for x in tpm_control)]) 
+                        #features.extend( ["::".join(str(x) for x in read_control)]) 
+                        #features.extend( ["::".join(str(x) for x in tpm_control)]) 
                         
-                        features.extend( [round(statistics.mean(map(float,read_test)))]) 
-                        features.extend( [round(statistics.mean(map(float,tpm_test)))]) 
+                        #features.extend( [round(statistics.mean(map(float,read_test)))]) 
+                        #features.extend( [round(statistics.mean(map(float,tpm_test)))]) 
 
-                        features.extend( [round(statistics.mean(map(float,read_control)))]) 
-                        features.extend( [round(statistics.mean(map(float,tpm_control)))]) 
+                        #features.extend( [round(statistics.mean(map(float,read_control)))]) 
+                        #features.extend( [round(statistics.mean(map(float,tpm_control)))]) 
 
                         lines_for_my_tab.append(features)
             break
@@ -1581,7 +1401,9 @@ if __name__ == '__main__':
        
         clean_tab_name = tab.replace(" ", "_")
 
-        bed_output_gene=config.parameters['path_to_output']+"/"+tab+"/"+parameters.event+"/"+parameters.event+"_TMP_"+clean_tab_name+".bed"
+        #bed_output_gene=config.parameters['path_to_output']+"/"+tab+"/"+parameters.event+"/"+parameters.event+"_TMP_"+clean_tab_name+".bed"
+        bed_output_gene=config.parameters['path_to_output']+"/FINAL/"+parameters.event+"/"+parameters.event+"_TMP_"+clean_tab_name+".bed"
+
         logger.info("     Bed output : "+bed_output_gene)
         bed_list = open(bed_output_gene, 'w')
 
@@ -1590,13 +1412,15 @@ if __name__ == '__main__':
             elements = line[5].split("\t")
             elements[1]= str(int(elements[1])-1) # Correction for the bed to be 0-based (map(float,read_control))
             #print(line[12].split("::"))
-            elements[3]=  elements[3]+"_"+line[4]+"_"+line[18]+"_"+str(min(map(int, line[12].split("::"))))
+            #Control.Predicted.PSI -> 
+            elements[3]=  "{0:.2f}".format(float(elements[3].split("_")[0]))+"_"+elements[3].split("_")[1]+"_"+line[4]+"_"+line[17]+"_"+str(min(map(int, line[12].split("::"))))
             bed_list.write("\t".join(elements)+"\n")
 
         bed_list.close()
         
         postitionGenomiceExon=init.parameters['postitionGenomicExon']
-        output_crosslink=config.parameters['path_to_output']+"/"+tab+"/"+parameters.event+"/"+parameters.event+"_"+clean_tab_name+"_posRewrited.bed"
+        #FINAL a la place de tab
+        output_crosslink=config.parameters['path_to_output']+"/FINAL/"+parameters.event+"/"+parameters.event+"_"+clean_tab_name+"_posRewrited.bed"
         proc_intersect = subprocess.run(("bedtools intersect -loj -a "+bed_output_gene+" -b "+postitionGenomiceExon+ " > "+output_crosslink),shell=True, check=True) 
         write_subprocess_log(proc_intersect,logger)
         subprocess.run(("rm "+bed_output_gene),shell=True)
@@ -1616,10 +1440,10 @@ if __name__ == '__main__':
 
         worksheet.set_column('A:C', 5)
         worksheet.set_column('D:E', 20)
-        worksheet.set_column('F:F', 30)
+        worksheet.set_column('F:F', 40)
         worksheet.set_column('G:G', 10)
-        worksheet.set_column('H:H', 10)
-        worksheet.set_column('I:BZ', 50)
+        worksheet.set_column('H:L', 10)
+        worksheet.set_column('M:BZ', 20)
 
  
 

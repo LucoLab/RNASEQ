@@ -19,6 +19,7 @@ import datetime
 import json
 from pathlib import Path
 import os
+from pathlib import Path
 
 ###########################################################################################################
 ########################################   Functions   ####################################################
@@ -314,7 +315,7 @@ if __name__ == '__main__':
     init = custom_parser.Configuration(parameters.init,"json")
 
     config = custom_parser.Configuration(parameters.file_config,"json")
-
+   
     #print(parameters.file_config)
     outputdirname="output/"+config.parameters['project']
 
@@ -325,8 +326,7 @@ if __name__ == '__main__':
     subprocess.run(("mkdir -p "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/R2"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
     subprocess.run(("mkdir -p "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"trim_galore_output"),stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
 
-    print("INIT")
-    print(parameters.init)
+   
 
     print("mkdir -p "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/R1")
     print("mkdir -p "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/R2")
@@ -703,6 +703,39 @@ if __name__ == '__main__':
         
         write_subprocess_log(proc_bigwiggle_5,logger)
 
+    #### WANT TO ADD THE TPM COMPUTATION OF TPM WITH TPM CALCULATOR
+    logger.info('=========> TPM CALCULATOR')
+    
+    ####################### Salmonize ##########################
+    logger.info(init.parameters['tpm_calculator'] \
+        +" -b "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/SORTED."+config.parameters['final_bam_name']+".bam" \
+        +" -g "+config.parameters['path_to_gtf'] \
+        +" -q 255" \
+        +" -e ")
+     
+    tpm_calculator= subprocess.run(init.parameters['tpm_calculator'] \
+        +" -b "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/SORTED."+config.parameters['final_bam_name']+".bam" \
+        +" -g "+config.parameters['path_to_gtf'] \
+        +" -q 255 -e ",stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
+    
+    write_subprocess_log(tpm_calculator,logger)
+    
+    curr_d = Path().resolve()
+    
+    subprocess.run(("mv "+str(curr_d)+"/*_genes.ent"+ " " +config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/" ),shell=True)
+    subprocess.run(("mv "+str(curr_d)+"/*_genes.out"+ " " +config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/tpm_genes.tsv" ),shell=True)
+    subprocess.run(("mv "+str(curr_d)+"/*_genes.uni"+ " " +config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/" ),shell=True)
+    subprocess.run(("mv "+str(curr_d)+"/*_transcripts.ent"+ " " +config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/" ),shell=True)
+    subprocess.run(("mv "+str(curr_d)+"/*_transcripts.out"+ " " +config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/" ),shell=True)
+
+    
+    #T1rep2_genes.out exon and intronls
+    #SORTED.chrm.T7.Rep1_
+    
+    #T1rep2_genes.ent exon and intron
+    #T1rep2_genes.uni exon and intron
+    #T1rep2_transcripts.ent
+    #T1rep2_transcripts.out
     
     #logger.info('=========> REMOVE INTERMEDIATE FILES')
     #subprocess.run(("mv "+config.parameters['path_to_input']+"*_trimming_report.txt "+config.parameters['path_to_output']+outputdirname+"/" ),shell=True)
