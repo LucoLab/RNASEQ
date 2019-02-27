@@ -72,7 +72,7 @@ FILE_STAT_OUTPUT=${BASE_PATH}${SUBDIR}/${EVENT}/stats.txt
 ${PYTHON3} ${CODE_DIR}/src/mergeFinal.py -c ${PATH_TO_CONFIG} -r ${READS} -e ${EVENT} ${ALT}
 
 echo "SANITIZE : LOOK FOR ${ID1} INSIDE DIR : ${BASE_PATH}${SUBDIR}/${EVENT}/"
-
+# Keep the best psi when overlapping events.
 ${PYTHON3} ${CODE_DIR}/src/cleanfusion.py -s1 TMP -p ${FINAL_OUT} -o ${ID1} -ct ${ISCONTROL}
 
 echo "REMOVE RAW BED"
@@ -94,7 +94,9 @@ if [ ${ISCONTROL} == "False" ]; then
 	sort -t$'\t' -rgk4 ${BASE_PATH}${SUBDIR}/${EVENT}/${ID1}.INC.${EVENT}.bed > ${BASE_PATH}${SUBDIR}/${EVENT}/${ID1}.sorted.INC.${EVENT}.bed
 	
 	cat ${BASE_PATH}${SUBDIR}/${EVENT}/${ID1}.sorted.INC.${EVENT}.bed ${BASE_PATH}${SUBDIR}/${EVENT}/${ID1}.sorted.EXC.${EVENT}.bed >  ${BASE_PATH}${SUBDIR}/${EVENT}/${ID1}.ALL.${EVENT}.bed
+	
 	sort -k1,1V -k2,2n ${BASE_PATH}${SUBDIR}/${EVENT}/${ID1}.ALL.${EVENT}.bed > ${BASE_PATH}${SUBDIR}/${EVENT}/${ID1}.sorted.ALL.${EVENT}.bed
+	
 	echo "REMOVE UNSORTED EVENTS"
 	rm ${BASE_PATH}${SUBDIR}/${EVENT}/${ID1}.ALL.${EVENT}.bed
 	rm ${BASE_PATH}${SUBDIR}/${EVENT}/${ID1}.INC.${EVENT}.bed
@@ -174,7 +176,6 @@ echo "=========>> RELOCATE FILE "
 mkdir -p ${BASE_PATH}/output/${PROJECT}/FINAL
 mv ${BASE_PATH}${SUBDIR}/* ${BASE_PATH}/output/${PROJECT}/FINAL/
 
-#/home/jvillemin/save/code/RNASEQ-master/bash/merge.and.clean.splicing.sh SE PRJNA348471.PANC-1.TGFB.TEST.3_vs_PRJNA348471.PANC-1.TGFB.CONTROL.0 10 /home/jvillemin/work/WHOLE_EMT/configs/PRJNA348471/PRJNA348471_RMATS_main.json /home/jvillemin/work/WHOLE_EMT/ False /home/jvillemin/save/code/RNASEQ-master/ /home/jvillemin/save/bin/anaconda3/bin/python3
 
 
 exit 0

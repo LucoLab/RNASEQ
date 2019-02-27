@@ -152,6 +152,9 @@ def parse_psi_from_whippet_output(replicats,as_type,type) :
                     continue
                 
                 lineElements    = line.strip().split("\t")
+                #ENSG00000169084.13    4    chrX:2500817-2500960    -    TS    0.0    0.3183    0.0067,0.325    6.63    K2    0.0    2-3-4:0.0    NA    NA
+                #ENSG00000169084.13_PAR_Y    4    chrY:2500817-2500960    -    TS    0.0    0.3183    0.0067,0.325    6.63    K2    0.0    2-3-4:0.0    NA    NA
+                # deconne a cause de ça
                 #['ENSG00000140396.12', '10', 'chr8:70159505-70159652', '-', 'CE', '1.0', '0.093', '0.905,0.998', '29.0', 'K0', '0.0', '9-10-11:1.0', 'NA', '9-10:13.0,10-11:16.0']
              
                 #Raw PSI FILE Contains all Events
@@ -163,6 +166,7 @@ def parse_psi_from_whippet_output(replicats,as_type,type) :
                 #gene    coordinates    strand    event    psiA    psiB    dpsi    probability    complexity    entropy
                 #ENSG00000060656    chr1:29311545-29311553    +    AD    0.58275    0.4427    0.14005    0.997    K1    0.9973
 
+
                 coords          =  lineElements[2]
                 
                 psi             =  lineElements[5]
@@ -172,11 +176,16 @@ def parse_psi_from_whippet_output(replicats,as_type,type) :
                
                 if not (event == as_type) : continue
                 
-                m            = re.search('^(\w+)\.(\d+)$', lineElements[0])
+                # Correct a bug
+                ensembl_withoutParY = lineElements[0].replace('_PAR_Y', '')
+
+                m            = re.search('^(\w+)\.(\d+)$', ensembl_withoutParY)
                 
                 if(m):
                     ensembl_id = m.group(1)
-
+                    
+                    #test_all_psi      = ",".join(magicDictTest[ensembl+"::"+coord]['psi'])
+                    #KeyError: 'ENSG00000169084::chrY:2500817-2500960'
                         
                     if ensembl_id+"::"+coords not in  magicDict : magicDict[ensembl_id+"::"+coords] = {}
                     
@@ -192,6 +201,20 @@ def parse_psi_from_whippet_output(replicats,as_type,type) :
     
     
     return magicDict
+
+def remove_values_from_list(the_list, val):
+    """
+    Remove specific value from list
+  
+    Args:
+        the_list(list): List of values
+        val(str|int): Value to remove
+    Returns:
+        list (list): Return list
+   
+    """
+    return [value for value in the_list if value != val]
+
 
 
 def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNumber,gene_length,soft,list_replicates_test,list_replicates_control,organism,genes,isControl):
@@ -269,6 +292,8 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
             print(path_to_dir)
             with open(path_to_dir) as f:
                 count = 0
+                count_removed = 0
+                count_removed_causeNA = 0
                 for line in f:
                     #print(line)
                     if count == 0 : 
@@ -284,8 +309,15 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     ensembl   = lineElements[0]
                     coord     = lineElements[3]
                     
+                    #KeyError: 'ENSG00000002586::chrY:2741126-2741290'
+                    #KeyError: 'ENSG00000002586::chrY:2741126-2741290'
+                    #KeyError: 'ENSG00000169084::chrY:2500817-2500960'
+                    #ENSG00000169084.13    4    chrX:2500817-2500960    -    TS    0.0    0.3183    0.0067,0.325    6.63    K2    0.0    2-3-4:0.0    NA    NA
+                    #ENSG00000169084.13_PAR_Y    4    chrY:2500817-2500960    -    TS    0.0    0.3183    0.0067,0.325    6.63    K2    0.0    2-3-4:0.0    NA    NA
+                    #KeyError: 'ENSG00000002586::chrY:2741126-2741290'
                     #KeyError: 'ENSG00000001167::chr6:41080811-41080897'
                     #KeyError:  'ENSG00000008283::chr17:63438023-63438040'
+                    
                     #Diff PSI COntains ONLY 
                     #gene    coordinates    strand    event    psiA    psiB    dpsi    probability    complexity    entropy
                     #ENSG00000060656    chr1:29311545-29311553    +    AD    0.58275    0.4427    0.14005    0.997    K1    0.9973
@@ -302,8 +334,43 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     control_all_psi      = ",".join(magicDictControl[ensembl+"::"+coord]['psi'])
                     
                     test_all_reads      = ",".join(magicDictTest[ensembl+"::"+coord]['totRead'])
-                    control_all_reads      = ",".join(magicDictControl[ensembl+"::"+coord]['totRead'])
+                    control_all_reads   = ",".join(magicDictControl[ensembl+"::"+coord]['totRead'])
                     
+                    size_sample_control = len(control_all_reads.split(","))
+                    size_sample_test    = len(test_all_reads.split(","))
+
+                    list_control = remove_values_from_list(control_all_reads.split(","),"NA")
+                    list_test    = remove_values_from_list(test_all_reads.split(","),"NA")
+                    
+                    size_sample_control_wtNA = len(list_control)
+                    size_sample_test_wtNA    = len(list_test)
+                   
+                    test = 0
+                    
+                    for totReadTest in list_test :
+                        
+                        if (float(totReadTest) >= 10) :
+                            test = 1
+                    
+                    control = 0
+                    
+                    for totReadControl in list_control :
+                        
+                        if (float(totReadControl) >= 10) :
+                            control = 1
+                    
+                    final_filter = control + test
+                    
+                    if (final_filter == 0) :
+                        count_removed+=1
+                        continue      
+                    
+                    if ((size_sample_control > size_sample_control_wtNA ) or (size_sample_test > size_sample_test_wtNA )) :
+                        count_removed_causeNA+=1
+                        continue      
+                    
+                    #incLevel1 = remove_values_from_list(incLevel1.split(","),"NA")
+
                     ic_sample_2      = "NA"
                     sc_sample_2      = "NA"
                     psi_test_mean    = lineElements[6]
@@ -330,6 +397,8 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
 
                     key_id_ucsc_event   = lineElements[3]+":"+strand
 
+                    
+                    
                     
                     ext = "/overlap/region/"+config.parameters['organism']+"/"+chrom.replace("chr","")+":"+highlight[highlight.index(":"):][1:]+"?feature=exon;feature=transcript;content-type=application/json"
                     nb_transcripts,nb_exon_transcripts,position_list,skip = get_position_exons(ext)
@@ -358,7 +427,7 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                                                                             "psiLevel2"   : float(psi_control_mean),
                                                                             "highlight"   : highlight,
                                                                              "trickMXE"   : "NA",
-                                                                            "diffinc"     : dpsi,
+                                                                            "diffinc"     : "{0:.2f}".format(float(dpsi)),
                                                                             "logRatioIncLevel"   : logratio,
                                                                             'fdr'                : -math.inf,
                                                                             'log10fdr'           :   -math.inf,
@@ -378,8 +447,9 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                                                                           }
             f.close()
             dict_for_analysis.update(array_splicing_data)
-            logger.info("    Whippet parsing output done :: ")
-    
+            logger.info("    Number of removed by new filter on read number :: "+str(count_removed-1))
+            logger.info("    Number of removed by new filter on Na value :: "+str(count_removed_causeNA-1))
+
         return dict_for_analysis
 
     
@@ -620,7 +690,7 @@ def create_header(dict_samples, list_analysis_to_check):
     list_all_TPM_replicates_in_samples_for_quantification = []
     # after dpsi j'ai removed ,"Fisher","LOG10-PSI-FDR","PSI-FoldChange"
     #"Coordinates",
-    header_variabe = ["coords","Test:ReadsInEvent|Control:ReadsInEvent","Test:Psi|Control:Psi","Test.Predicted.PSI","Control.Predicted.PSI","dPSI","Probability","Complexity","Gene-DESEQ2.Log2FoldChange","Gene-DESEQ2.Padj","Test:Gene.Mean.STAR.Reads","Control:Gene.Mean.STAR.Reads"] #,"TotalRawReadsNormalisedPerGeneSize"
+    header_variabe = ["coords","Test:ReadsInEvent|Control:ReadsInEvent","Test:Psi|Control:Psi","Test.Predicted.PSI","Control.Predicted.PSI","dPSI","Probability","Complexity","Gene-DESEQ2.Log2FoldChange","Gene-DESEQ2.Padj","Test:Gene.Mean.STAR.Reads","Control:Gene.Mean.STAR.Reads","Test:Gene.Mean.STAR.RPKM","Control:Gene.Mean.STAR.RPKM"] #,"TotalRawReadsNormalisedPerGeneSize"
     coreHeaderFields =  ['ID-UCSC','Epissage','Event','Symbol','Ensembl','Track Bed Style','Strand','Gene_biotype','Gene_size','Exon_size',"TranscriptsWithExon","AllTranscripts","Pos_exon_in_transcripts"]               
                                                                                   
     
@@ -795,6 +865,87 @@ def blacklist_gene_under_median_at_least_in_one_sample(matrice_path,names_test_r
     logger.info("")
                 
     return list(set(blacklist_gene))
+ 
+def complete_with_raw_read_count_and_norm(matrice_path,dict_for_analysis,names_test_replicates,names_control_replicates):
+    """
+    Add to dictionary  raw count given by star, this will be use for expression filtering
+  
+    Args:
+        names_test_replicates (list): List of column to parse in matrice for test....
+        names_control_replicates (list): List of column to parse in matrice for control....
+        dict_for_analysis (dic): dict object to upgrade
+    Returns:
+        splicing_dict (obj): Return all the informations in a structured object.(gene FC added)
+    
+    """
+    logger.info("complete_with_raw_read_count_and_norm")
+    
+    data = pd.read_csv(matrice_path, sep=",")
+    indexed_data = data.set_index(['Gene'])
+    
+    all_replicates = list(itertools.chain(names_test_replicates,names_control_replicates))
+    
+    rpkm           = {}
+ 
+    for replicate in all_replicates :
+        
+        logger.info("Replicate-id from DESEQ2 FC matrice : "+replicate)
+        total_mapped_reads = indexed_data[replicate].sum()
+        scaling_factor = total_mapped_reads / 1000000
+        logger.info("Total Uniquely Mapped Reads "+str(total_mapped_reads))
+
+        rpkm[replicate] = {}
+        for gene in  indexed_data.index.values :
+            m            = re.search('^(\w+)\.(\d+)$', gene) # Ok you miss somes of them ENSEMBL_PARY that you count in the sum but that nothing compared to the whole thing
+            if(m):
+                ensembl_id     = m.group(1)    
+                gene_length_kb = gene_length[ensembl_id]/1000
+                rpkm[replicate][gene] =  (indexed_data.get_value(gene,replicate)/scaling_factor)/gene_length_kb 
+                    
+    raw_read_count = {}
+
+    logger.info("Check Raw counts : "+matrice_path)
+    data = pd.read_csv(matrice_path, sep=",")
+    indexed_data = data.set_index(['Gene'])
+
+    for gene in  indexed_data.index.values :
+
+        m            = re.search('^(\w+)\.(\d+)$', gene)
+                        #NB : ENST00000638165.1|ENSG00000147862.15|OTTHUMG00000021027.6|OTTHUMT00000488972.1|NFIB-018|NFIB|1783|processed_transcript|    1783    1619.23    0.0452832    7.15216
+        if(m):
+            ensembl_id = m.group(1)
+            if ensembl_id not in raw_read_count : raw_read_count[ensembl_id] = {}
+            for control in names_control_replicates :
+                raw_read_count[ensembl_id].update( {  control+"_rc"  : {"rawReads":indexed_data.get_value(gene,control),"rpkm":rpkm[control][gene]  } })
+            for test in names_test_replicates :
+                raw_read_count[ensembl_id].update( { test+"_rc"  : {"rawReads":indexed_data.get_value(gene,test) ,"rpkm":rpkm[test][gene]  } } )
+        else : 
+            if ensembl_id not in raw_read_count : raw_read_count[ensembl_id] = {}
+            for control in names_control_replicates :
+                raw_read_count[ensembl_id].update( { control+"_rc"  : {"rawReads":"NaN","rpkm":"NaN"} })
+            for test in names_test_replicates :
+                raw_read_count[ensembl_id].update( { test+"_rc"  : {"rawReads":"NaN","rpkm":"Nan"} })            
+
+
+    #pp = pprint.PrettyPrinter()
+    for event in dict_for_analysis.keys():
+     
+            logger.info("UPGRADE DICTIONARY IN "+event)
+
+            for id_ucsc_event in dict_for_analysis[event].keys():
+        
+
+                if  dict_for_analysis[event][id_ucsc_event]["Ensembl"] in raw_read_count :
+                    
+                    dict_for_analysis[event][id_ucsc_event].update(raw_read_count[dict_for_analysis[event][id_ucsc_event]["Ensembl"]])
+                else : 
+                    logger.info("Error in complete_with_raw_read_count")
+
+            #pp.pprint(dict_for_analysis[event][id_ucsc_event])
+
+    return dict_for_analysis 
+ 
+ 
                     
 def complete_with_raw_read_count(matrice_path,dict_for_analysis,names_test_replicates,names_control_replicates):
     """
@@ -948,13 +1099,13 @@ def rewriteBed(output_crosslink,rewritedBed) :
 
                 continue
             
-            chr_init = lineElements[0]
+            chr_init   = lineElements[0]
             start_init = lineElements[1]
-            end_init = lineElements[2]
+            end_init   = lineElements[2]
            
-            name_init = lineElements[3]
+            name_init     = lineElements[3]
             
-            match_init = re.search('^(.*)_(.*)_(.*)_(.*)_(.*)$',name_init)        
+            match_init    = re.search('^(.*)_(.*)_(.*)_(.*)_(.*)$',name_init)        
             
             dpsi_init     = match_init.group(1)
             symbol_init   = match_init.group(2)
@@ -965,13 +1116,14 @@ def rewriteBed(output_crosslink,rewritedBed) :
             signal_init = lineElements[4]
             strand_init = lineElements[5]
             
-            name_new = lineElements[9]
+            name_new  = lineElements[9]
             match_new = re.search('^(.*)_(.*)$',name_new)        
 
             ensembl_new  = match_new.group(1)
             pos_new      = match_new.group(2)
             
             if(ensembl_new != ensembl_init) :
+                #logger.info ("==========> EXON WAS NOT FOUND BECAUSE OF DIFFERENT ENSEMBL GENE NAME")
                 continue
             
             name_rewrited = "_".join([dpsi_init,symbol_init,ensembl_init,psi_init,pos_new])
@@ -1143,8 +1295,8 @@ if __name__ == '__main__':
         #createBackgroundGeneList(config.parameters["read_count_matrice"],names_test_replicates_for_raw_count,names_control_replicates_for_raw_count,genes_blacklisted,config.parameters['path_to_output']+parameters.event+"/",analyse_name_loop)
 
         logger.info (replicates)
-        
-        catalog[analyse_name_loop] = complete_with_raw_read_count(config.parameters["read_count_matrice"], catalog[analyse_name_loop],names_test_replicates_for_raw_count,names_control_replicates_for_raw_count)
+        #complete_with_raw_read_count
+        catalog[analyse_name_loop] = complete_with_raw_read_count_and_norm(config.parameters["read_count_matrice"], catalog[analyse_name_loop],names_test_replicates_for_raw_count,names_control_replicates_for_raw_count)
         
         logger.info ("")
         
@@ -1304,7 +1456,9 @@ if __name__ == '__main__':
                                         raw_read = []
                                         raw_read_test = []
                                         raw_read_control = []
-
+                                        rpkm_test    = []
+                                        rpkm_control = []
+                                        
                                         names_test_replicates_for_raw_count       =  config.parameters["analysis"][analyse_name]["replicates_test"]
                                         names_control_replicates_for_raw_count    =  config.parameters["analysis"][analyse_name]["replicates_control"]
                                        
@@ -1315,8 +1469,12 @@ if __name__ == '__main__':
                                             raw_read.append(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name]][rep+"_rc"]["rawReads"])
                                             if( rep in names_test_replicates_for_raw_count) :
                                                 raw_read_test.append(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name]][rep+"_rc"]["rawReads"])
+                                                rpkm_test.append(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name]][rep+"_rc"]["rpkm"])
+                                                
                                             if( rep in names_control_replicates_for_raw_count) :
                                                 raw_read_control.append(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name]][rep+"_rc"]["rawReads"])
+                                                rpkm_control.append(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name]][rep+"_rc"]["rpkm"])
+
 
                                         features.extend([
                                                           analysis_to_ucscKey[analyse_name_bis]
@@ -1329,7 +1487,7 @@ if __name__ == '__main__':
                                                           #,"::".join(str(x) for x in catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["incLevel1"])+"|"+"::".join(str(x) for x in catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["incLevel2"])
                                                           ,"{0:.2f}".format(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["psiLevel1"])
                                                           ,"{0:.2f}".format(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["psiLevel2"])
-                                                          ,"{0:.2f}".format(float(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["diffinc"]))
+                                                          ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["diffinc"]
                                                           ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["probability"]
 
                                                           ,catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["complexity"]
@@ -1346,6 +1504,8 @@ if __name__ == '__main__':
                                                             #,"::".join(str(x) for x in raw_read)
                                                             ,"{0:.2f}".format(statistics.mean(raw_read_test))
                                                             ,"{0:.2f}".format(statistics.mean(raw_read_control))
+                                                             ,"{0:.2f}".format(statistics.mean(rpkm_test))
+                                                            ,"{0:.2f}".format(statistics.mean(rpkm_control))
                                                            #,(sum(raw_read)/catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["gene_size"])
                                                           
 
@@ -1406,9 +1566,10 @@ if __name__ == '__main__':
 
         logger.info("     Bed output : "+bed_output_gene)
         bed_list = open(bed_output_gene, 'w')
-
+        #['https://genome-euro.ucsc.edu/cgi-bin/hgTracks?hgS_doOtherUser=submit&hgS_otherUserName=jp&hgS_otherUserSessionName=EMT_RNASEQ_hg38 _NORM&position=chr8:93740629-93740696&highlight=hg38.chr8:93740629-93740696', 'INC', 'SE', 'RBM12B', 'ENSG00000183808', 'chr8\t93740629\t93740696\t0.2972_RBM12B\t0.2972\t-', '-', 'protein_coding', 7618, 68, '3', '7', '1::2::1', 'chr8:93740629-93740696:-', '45.0::28.0|31.0::34.0', '0.607::0.647|0.289::0.331', '0.62', '0.32', '0.30', '0.995', 'K2', '-0.525', '0.00299119455096424', '3949.00', '5391.00', '7.79', '12.42']
         for line in lines_for_my_tab :
             #logger.info(line[5]) # ajout 4
+            #print(line)
             elements = line[5].split("\t")
             elements[1]= str(int(elements[1])-1) # Correction for the bed to be 0-based (map(float,read_control))
             #print(line[12].split("::"))
@@ -1417,15 +1578,26 @@ if __name__ == '__main__':
             bed_list.write("\t".join(elements)+"\n")
 
         bed_list.close()
-        
+       
+        #############################################
+        #############################################
         postitionGenomiceExon=init.parameters['postitionGenomicExon']
+        # I do not need this anymore : old stuff when i was using RMATs AND WHIPPET TOGETHER parameters.event+"_TMP_"+clean_tab_name+".bed"
+        # SE_TMP_MANT_RIBO.MCF10A.TAMOXIFEN.SNAIL.TEST.1_vs_MANT_RIBO.MCF10A.TAMOXIFEN.SNAIL.CONTROL.0.bed 
+        # clean_usion FINAL_TMP_final.sorted.merged.bed inside merge.and.clean.splicing.sh
+        
         #FINAL a la place de tab
-        output_crosslink=config.parameters['path_to_output']+"/FINAL/"+parameters.event+"/"+parameters.event+"_"+clean_tab_name+"_posRewrited.bed"
-        proc_intersect = subprocess.run(("bedtools intersect -loj -a "+bed_output_gene+" -b "+postitionGenomiceExon+ " > "+output_crosslink),shell=True, check=True) 
-        write_subprocess_log(proc_intersect,logger)
-        subprocess.run(("rm "+bed_output_gene),shell=True)
-        rewriteBed(output_crosslink,bed_output_gene)
-        subprocess.run(("rm "+output_crosslink),shell=True)
+        #output_crosslink=config.parameters['path_to_output']+"/FINAL/"+parameters.event+"/"+parameters.event+"_"+clean_tab_name+"_posRewrited.bed"
+        #proc_intersect = subprocess.run(("bedtools intersect -loj -a "+bed_output_gene+" -b "+postitionGenomiceExon+ " > "+output_crosslink),shell=True, check=True) 
+        #write_subprocess_log(proc_intersect,logger)
+        
+        #subprocess.run(("rm "+bed_output_gene),shell=True)
+        
+        #rewriteBed(output_crosslink,bed_output_gene)
+        
+        #subprocess.run(("rm "+output_crosslink),shell=True)
+        #############################################
+        #############################################
         
         workbook = writer.book
 

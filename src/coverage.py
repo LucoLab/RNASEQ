@@ -575,7 +575,7 @@ if __name__ == '__main__':
         catalog = complete_with_raw_read_count(config.parameters["read_count_matrice"], catalog,names_test_replicates_for_raw_count,names_control_replicates_for_raw_count)
         
         #logger.info(catalog)
-        catalog,cutOffDict = complete_with_quantif(return_all_uniq_replicates_object(config.parameters["samples_for_quantification"]), catalog,parameters.tpmNumber)
+        #catalog,cutOffDict = complete_with_quantif(return_all_uniq_replicates_object(config.parameters["samples_for_quantification"]), catalog,parameters.tpmNumber)
        
         #pp.pprint(catalog)
         lines = []

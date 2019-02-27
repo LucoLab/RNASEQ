@@ -17,11 +17,19 @@ import numpy as np
 import os
 import statistics
 from pathlib import Path
+from decimal import Decimal
 
 
 ###########################################################################################################
 ########################################   Functions   ####################################################
 ###########################################################################################################
+def round_float(v, ndigits=2, rt_str=False):
+    d = Decimal(v)
+    v_str = ("{0:.%sf}" % ndigits).format(round(d, ndigits))
+    if rt_str:
+        return v_str
+    return Decimal(v_str)
+
 def write_subprocess_log(completedProcess,logger):
     """
     Write in log the stdout or stderr of subprocess.
@@ -103,8 +111,12 @@ def selectTheHighestScore(elements) :
         dpsi_retained =  min(map(float, arrayOfSignal))
     elif  ( sens == "pos" ):
         dpsi_retained =  max(map(float, arrayOfSignal))
- 
-    index = arrayOfSignal.index(str(dpsi_retained))
+    
+    #logger.info(elements)
+    #logger.info("{:.2f}".format(dpsi_retained))
+
+    index = arrayOfSignal.index("{:.2f}".format(dpsi_retained))
+    
     #logger.info(index)
 
     selectedEvent = "\t".join([elements[0],elements[3].split(",")[index] ,elements[4].split(",")[index],elements[5].split(",")[index],elements[6].split(",")[index],elements[7].split(",")[index]])+"\n"
@@ -185,8 +197,8 @@ if __name__ == '__main__':
             if ',' not in line:
 
                 myresultfile.write("\t".join([elements[0],elements[1],elements[2],elements[5],elements[6],elements[7]]))
-                ensembl=elements[5].split("_")[2]
-                name=elements[5].split("_")[1]
+                ensembl =  elements[5].split("_")[2]
+                name    =  elements[5].split("_")[1]
 
             else :
             #chr1    77947452    77947552    77947452,77947452    77947547,77947552    0.223_FUBP1_ENSG00000162613_0.49_22,0.225_FUBP1_ENSG00000162613_0.49_22    0.223,0.225    -,-
@@ -196,11 +208,15 @@ if __name__ == '__main__':
 
                     continue
                 #logger.info("YourAreIn")
+                #logger.info("############################################### ")
+                #logger.info("########### ---FOR A5SS ,or IR happen -- ######## ")
+                #logger.info("############################################### ")
+                #logger.info(line)
 
                 myresultfile.write(selectedEvent)
                 elementsBis = selectedEvent.split("\t")
-                ensembl=elementsBis[3].split("_")[2]
-                name=elementsBis[3].split("_")[1]
+                ensembl     = elementsBis[3].split("_")[2]
+                name        = elementsBis[3].split("_")[1]
                 #chr1    6886239   6886346    0.282_CAMTA1_ENSG00000171735_0.09_8    0.282    +
                 countLinesOverlaped+=1
                 #garbage.write(line)
@@ -226,5 +242,6 @@ if __name__ == '__main__':
             myfilegeneEnsembl.write (mygene.split("\t")[1])     
         myfilegeneEnsembl.close()
         myfilegeneSymbol.close()
+        
     logger.info("Clean Fusion finished !")
 
