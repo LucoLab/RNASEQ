@@ -1574,7 +1574,7 @@ if __name__ == '__main__':
             elements[1]= str(int(elements[1])-1) # Correction for the bed to be 0-based (map(float,read_control))
             #print(line[12].split("::"))
             #Control.Predicted.PSI -> 
-            elements[3]=  "{0:.2f}".format(float(elements[3].split("_")[0]))+"_"+elements[3].split("_")[1]+"_"+line[4]+"_"+line[17]+"_"+str(min(map(int, line[12].split("::"))))
+            elements[3]=  elements[3].split("_")[0]+"_"+elements[3].split("_")[1]+"_"+line[4]+"_"+line[17]+"_"+str(min(map(int, line[12].split("::"))))
             bed_list.write("\t".join(elements)+"\n")
 
         bed_list.close()
