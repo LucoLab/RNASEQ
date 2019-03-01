@@ -722,12 +722,22 @@ if __name__ == '__main__':
             end_type="pairedEnd"
 
         # GO READ SOMEWHERE read library in at least one file randomly choosen because they all should be the same for a same project 
+        logger.info("Remove trimmed fastq")
+
         proc_find = subprocess.getoutput(("find "+path+"output/"+projet_id+" -maxdepth 3 -name lib_format_counts.json"))
         proc_find = proc_find.split("\n")
         logger.info(("\nfind "+path+"output/"+projet_id+" -maxdepth 3 -name lib_format_counts.json"))
         logger.info(proc_find[0])
         
         libType = read_salmon_output_for_libtype(proc_find[0],end_type)
+
+        proc_find_trimmed1 = subprocess.getoutput(("find "+path+"output/"+projet_id+" -maxdepth 3 -name *val_1.fq.gz"))
+        proc_find_trimmed1 = proc_find_trimmed1.split("\n")
+        logger.info(logger.info(proc_find_trimmed1))
+
+        proc_find_trimmed2 = subprocess.getoutput(("find "+path+"output/"+projet_id+" -maxdepth 3 -name *val_2.fq.gz"))
+        proc_find_trimmed2 = proc_find_trimmed2.split("\n")
+        logger.info(logger.info(proc_find_trimmed2))
 
         write_diff_exp_conf(project,projet_id,path,hash_fc,analysis,samples_by_project_conditions,libType)
     
@@ -758,7 +768,11 @@ if __name__ == '__main__':
             write_subprocess_log(coverageAnalyse_exec,logger)
             ##########################################################################################
 
-   
+        logger.info("Move Comparison to a project folder with FINAL name")
+        move ="mv "+path+"/"+comparison+" "+path+"output/"+projet_id+"/FINAL"
+        subprocess.run(move,shell=True)
+        logger.info(move) 
+        
         cwd = os.getcwd()
        
         if projet_id not in reads_for_rmats : reads_for_rmats[projet_id] = {}
@@ -791,20 +805,5 @@ if __name__ == '__main__':
         subprocess.run(("mv "+path+projet_id+"*.json "+path+"/configs/"+projet_id ),shell=True)
         subprocess.run(("mv "+path+projet_id+"*.log* "+path+"/logs/"+projet_id ),shell=True)
 
-        logger.info("\n-> Remove Cut & trimmed unzipped readfile \n")
-        '''
-        for indice in [0,1] :
-                
-            for pathToUnzippedreadFile in reads_for_rmats[projet_id][indice] :
-                
-                # Paired
-                if (":" in pathToUnzippedreadFile) :
-                    
-                    subprocess.run(("rm "+pathToUnzippedreadFile.split(":")[0]),shell=True)
-                    subprocess.run(("rm "+pathToUnzippedreadFile.split(":")[1]),shell=True)
-
-                else :
-                    
-                    subprocess.run(("rm "+pathToUnzippedreadFile),shell=True)
-        '''
-
+        logger.info("\n-> FINAL END \n")
+      

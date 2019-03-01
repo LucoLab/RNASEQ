@@ -109,6 +109,9 @@ def get_position_exons(ext) :
                 position_list.append(str(v))
                 nb_exon_transcripts=nb_exon_transcripts+1
     
+    # Correct a bug for TS or TE
+    if(len(position_list)==0):
+        position_list.append(str(0))
     # Remove if first or last
     skip = 0
     #decodedObjects = r.json()
@@ -924,7 +927,7 @@ def complete_with_raw_read_count_and_norm(matrice_path,dict_for_analysis,names_t
             for control in names_control_replicates :
                 raw_read_count[ensembl_id].update( { control+"_rc"  : {"rawReads":"NaN","rpkm":"NaN"} })
             for test in names_test_replicates :
-                raw_read_count[ensembl_id].update( { test+"_rc"  : {"rawReads":"NaN","rpkm":"Nan"} })            
+                raw_read_count[ensembl_id].update( { test+"_rc"  : {"rawReads":"NaN","rpkm":"NaN"} })            
 
 
     #pp = pprint.PrettyPrinter()
@@ -1467,6 +1470,7 @@ if __name__ == '__main__':
                                         for rep in myreplicates :
                                             #logger.info(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name_bis]])
                                             raw_read.append(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name]][rep+"_rc"]["rawReads"])
+                                            
                                             if( rep in names_test_replicates_for_raw_count) :
                                                 raw_read_test.append(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name]][rep+"_rc"]["rawReads"])
                                                 rpkm_test.append(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name]][rep+"_rc"]["rpkm"])
@@ -1474,8 +1478,35 @@ if __name__ == '__main__':
                                             if( rep in names_control_replicates_for_raw_count) :
                                                 raw_read_control.append(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name]][rep+"_rc"]["rawReads"])
                                                 rpkm_control.append(catalog[analyse_name][event][analysis_to_ucscKey[analyse_name]][rep+"_rc"]["rpkm"])
+                                                
+                                        # Control over RPKM
+                                        '''
+                                        if(rpkm_test>rpkm_control and raw_read_test<raw_read_control) :
+                                            logger.info(catalog[analyse_name][event][id_ucsc]["Ensembl"])
+                                            logger.info(analysis_to_ucscKey)
 
+                                            logger.info("WHAT THE FUCK WITH READ NUMBER AND RPKM ")
+                                            logger.info("rpkm ")
+                                            logger.info(rpkm_control)
+                                            logger.info(rpkm_test)
+                                            logger.info("read ")
+                                            logger.info(raw_read_control)
+                                            logger.info(raw_read_test)
+                                            exit(1)
+                                            
+                                        if(rpkm_test<rpkm_control and raw_read_test>raw_read_control) :
+                                            logger.info(catalog[analyse_name][event][id_ucsc]["Ensembl"])
+                                            logger.info(analysis_to_ucscKey)
 
+                                            logger.info("WHAT THE FUCK WITH READ NUMBER AND RPKM ")
+                                            logger.info("rpkm ")
+                                            logger.info(rpkm_control)
+                                            logger.info(rpkm_test)
+                                            logger.info("read ")
+                                            logger.info(raw_read_control)
+                                            logger.info(raw_read_test)
+                                            exit(1)
+                                        '''   
                                         features.extend([
                                                           analysis_to_ucscKey[analyse_name_bis]
                                                           ,str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["test_all_reads"]).replace(",","::")+"|"+str(catalog[analyse_name_bis][event][analysis_to_ucscKey[analyse_name_bis]]["control_all_reads"]).replace(",","::")
@@ -1569,8 +1600,10 @@ if __name__ == '__main__':
         #['https://genome-euro.ucsc.edu/cgi-bin/hgTracks?hgS_doOtherUser=submit&hgS_otherUserName=jp&hgS_otherUserSessionName=EMT_RNASEQ_hg38 _NORM&position=chr8:93740629-93740696&highlight=hg38.chr8:93740629-93740696', 'INC', 'SE', 'RBM12B', 'ENSG00000183808', 'chr8\t93740629\t93740696\t0.2972_RBM12B\t0.2972\t-', '-', 'protein_coding', 7618, 68, '3', '7', '1::2::1', 'chr8:93740629-93740696:-', '45.0::28.0|31.0::34.0', '0.607::0.647|0.289::0.331', '0.62', '0.32', '0.30', '0.995', 'K2', '-0.525', '0.00299119455096424', '3949.00', '5391.00', '7.79', '12.42']
         for line in lines_for_my_tab :
             #logger.info(line[5]) # ajout 4
-            #print(line)
+            #logger.info(line)
             elements = line[5].split("\t")
+            #logger.info(elements)
+
             elements[1]= str(int(elements[1])-1) # Correction for the bed to be 0-based (map(float,read_control))
             #print(line[12].split("::"))
             #Control.Predicted.PSI -> 
