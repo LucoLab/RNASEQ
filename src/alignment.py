@@ -392,11 +392,11 @@ if __name__ == '__main__':
             write_subprocess_log(proc_fastqc_single,logger)
 
             logger.info((
-                "trim_galore --fastqc --output_dir "+trim_galore_output+" " \
+                "trim_galore --fastqc --cores 4 --output_dir "+trim_galore_output+" " \
                 +config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R1']))
             
             proc_fastqc_single_trim = subprocess.run((
-               "trim_galore --fastqc --output_dir "+trim_galore_output+" " \
+               "trim_galore --fastqc --cores 4 --output_dir "+trim_galore_output+" " \
                 +config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R1'])
                  ,stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             
@@ -436,12 +436,13 @@ if __name__ == '__main__':
             
             write_subprocess_log(proc_fastqc_paired_R2,logger)
             
+            # trim_galore option cores 4 is added in version 0.6
             logger.info((
-                "trim_galore --paired --fastqc --output_dir "+trim_galore_output+" " \
+                "trim_galore --paired --fastqc --cores 4  --output_dir "+trim_galore_output+" " \
                 +config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R1']+' '+config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R2']))
             
             proc_fastqc_paired_trim = subprocess.run((
-               "trim_galore --paired --fastqc --output_dir "+trim_galore_output+" " \
+               "trim_galore --paired --fastqc --cores 4  --output_dir "+trim_galore_output+" " \
                 +config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R1']+' '+config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R2'])
                  ,stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True,shell=True)
             
@@ -744,6 +745,8 @@ if __name__ == '__main__':
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/"+config.parameters['final_bam_name']+".bam" ),shell=True)
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*_Aligned.sortedByCoord.out.bam" ),shell=True)
     subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*.wig" ),shell=True)
+    subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*Multiple*.bw" ),shell=True)
+
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*.bam" ),shell=True)
     #subprocess.run(("rm "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/*.bam.bai" ),shell=True)
 

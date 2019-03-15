@@ -731,14 +731,23 @@ if __name__ == '__main__':
         
         libType = read_salmon_output_for_libtype(proc_find[0],end_type)
 
+        
+        logger.info("Remove trimmed fastq")
+
         proc_find_trimmed1 = subprocess.getoutput(("find "+path+"output/"+projet_id+" -maxdepth 3 -name *val_1.fq.gz"))
         proc_find_trimmed1 = proc_find_trimmed1.split("\n")
         logger.info(logger.info(proc_find_trimmed1))
 
+        for  fastq1 in proc_find_trimmed1:
+            subprocess.run(("rm "+fastq1),shell=True)
+
         proc_find_trimmed2 = subprocess.getoutput(("find "+path+"output/"+projet_id+" -maxdepth 3 -name *val_2.fq.gz"))
         proc_find_trimmed2 = proc_find_trimmed2.split("\n")
         logger.info(logger.info(proc_find_trimmed2))
-
+        
+        for  fastq2 in proc_find_trimmed2:
+            subprocess.run(("rm "+fastq2),shell=True)
+        
         write_diff_exp_conf(project,projet_id,path,hash_fc,analysis,samples_by_project_conditions,libType)
     
         logger.info("\n-> Differential Expression \n")
