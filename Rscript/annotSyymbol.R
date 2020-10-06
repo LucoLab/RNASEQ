@@ -54,8 +54,8 @@ if (length(opt) != 3 ) {
 
 
 # COUNT DATA & SAMPLE DESIGN
-sampleTable <- try(read.table(opt$file ,sep="\t",header=TRUE), silent = TRUE)
-
+sampleTable <- try(read.table(opt$file ,sep="\t",header=TRUE,na.strings = " "), silent = TRUE)
+head(sampleTable)
 if (!inherits(sampleTable, 'try-error')){ 
 
 organism = ""
@@ -73,7 +73,7 @@ if (opt$organism=="human") {
 	print("Organism : Human")
 
 	organism = "hsapiens_gene_ensembl"
-	host="jul2016.archive.ensembl.org"
+	host="jul2016.archive.ensembl.org" #"jul2016.archive.ensembl.org useast.ensembl.org
 	symbol_description='hgnc_symbol'
 
 }
@@ -81,6 +81,8 @@ if (opt$organism=="human") {
 # BIOMART OBJECT
 edb = useMart("ENSEMBL_MART_ENSEMBL", dataset=organism,host=host)
 colnames(sampleTable)[colnames(sampleTable) == 'gene'] <- 'ensembl_gene_id'
+colnames(sampleTable)[colnames(sampleTable) == 'Gene'] <- 'ensembl_gene_id'
+
 
 
 # Retrieve gene infos And entrezeneId needed fr KEGGPATHWAY

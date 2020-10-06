@@ -503,19 +503,20 @@ if __name__ == '__main__':
             #https://github.com/alexdobin/STAR/issues/143
             #Default pairend' abc'.translate(str.maketrans('ac','xy'))
             opt_input=" --readFilesIn "+trim_galore_output+'/'+config.parameters['files'][group_pair]['R1'].replace('.fastq','_val_1.fq')+" "+trim_galore_output+'/'+config.parameters['files'][group_pair]['R2'].replace('.fastq','_val_2.fq')+" "
-            #opt_input=" --readFilesIn <(zcat "+config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R1']+") <(zcat  "+config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R2']+") "
+            #opt_input=" --readFilesIn <\(zcat "+config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R1']+"\) <\(zcat  "+config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R2']+"\) "
 
             if (config.parameters["type"] == "singleEnd") :
                 logger.info('=========> SINGLE END')
 
                 opt_input=" --readFilesIn "+trim_galore_output+'/'+config.parameters['files'][group_pair]['R1'].replace('.fastq','_trimmed.fq')+" "
-                #opt_input=" --readFilesIn <(zcat "+config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R1']+") "
+                #opt_input=" --readFilesIn <\(zcat "+config.parameters['path_to_input']+''+config.parameters['files'][group_pair]['R1']+"\) "
 
             # --sjdbFileChrStartEnd For the second pass
             logger.info(config.parameters['softs']['star'] \
                 +" --runThreadN "+config.parameters['star']['runThreadN']         \
                 +" --genomeDir "+config.parameters['star']['genomeDir']         \
-                +opt_input         \
+                +opt_input 
+                +"--outTmpDir  /home/jean-philippe.villemin/data/data/tmp_star/  "  \
                 +opt_gzippedFile      \
                 +" --outFileNamePrefix "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/"+config.parameters['final_bam_name']+"_"        \
                 +" --outSAMtype "+config.parameters['star']['outSAMtype']      \
@@ -530,7 +531,11 @@ if __name__ == '__main__':
                 +" --runThreadN "+config.parameters['star']['runThreadN']         \
                 +" --genomeDir "+config.parameters['star']['genomeDir']         \
                 +opt_input         \
-                +opt_gzippedFile      \
+                +opt_gzippedFile      
+                + "--outTmpDir  /home/jean-philippe.villemin/data/data/tmp_star/  "  \
+
+                #https://github.com/alexdobin/STAR/issues/143
+
                 +" --outFileNamePrefix "+config.parameters['path_to_output']+outputdirname+"/"+config.parameters['final_bam_name']+"/"+"star_output"+"/"+config.parameters['final_bam_name']+"_"        \
                 +" --outSAMtype "+config.parameters['star']['outSAMtype']      \
                 +" --quantMode GeneCounts"        \

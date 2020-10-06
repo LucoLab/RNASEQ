@@ -347,7 +347,7 @@ def parse_all_splicing_files(path_to_dir,list_as_type,dict_for_analysis, readsNu
                     
                     size_sample_control_wtNA = len(list_control)
                     size_sample_test_wtNA    = len(list_test)
-                   
+                    
                     test = 0
                     
                     for totReadTest in list_test :

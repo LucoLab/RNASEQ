@@ -30,9 +30,9 @@ option_list = list(
               help="dataset file name", metavar="character"),
   make_option(c("-d", "--dir"), type="character", default="output", 
               help="directory name of output [default= %default]", metavar="character"),
-  make_option(c("-cd1", "--cond1"), type="character", 
+  make_option(c("-1", "--cond1"), type="character", 
               help="first condition to use for comparison ", metavar="character"),
-  make_option(c("-cd2", "--cond2"), type="character", 
+  make_option(c("-2", "--cond2"), type="character", 
               help="second condition to use for comparison ", metavar="character"),
   make_option(c("-e", "--exploration"),  action="store_true" , default = FALSE,
               help="Only Explore data...default False")
@@ -522,7 +522,7 @@ ggplot(data, aes(PC1, PC2,  shape=condition)) +   geom_point(size=3) +
 #poissonMDS <- ggplot(mdsPois, aes(X1,X2,shape=condition)) + geom_point(size=3)
 #poissonMDS + ggtitle("MDS - PoissonDistance values")
 
-#dev.off()
+dev.off()
 
 
 #we test for genes that show significant effects of treatment 
