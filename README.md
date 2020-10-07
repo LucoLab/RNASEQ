@@ -14,9 +14,10 @@ Transcription Analysis Plus Alternative Splicing for RNA-SEQ
 ---
 
 <p align="center">1. Quick overview</p>
-<p align="center">2. Create Init File</p>
-<p align="center">3. Set up Tools</p>
-<p align="center">4. Set up Annotation Files</p>
+<p align="center">2. Create Listing File</p>
+<p align="center">3. Create Init File</p>
+<p align="center">4. Set up Tools</p>
+<p align="center">5. Set up Annotation Files</p>
 
 ## Quick overview
 
