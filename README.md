@@ -8,7 +8,7 @@ Transcription Analysis Plus Alternative Splicing for RNA-SEQ
 =============
 
 
-[TAPAS](https://github.com/LucoLab/RNASEQ) is the worklow we use in the lab to process RNA-SEQ.
+[TAPAS](https://github.com/LucoLab/RNASEQ) is the workflow we use in the lab to process RNA-SEQ.
 
 
 ---
@@ -20,55 +20,91 @@ Transcription Analysis Plus Alternative Splicing for RNA-SEQ
 
 ## Quick overview
 
-
-From a list of features written in a text file for your RNA-SEQ Projects, you can launch :
+One command is used to launch all the steps :
 
 - Alignment with STAR to generate bigWigs for visualisation
-- Transcript Quantification with SALMON 0.7.2
 - Differential Expression with DESEQ2
 - Splicing Analysis with WHIPPET 10.4
-- Splicing Analysis with RMATS 3.5.2
 - Custom filters, formats ...
 
-![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/listing.png "Listing")
+```shell
+    python3 signature.py -l listofRnaSeqProject.tsv -i init_disciplus.json
+```
 
+You end with bed files/excel describing spliced exons between two conditions.
+
+Two files need to be created before.
+
+
+## Create listing File 
+
+![alt text](https://github.com/LucoLab/RNASEQ/blob/master/img/listing.png "Listing")
 
 - **STUDY :** Can be anything you want.
 - **RUNACCESSION :** Can be anything you want.
 - **LIBRARY_LAYOUT :** KeyWords to use are "PAIRED" or "SINGLE"
-- **FASTQ :** Absolute path to your dataset or ftp url to download automatically, if paired-end it can be data_1_fastq.gz;data_2_fastq.gz  or data_R1_fastq.gz;data_R2_- fastq.gz 
+- **FASTQ :** Absolute path to your dataset or ftp url to download automatically, if paired-end it can be data_1_fastq.gz;data_2_fastq.gz  or data_R1_fastq.gz;data_R2_fastq.gz 
 - **TREATMENT :** Anything you want
 - **CELL_LINE :** Anything you want
 - **CONDITION :** Keywords to use are "TEST" and "CONTROL"
 - **REP_NUMBER :** should be 1,2,3 or rep1, rep2, rep3
 - **TREATMENT_DAY :** A number.
-- **KMER :** Keywords to use are "normal" or "short". Short is used when read are less than 50 and you want to give a try with whippet with lowers index value for kmersize.
+- **KMER :** Keywords to use are "normal" or "short". Use "normal" everytime. Short is used when read are less than 50 and you want to give a try with whippet with lowers index value for kmersize.
 
 Column names has to be the sames as showed in the picture. The order of the columns can be changed.
 
-One command is used to launch all the steps :
 
-```shell
-    python3 signature.py -l listofRnaSeqProject.tsv
-```
+__Very Important__  
 
+1. You create a directory where you put your fastq files. The results will be in this directory. "Output" path in init.json must be the same as in listing.tsv in column fastq. Input and Output directories sould be the same. 
 
-You end with bed files describing exons more splice In or splice Out between two conditions.
-
-Each step can be launched separately if you need to (nevertheless previous steps need to be completed).
+2. You also have to create a directory called FINAL in this directory.
 
 
 ## Create Init File 
 
 
-You need to set up a _init.json_ file inside a directory called _config_ in the RNA-SEQ code directory. You will set up path to softwares and other annotation files.
+You need to set up a _init.json_ . You will set up path to softwares and other annotation files.
 
 First of all, you need to change init.json inside config directory to set up correctly paths and files.
+
+
+
+## Under the Hood / Go Fast 
+
+
+Whippet works in two commands. First you create the .psi files with _whippet-quant.jl_
+
+Then you do a differential analysis using _whippet-delta.jl_ to create a .diff file.
+
+Finally, you apply fancy filters to keep reliable events. (P>=0.95, only CE , |dpsi| >= 0.1)
+
+A Rscript (annotSymbol.R) is used to add the gene symbol.
+
+```shell
+
+/home/jean-philippe.villemin/bin/julia-6/julia /home/jean-philippe.villemin/bin/Whippet.0.10.4/bin/whippet-quant.jl -x /home/jean-philippe.v
+illemin/data/data/index_whippet/julia-6/human/9kmer/index_whippet  path2/A_1.fastq.gz path2/A_2.fastq.gz -o path2/A
+
+/home/jean-philippe.villemin/bin/julia-6/julia /home/jean-philippe.villemin/bin/Whippet.0.10.4/bin/whippet-delta.jl -a A.psi.gz,B.psi.gz,C.psi.gz -b D.psi.gz,E.psi.gz,F.psi.gz
+
+PATH2=/somewhereYouMustConfig/
+FILE=output
+TYPE="CE"
+
+/usr/bin/gawk -F "\t"  'BEGIN {OFS="\t";}  {  if ( match($1, "^(\\w+)\\.([0-9]+)", ary) && $5=="CE" && sqrt($8*$8) >= sqrt(0.1*0.1) && $9 >= 0.95) print  ary[1],$3,$4,$5,$6,$7,$8,$9,$10,$11 ; }' ${PATH2}${FILE}.diff > ${PATH2}${FILE}.clean.${TYPE}.diff
+/bin/sed -i $'1 i\\\ngene\tcoordinates\tstrand\tevent\tpsiA\tpsiB\tdpsi\tprobability\tcomplexity\tentropy'  ${PATH2}${FILE}.clean.${TYPE}.diff
+Rscript /home/luco/work/annotSymbol.R --organism=human --file=${PATH2}${FILE}.clean.CE.diff
+/usr/bin/gawk -F ","  'BEGIN {OFS="_";}  {  print $2,$1,$4; }'  ${PATH2}${FILE}.clean.${TYPE}.diff.annoted.csv > ${PATH2}${FILE}.final.txt
+```
+
+---
+
+The next part explain if you start from scrath what you need to reinstall or the files called in init.json you need.
 
 You will need to download some files from Gencode, create a genome Index with STAR (explain in Alignment part), and create some custom files for which scripts are provided to generate them before using the main pipeline.
 
 An example of the init.json is showed in config directory. In the _Set up Annotation Files_ section, you will find the files/path needed to complete it.
-
 
 ## Set up Tools
 
@@ -89,15 +125,6 @@ python3 --version
 Should return something like  : _Python 3.5.5 :: Anaconda custom (64-bit)_
 
 _**Conda**_ : [here](https://www.continuum.io/downloads)
-
-Conda make also easy the installation of a python2 environment that is also needed by the pipeline. (pysam module is needed also for Rmats use.)
-
-```
-conda create -n py2 python=2 anaconda
-
-conda install -n py2 pysam
-
-```
 
 
 
@@ -131,12 +158,8 @@ In julia :
 	using Whippet
 ```
 
-_**RMATS 3.2.5**_ : [here](http://rnaseq-mats.sourceforge.net/)
 
 _**bedtools**_ : Bed handler [here](http://bedtools.readthedocs.io/en/latest/index.html)
-
-
-You need to change in RNASeq-MATS.py the python call to path to python2 set with anaconda. You need also to change bash scripts in MATS directory(rMATS.sh,MATS_LRT.sh,rMATS_Paired.sh,rMATS_Unpaired.sh). Change python2 call to the path where python2 was created in anaconda environment.
 
 
 ## Set up Annotation Files
