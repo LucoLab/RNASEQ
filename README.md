@@ -69,9 +69,10 @@ You need to set up a _init.json_ . You will set up path to softwares and other a
 
 First of all, you need to change init.json inside config directory to set up correctly paths and files.
 
+---
 
 
-## Under the Hood / Go Fast 
+## Under the Hood / Go Fast for Splicing
 
 
 Whippet works in two commands. First you create the .psi files with _whippet-quant.jl_
@@ -99,69 +100,38 @@ Rscript /home/luco/work/annotSymbol.R --organism=human --file=${PATH2}${FILE}.cl
 /usr/bin/gawk -F ","  'BEGIN {OFS="_";}  {  print $2,$1,$4; }'  ${PATH2}${FILE}.clean.${TYPE}.diff.annoted.csv > ${PATH2}${FILE}.final.txt
 ```
 
+If you have discrepency with this go fast method and the pipeline it's because pipeline, remove some events that are on weakly expressed gene.
+
 ---
 
-The next part explain if you start from scrath what you need to reinstall or the files called in init.json you need.
+## Notes For Expression  
+
+Genes differentially expressed are with a | foldchange | > 1.5 and p-value-adjusted < 0.05
+
+You will find them in directory final.
+
+DESEQ_res_annotated_DE.csv (genes up and down significant)  
+
+DESEQ_all_res_annoted_sorted_pvalAdj.csv contains everything without filtering.
+
+In the outpout of STAR mapper, you will also have a file for TPM computed by TPMcalulator. gene_TPM.txt.  
+
+I used the column TPMexon.
+
+
+
+---
+
+The next part explain what you need to do if you start from scratch (softs to install, files to download or create)
 
 You will need to download some files from Gencode, create a genome Index with STAR (explain in Alignment part), and create some custom files for which scripts are provided to generate them before using the main pipeline.
 
-An example of the init.json is showed in config directory. In the _Set up Annotation Files_ section, you will find the files/path needed to complete it.
+An example of the init.json is showed in config directory.  
+In the next section, I explain all the files you need.
 
-## Set up Tools
-
-
-Check that the following tools are installed on server/computer.
-
-
-Scripts available here are in Python3.  
-It's  advised to install Conda if python3 is not set up on your computer.   
-It will make things easier then for installing tools or switching to older python version if needed.
-
-To be sure python3 is there, you can call it as follows : 
-
-```shell
-python3 --version
-```
-
-Should return something like  : _Python 3.5.5 :: Anaconda custom (64-bit)_
-
-_**Conda**_ : [here](https://www.continuum.io/downloads)
-
-
-
-Then you can install all tierce tools needed by the pipeline. See below.
-
-
-Follow the links below and look the _Set up tools_ paragraph for each section.
-
--ALIGNEMENT : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
-
--DIFF_EXPRESSION : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)  
-
-__NB__ : RMysql package need to be installed in R also.
-
--SPLICING :
-
-_**JULIA 0.6**_ : [here](https://julialang.org/downloads/)  
-
- ```shell
- 	wget https://julialang-s3.julialang.org/bin/linux/x64/0.6/julia-0.6.3-linux-x86_64.tar.gz
- 	tar -zxvf julia-0.6.3-linux-x86_64.tar.gz
- ```
-
-_**WHIPPET 10.4**_ : [here](https://github.com/timbitz/Whippet.jl)  
-
-In julia :  
-
-```shell
-	Pkg.update()
-	Pkg.add("Whippet")
-	using Whippet
-```
-
-
-_**bedtools**_ : Bed handler [here](http://bedtools.readthedocs.io/en/latest/index.html)
-
+---
+---
+---
 
 ## Set up Annotation Files
 
@@ -232,5 +202,65 @@ Rscript geneSize.R -f Yourannotation.gtf
 Now you can complete _postitionGenomicExon_ and _gene_length_ values in init.json.
 
 
+NB : Andrew pointed out you need to covert exons.non-redundant.csv to a bed format.
 
+--
+---
+---
+
+
+## Set up Tools
+
+
+Check that the following tools are installed on server/computer.
+
+
+Scripts available here are in Python3.  
+It's  advised to install Conda if python3 is not set up on your computer.   
+It will make things easier then for installing tools or switching to older python version if needed.
+
+To be sure python3 is there, you can call it as follows : 
+
+```shell
+python3 --version
+```
+
+Should return something like  : _Python 3.5.5 :: Anaconda custom (64-bit)_
+
+_**Conda**_ : [here](https://www.continuum.io/downloads)
+
+
+
+Then you can install all tierce tools needed by the pipeline. See below.
+
+
+Follow the links below and look the _Set up tools_ paragraph for each section.
+
+-ALIGNEMENT : [here](https://github.com/LucoLab/RNASEQ/blob/master/ALIGNEMENT.md)  
+
+-DIFF_EXPRESSION : [here](https://github.com/LucoLab/RNASEQ/blob/master/DIFF_EXP.md)  
+
+__NB__ : RMysql package need to be installed in R also.
+
+-SPLICING :
+
+_**JULIA 0.6**_ : [here](https://julialang.org/downloads/)  
+
+ ```shell
+ 	wget https://julialang-s3.julialang.org/bin/linux/x64/0.6/julia-0.6.3-linux-x86_64.tar.gz
+ 	tar -zxvf julia-0.6.3-linux-x86_64.tar.gz
+ ```
+
+_**WHIPPET 10.4**_ : [here](https://github.com/timbitz/Whippet.jl)  
+
+In julia :  
+
+```shell
+	Pkg.update()
+	Pkg.add("Whippet")
+	using Whippet
+```
+
+
+_**bedtools**_ : Bed handler [here](http://bedtools.readthedocs.io/en/latest/index.html)
 
